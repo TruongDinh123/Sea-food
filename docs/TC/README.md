@@ -56,6 +56,7 @@ docs/TC/
 | ID | Ngày | Loại | Tiêu đề | Ảnh hưởng | Status |
 |---|---|---|---|---|---|
 | [TC-0001](./TC-0001.md) | 2026-05-23 | chore | Khởi tạo cấu trúc dự án | Low | Done |
+| [TC-0002](./TC-0002.md) | 2026-05-24 | feat | Thiết lập cơ sở dữ liệu & migrations | Medium | Done |
 
 ---
 

@@ -40,3 +40,4 @@ Mỗi file tóm tắt bao gồm:
 | Phiên | Ngày | Nội dung chính | Link |
 |---|---|---|---|
 | Session 001 | 2026-05-23 | Phân tích ý tưởng, SEO Guide, Chiến lược 3 Trụ cột, Cấu trúc thư mục dự án | [Xem](./2026-05-23-session-001/SESSION_STATUS.md) |
+| Session 003 | 2026-05-24 | Cấu hình Supabase MCP, Migrations Database, Thư viện postgres, Connection pool singleton | [Xem](./2026-05-24-session-003/SESSION_STATUS.md) |

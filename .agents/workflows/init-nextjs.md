@@ -30,6 +30,36 @@ Hãy thực hiện các bước sau một cách tuần tự để khởi tạo d
 1. Tạo thư mục `src/lib` nếu chưa có.
 2. Tạo file `src/lib/env.ts` để kiểm tra các biến môi trường bắt buộc như `DATABASE_URL` khi khởi động dự án.
 
-## Bước 5: Build và kiểm tra
-1. Chạy `npm run build` để kiểm tra xem dự án có lỗi biên dịch (build error) hay linter error nào không.
-2. Báo cáo kết quả lại cho người dùng.
+## Bước 5: Build và Kiểm Tra (Self-Verification)
+
+```bash
+npm run build
+```
+
+- ✅ **Build thành công** → Dự án đã sẵn sàng. Báo cáo hoàn thành.
+- ❌ **Build fail** → Đọc lỗi, sửa ngay, chạy lại. Không để lại broken build.
+
+```bash
+npm run lint
+```
+
+- ✅ Không có warning/error → Tiếp tục.
+- ❌ Có lỗi → Sửa, chạy lại lint.
+
+### Checklist Init Hoàn Thành
+
+- [ ] `npm run build` → thành công
+- [ ] `npm run lint` → không có error
+- [ ] `.env.example` có đủ tất cả biến cần thiết
+- [ ] `.env.local` đã có (có thể rỗng hoặc đã điền)
+- [ ] Husky hook hoạt động — thử commit sai format để test
+- [ ] `src/lib/env.ts` validate biến môi trường khi khởi động
+
+### Bước Tiếp Theo Sau Init
+
+```
+Dự án khởi tạo xong → /dev-be-dat để tạo DB schema đầu tiên
+                     → /dev-fe-dinh để tạo layout và trang chủ
+```
+
+**Sau khi xong:** Cập nhật `docs/ky-uc/NOTES.md` với trạng thái khởi tạo và tech stack đã cài.

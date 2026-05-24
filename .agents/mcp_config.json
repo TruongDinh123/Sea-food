@@ -2,7 +2,32 @@
   "mcpServers": {
     "next-devtools": {
       "command": "npx",
-      "args": ["-y", "next-devtools-mcp@latest"]
+      "args": [
+        "-y",
+        "next-devtools-mcp@latest"
+      ]
+    },
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--read-only"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem@latest",
+        "e:/Web-Seo/src",
+        "e:/Web-Seo/docs",
+        "e:/Web-Seo/db"
+      ],
+      "description": "Governed filesystem access — chỉ cho phép đọc/ghi trong src/, docs/, db/. Không có quyền truy cập .env.local hoặc node_modules."
     }
   }
 }
