@@ -1,8 +1,19 @@
 {
   "enabled": true,
   "PreToolUse": [],
-  "PostToolUse": [],
-  "PreInvocation": [],
+  "PostToolUse": [
+    {
+      "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+      "command": "cmd /c \"npm run lint --silent 2>&1 | findstr /i error\" ",
+      "description": "Auto-check lint errors sau khi ghi file TypeScript/TSX/JS. Nếu có error → agent tự sửa trước khi báo cáo."
+    }
+  ],
+  "PreInvocation": [
+    {
+      "command": "cmd /c \"type docs\\ky-uc\\NOTES.md 2>nul | findstr /n \"Tr\u1ea1ng Th\u00e1i\\|B\u01b0\u1edbc ti\u1ebfp theo\\|\u0110ang l\u00e0m\" | head -5\" ",
+      "description": "Auto-load working memory context — hiển thị trạng thái hiện tại từ NOTES.md đầu mỗi invocation."
+    }
+  ],
   "PostInvocation": [],
   "Stop": []
 }

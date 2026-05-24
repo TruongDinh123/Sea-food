@@ -1,44 +1,60 @@
-# GEMINI.md — Quy Tắc Cấu Hình Antigravity & Quản Lý Ngữ Cảnh (Gemini Overrides)
-
-Tập tin này chứa cấu hình và hướng dẫn đặc thù cho các mô hình Gemini chạy trên hệ sinh thái **Google Antigravity** (IDE, CLI, SDK). Khi có xung đột với `AGENTS.md`, các cấu hình trong file này sẽ được ưu tiên áp dụng.
-
----
-
-## 🧠 Quy Trình Quản Lý Bộ Nhớ & Tránh Trôi Ngữ Cảnh (Memory Protocol)
-
-Để tránh hiện tượng trôi ngữ cảnh (Context Drift), phình token (Context Bloat), hai bên tuân thủ quy trình sau:
-
-### 1. Giới Hạn 5 Lượt Hội Thoại (5-Turn Reset Rule)
-*   **Ngưỡng giới hạn:** Một phiên trò chuyện (Conversation) không kéo dài quá **5 lượt tương tác** của Người dùng.
-*   **Hành động tại lượt thứ 5:**
-    1.  Tác tử phát cảnh báo: *"Chúng ta đã đạt giới hạn 5 lượt hội thoại để tối ưu bộ nhớ."*
-    2.  Tác tử tự động tạo/cập nhật file `docs/ky-uc/ky-uc-hien-tai/session-XXX/SESSION_STATUS.md` ghi lại:
-        *   Các file đã tạo/sửa đổi trong session.
-        *   Trạng thái hiện tại (build, test).
-        *   Các bước cần làm tiếp theo ở session mới.
-    3.  Tác tử nhắc người dùng tạo Conversation mới để làm sạch context.
-*   **Tại Conversation mới:** Người dùng chỉ cần yêu cầu tiếp tục, tác tử đọc `GEMINI.md`, `AGENTS.md` và `SESSION_STATUS.md` của session gần nhất để nối tiếp công việc.
-
-### 2. Ký Ức Dài Hạn (Durable Memory)
-*   Mọi tài liệu chiến lược, thiết kế database, phân tích API phải lưu trong folder `docs/plan/` hoặc `docs/api/`.
-*   Nhật ký thay đổi kỹ thuật (Technical Change) phải ghi nhận vào thư mục `docs/TC/` dưới dạng file `TC-XXXX.md`.
+# GEMINI.md — Antigravity-Specific Configuration
+# Ghi đè và mở rộng AGENTS.md cho Antigravity IDE
 
 ---
 
-## ⚙️ Cấu Hình Môi Trường Antigravity
+## 🤖 Ngôn Ngữ & Giao Tiếp
 
-*   **Artifact Review Policy:** Thiết lập chế độ `"Request Review"`. Mọi thay đổi về code hay plan cần được trình bày dưới dạng Artifact và chờ phê duyệt.
-*   **Terminal Sandboxing:** Luôn sử dụng terminal sandbox (`AppContainer` trên Windows) khi chạy các lệnh shell hoặc scripting bên ngoài.
-*   **Workspace Rules:** Tự động kích hoạt các quy tắc bổ trợ trong thư mục `.agents/rules/` theo Glob pattern (xem chi tiết định nghĩa cấu hình tại `.agents/rules/`).
-*   **Model Routing:** Khi viết bài SEO, ưu tiên gọi subagent sử dụng mô hình phù hợp để tối ưu chất lượng văn bản.
-
----
-
-## 🔌 Tích Hợp MCP & Custom Workflows
-
-*   **MCP Config:** Cấu hình server được định nghĩa tại `.agents/mcp_config.json`.
-*   **Workflows:** Các kịch bản prompt tự động hóa được lưu tại `.agents/workflows/`. Triển khai thông qua lệnh `/tên-workflow`.
+- Phản hồi với người dùng **bằng Tiếng Việt** trong mọi trường hợp.
+- Comment code nội bộ: Tiếng Việt.
+- Tên biến, hàm, component: **Tiếng Anh** (theo coding convention).
 
 ---
 
-*Ngày cập nhật: 2026-05-23 | Antigravity-native Config*
+## 📦 Artifact Rules
+
+- **Implementation Plan** → lưu tại `docs/ke-hoach/implementation_plan.md`
+- **Task Tracking** → lưu tại `docs/ke-hoach/task.md`
+- **Session Memory** → lưu tại `docs/ky-uc/ky-uc-hien-tai/`
+- **Walkthrough / Báo cáo hoàn thành** → lưu tại `docs/ky-uc/ky-uc-hien-tai/<yyyy-mm-dd-session-XXX>/walkthrough.md`
+
+---
+
+## 🎨 Design Overrides
+
+- **TailwindCSS:** Ưu tiên v4 **css-first** (`@theme` trong `globals.css`). **Không** dùng `tailwind.config.js` trừ khi v4 không hỗ trợ tính năng cần thiết.
+- **Font chữ:** Mặc định dùng `Be Vietnam Pro` từ Google Fonts cho giao diện Tiếng Việt.
+- **Màu chủ đạo:** `#0D6EFD` (xanh biển), `#198754` (xanh lá - tôn lên hải sản tươi), nền trắng/xám nhạt.
+
+---
+
+## 🏗️ Agent Architecture — Phân Vai (Role Assignment)
+
+Dự án sử dụng mô hình **Orchestrator-Worker** với các vai sau:
+
+| Vai (Role) | Workflow | Phạm vi (Domain) |
+|---|---|---|
+| **Tech Lead** | `/tech-lead-an` | Kiến trúc, review PR, quyết định kỹ thuật |
+| **Backend Dev** | `/dev-be-dat` | `src/lib/`, `src/app/api/`, `db/` |
+| **Frontend Dev** | `/dev-fe-dinh` | `src/app/`, `src/components/`, `public/` |
+| **DevOps** | `/dev-ops-duc` | Deployment, CI/CD, `next.config.ts` |
+| **QA Engineer** | `/qa-vi` | Testing, kiểm tra chất lượng |
+| **Product Manager** | `/pm-quan` | Yêu cầu, backlog, acceptance criteria |
+| **BA / Sprint** | `/ba-sprint` | Phân tích, user story, sprint planning |
+
+---
+
+## 🔒 Safety Overrides (Ưu tiên hơn AGENTS.md)
+
+- **Tuyệt đối không** chạy `DROP TABLE`, `TRUNCATE`, `DELETE` không có `WHERE` mà không có approval.
+- **Tuyệt đối không** commit trực tiếp lên branch `main`. Mọi thay đổi phải qua nhánh feature.
+- **Trước khi chạy migration:** Phải thông báo rõ SQL sẽ thực thi và chờ user xác nhận.
+- **File `.env.local`:** Chỉ đọc để debug, **không bao giờ** ghi đè hay in ra terminal.
+
+---
+
+## 🧠 Memory & Persistence
+
+- **Bắt đầu phiên mới:** Đọc file `docs/ky-uc/ky-uc-hien-tai/SESSION_STATUS.md` (nếu tồn tại) để nắm ngữ cảnh.
+- **Kết thúc phiên:** Chạy workflow `/handoff` để lưu trạng thái.
+- **Tiếp tục phiên cũ:** Dùng workflow `/resume`.

@@ -1,47 +1,71 @@
 ---
 name: seafood-content
-description: Tự động hóa viết bài viết, blog và mô tả sản phẩm chuẩn SEO chất lượng cao cho ngành hải sản Cà Mau
+description: Viết bài viết blog và mô tả sản phẩm chuẩn SEO cho hải sản Cà Mau (tôm sú, cua biển, đặc sản khô). Dùng khi tạo nội dung mới hoặc tối ưu SEO cho trang sản phẩm.
 ---
 
-# Kỹ Năng Biên Tập Nội Dung Hải Sản Cà Mau Chuẩn SEO
+# Kỹ Năng: Biên Tập Nội Dung Hải Sản Cà Mau Chuẩn SEO
 
-Kỹ năng này cung cấp các hướng dẫn chuyên sâu cho tác tử AI để tự động tạo ra nội dung chuẩn SEO (People-First Content) về các loại hải sản đặc trưng của vùng đất Cà Mau (Tôm sú, Cua biển Năm Căn, Tôm khô, Cá khô, v.v.).
+Kỹ năng này hướng dẫn viết nội dung People-First Content cho hải sản đặc trưng Cà Mau — chân thực, hữu ích, và tối ưu cho Googlebot.
 
----
+> **Trước khi bắt đầu:** Đọc `references/keywords.md` để nắm từ khóa và `references/tone-of-voice.md` cho giọng điệu.
 
-## 1. Danh Sách Từ Khóa Trọng Tâm (Target Keywords)
-
-Khi viết bài, tác tử phải phân bổ tự nhiên các cụm từ khóa có lượng tìm kiếm cao sau đây:
-*   **Tôm sú:** `tôm sú cà mau`, `giá tôm sú hôm nay`, `tôm sú sinh thái`, `tôm sú sống cà mau`.
-*   **Cua biển:** `cua cà mau`, `cua năm căn`, `cua gạch cà mau`, `giá cua cà mau hôm nay`.
-*   **Đặc sản khô:** `tôm khô cà mau`, `khô cá sặc rằn`, `khô cá thòi lòi`, `đặc sản cà mau làm quà`.
+> **Scripts có sẵn** (chạy `--help` trước khi dùng):
+> - `scripts/check-keyword-density.js` — Kiểm tra mật độ từ khóa (0.5%-2.5%)
+> - `scripts/validate-schema.js` — Validate JSON-LD schema (Product / Article)
 
 ---
 
-## 2. Quy Tắc Hành Văn & Giọng Điệu (Tone of Voice)
+## Bước 1: Xác Định Loại Nội Dung
 
-*   **Chân thực & Đáng tin cậy:** Tránh nói quá, sáo rỗng. Cung cấp thông tin thực tế từ các vựa, đầm nuôi tự nhiên.
-*   **Đậm chất bản địa Cà Mau:** Nhấn mạnh phương thức nuôi sinh thái dưới tán rừng ngập mặn, nguồn thức ăn tự nhiên từ sông nước giúp thịt cua chắc, tôm ngọt tự nhiên.
-*   **Hữu ích cho người tiêu dùng:** Hướng dẫn cách phân biệt cua thật/giả, cách chọn tôm tươi, cách bảo quản tôm khô không dùng hóa chất.
-
----
-
-## 3. Cấu Trúc Bài Viết Chuẩn SEO
-
-Mỗi bài viết được tạo ra phải tuân thủ nghiêm ngặt cấu trúc:
-1.  **Tiêu đề (H1):** Chứa từ khóa chính, độ dài 50-60 ký tự, giật tít tự nhiên.
-2.  **Đoạn mở đầu (100-150 từ):** Đi thẳng vào vấn đề, trả lời trực tiếp câu hỏi của người mua (Ví dụ: giá bao nhiêu, mua ở đâu uy tín).
-3.  **Mục lục (Table of Contents):** Dùng các liên kết anchor nội bộ.
-4.  **Nội dung chính (H2, H3):**
-    *   H2 thứ nhất: Tổng quan sản phẩm/Giá bán hiện tại.
-    *   H2 thứ hai: Đặc điểm nổi bật/Cách nhận biết sản phẩm chất lượng.
-    *   H2 thứ ba: Quy trình thu hoạch, đóng gói và vận chuyển từ Cà Mau.
-5.  **CTA (Call To Action):** Đường link tĩnh trỏ về trang sản phẩm hoặc trang liên hệ của thương lái tương ứng.
+- **[A] Bài viết blog** (hướng dẫn, review) → Dùng template trong `assets/blog-template.md`
+- **[B] Mô tả sản phẩm** (trang sản phẩm) → Dùng template trong `assets/product-description-template.md`
+- **[C] Schema JSON-LD** (SEO markup) → Dùng template trong `assets/schema-templates.md`
 
 ---
 
-## 4. Tự Động Tạo Metadata & Schema
+## Bước 2: Viết Nội Dung
 
-Cuối bài viết, tác tử phải xuất ra:
-*   Thẻ Title & Meta Description đề xuất.
-*   Schema `Article` hoặc `Product` dưới dạng JSON-LD tương ứng để người dùng chỉ việc copy-paste vào trang web.
+### Cấu trúc bắt buộc mọi bài viết:
+
+1. **H1** (50-60 ký tự): Chứa từ khóa chính đã chọn từ `references/keywords.md`
+2. **Đoạn mở** (100-150 từ): Trả lời thẳng câu hỏi của người mua (giá bao nhiêu? mua ở đâu?)
+3. **Mục lục**: Anchor links đến các H2
+4. **Nội dung chính** (H2, H3):
+   - H2 #1: Tổng quan sản phẩm / Giá hiện tại
+   - H2 #2: Đặc điểm / Cách nhận biết chất lượng
+   - H2 #3: Quy trình thu hoạch và vận chuyển từ Cà Mau
+5. **CTA**: `<Link href="/lien-he">Đặt hàng tôm sú Cà Mau tươi sống</Link>` — anchor text mô tả rõ ràng
+
+### Quy tắc chống sai:
+- ❌ Không dùng "xem thêm", "tại đây" làm anchor text
+- ❌ Không `<a onClick>` — chỉ dùng `<Link href="...">`
+- ❌ Không nói quá, sáo rỗng
+- ✅ Dữ liệu thực tế từ vựa, đầm nuôi sinh thái
+- ✅ Đúng 1 thẻ `<h1>` trên mỗi trang
+
+---
+
+## Bước 3: Tạo Metadata & Schema
+
+Sau khi viết xong nội dung chính, tạo:
+
+```typescript
+// generateMetadata cho Next.js
+export const metadata = {
+  title: '<Từ khóa chính> | Hải Sản Cà Mau',
+  description: '<Mô tả 120-160 ký tự, chứa từ khóa>',
+  alternates: { canonical: '/<slug-trang>' },
+}
+```
+
+Tham chiếu `assets/schema-templates.md` để lấy JSON-LD đúng cấu trúc cho loại trang (Article / Product).
+
+---
+
+## Bước 4: Self-Check Trước Khi Bàn Giao
+
+- [ ] H1 chứa từ khóa chính (từ `references/keywords.md`)?
+- [ ] Meta description 120-160 ký tự?
+- [ ] Tất cả liên kết là `<Link href="...">` tĩnh?
+- [ ] Schema JSON-LD đúng type (`Article` hoặc `Product`)?
+- [ ] Giọng điệu đúng theo `references/tone-of-voice.md`?
