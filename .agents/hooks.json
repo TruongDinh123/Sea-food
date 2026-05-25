@@ -10,8 +10,12 @@
   ],
   "PreInvocation": [
     {
-      "command": "cmd /c \"type docs\\ky-uc\\NOTES.md 2>nul | findstr /n \"Tr\u1ea1ng Th\u00e1i\\|B\u01b0\u1edbc ti\u1ebfp theo\\|\u0110ang l\u00e0m\" | head -5\" ",
+      "command": "node .agents/scripts/load-working-memory.js",
       "description": "Auto-load working memory context — hiển thị trạng thái hiện tại từ NOTES.md đầu mỗi invocation."
+    },
+    {
+      "command": "node .agents/scripts/track-session-metrics.js --show",
+      "description": "Hiển thị dashboard metrics (tokens, turns, cảnh báo) đầu mỗi invocation để theo dõi chi phí và context window."
     }
   ],
   "PostInvocation": [],

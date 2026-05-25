@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * check-keyword-density.js
  * Kiểm tra mật độ từ khóa trong file markdown hoặc HTML.

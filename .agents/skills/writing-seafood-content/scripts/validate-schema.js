@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-unused-vars */
 /**
  * validate-schema.js
  * Validate JSON-LD schema markup trong file HTML hoặc TypeScript.
@@ -7,6 +8,7 @@
  *   node validate-schema.js --help
  *   node validate-schema.js --file=path/to/page.tsx
  *   node validate-schema.js --file=path/to/page.tsx --type=Product
+ *   node validate-schema.js --file=path/to/page.tsx --type=ProductGroup
  *   node validate-schema.js --file=path/to/page.tsx --type=Article
  */
 
@@ -24,15 +26,17 @@ USAGE:
 
 OPTIONS:
   --file=<path>    Đường dẫn file cần kiểm tra (.tsx, .html, .json)
-  --type=<type>    Loại schema cần kiểm tra: Product | Article (mặc định: auto-detect)
+  --type=<type>    Loại schema cần kiểm tra: Product | ProductGroup | Article (mặc định: auto-detect)
   --help, -h       Hiển thị hướng dẫn này
 
 VÍ DỤ:
   node validate-schema.js --file=src/app/san-pham/tom-su/page.tsx
   node validate-schema.js --file=src/app/blog/bai-viet/page.tsx --type=Article
+  node validate-schema.js --file=src/app/san-pham/tom-su-nhom/page.tsx --type=ProductGroup
 
 REQUIRED FIELDS:
   Product: @context, @type, name, description, image, offers.price, offers.priceCurrency
+  ProductGroup: @context, @type, name, description, productGroupID, brand, hasVariant
   Article: @context, @type, headline, datePublished, author, publisher
   `);
   process.exit(0);
@@ -108,6 +112,12 @@ const rules = {
       { field: 'offers.priceCurrency', value: 'VND', message: 'priceCurrency phải là "VND"' },
     ]
   },
+  ProductGroup: {
+    required: ['@context', '@type', 'name', 'description', 'productGroupID', 'brand', 'hasVariant'],
+    checks: [
+      { field: 'brand.name', value: 'Hải Sản Cà Mau', message: 'brand.name phải là "Hải Sản Cà Mau"' }
+    ]
+  },
   Article: {
     required: ['@context', '@type', 'headline', 'datePublished', 'author', 'publisher'],
     checks: [
@@ -119,7 +129,7 @@ const rules = {
 const rule = rules[schemaType];
 if (!rule) {
   console.log(`\n⚠️  Không có validation rule cho type: "${schemaType}"`);
-  console.log('   Hỗ trợ: Product, Article');
+  console.log('   Hỗ trợ: Product, ProductGroup, Article');
   process.exit(0);
 }
 
@@ -139,7 +149,7 @@ for (const field of rule.required) {
   }
 }
 
-// Check nested offers
+// Check nested offers for Product type
 if (schemaType === 'Product' && schema.offers && rule.offers_required) {
   for (const field of rule.offers_required) {
     if (!schema.offers[field]) {
@@ -148,6 +158,33 @@ if (schemaType === 'Product' && schema.offers && rule.offers_required) {
       console.log(`   ✅ offers.${field}: ${schema.offers[field]}`);
     }
   }
+}
+
+// Check nested hasVariant for ProductGroup
+if (schemaType === 'ProductGroup' && Array.isArray(schema.hasVariant)) {
+  console.log(`   🔎 Phát hiện ${schema.hasVariant.length} biến thể (variants)`);
+  schema.hasVariant.forEach((variant, index) => {
+    const vPrefix = `hasVariant[${index}]`;
+    if (variant['@type'] !== 'Product') {
+      errors.push(`❌ ${vPrefix}.@type phải là "Product"`);
+    }
+    const requiredVFields = ['name', 'sku', 'offers'];
+    for (const vf of requiredVFields) {
+      if (!variant[vf]) {
+        errors.push(`❌ ${vPrefix} thiếu field bắt buộc: "${vf}"`);
+      }
+    }
+    if (variant.offers) {
+      if (!variant.offers.price) {
+        errors.push(`❌ ${vPrefix}.offers thiếu price`);
+      }
+      if (variant.offers.priceCurrency !== 'VND') {
+        errors.push(`❌ ${vPrefix}.offers.priceCurrency phải là "VND"`);
+      }
+    }
+  });
+} else if (schemaType === 'ProductGroup') {
+  errors.push(`❌ hasVariant phải là một mảng (Array) chứa các biến thể sản phẩm`);
 }
 
 // Custom checks

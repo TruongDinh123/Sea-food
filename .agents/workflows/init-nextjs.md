@@ -1,6 +1,16 @@
-# Workflow: init-nextjs
-# description: Khởi tạo dự án Next.js với đầy đủ cấu hình chuẩn SEO, git hooks, husky và linter.
-# ---
+---
+title: init-nextjs
+description: Khởi tạo dự án Next.js với đầy đủ cấu hình chuẩn SEO, git hooks, husky và linter.
+maxIterations: 10
+---
+
+# 🚀 Workflow: Init Next.js — Khởi Tạo Dự Án
+
+## Phạm Vi & Giới Hạn
+
+**Giới hạn số vòng lặp (maxIterations):** Giới hạn tối đa **10 vòng lặp** (iterations) cho mỗi phiên làm việc để tránh loop vô hạn. Nếu vượt quá giới hạn này mà chưa hoàn thành, dừng lại và yêu cầu hướng dẫn của người dùng.
+
+---
 
 Hãy thực hiện các bước sau một cách tuần tự để khởi tạo dự án Next.js:
 
