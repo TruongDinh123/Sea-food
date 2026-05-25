@@ -1,11 +1,18 @@
 ---
 title: resume
 description: Tiếp tục công việc từ phiên trước — đọc SESSION_STATUS.md, nắm ngữ cảnh và tiếp tục task còn dang dở.
+maxIterations: 10
 ---
 
 # ▶️ Resume — Tiếp Tục Phiên Làm Việc
 
 Workflow này giúp bạn khôi phục ngữ cảnh từ phiên trước và tiếp tục làm việc ngay mà không cần giải thích lại từ đầu.
+
+---
+
+## Phạm Vi & Giới Hạn
+
+**Giới hạn số vòng lặp (maxIterations):** Giới hạn tối đa **10 vòng lặp** (iterations) cho mỗi phiên làm việc để tránh loop vô hạn. Nếu vượt quá giới hạn này mà chưa hoàn thành, dừng lại và yêu cầu hướng dẫn của người dùng.
 
 ---
 

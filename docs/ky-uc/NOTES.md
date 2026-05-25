@@ -13,9 +13,9 @@
 ## 📍 Trạng Thái Hiện Tại
 > *Agent cập nhật section này sau mỗi bước lớn*
 
-**Đang làm:** Sprint 3 + 4 ✅ HOÀN THÀNH
-**Tiến độ:** 13/13 tasks — Tất cả 4 sprint đã xong
-**Bước tiếp theo:** Bắt đầu xây dựng sản phẩm thực tế — `/ba-sprint` để lập kế hoạch Sprint sản phẩm 1
+**Đang làm:** Sprint 6 + Metrics Tracking ✅ HOÀN THÀNH
+**Tiến độ:** Đã hoàn thành Sprint 6 (khắc phục 8 gaps kiến trúc) + bổ sung hệ thống theo dõi session metrics (input/output token, turns, cảnh báo ngưỡng, chi phí ước tính). Hooks tự động cập nhật metrics đầu/cuối mỗi invocation.
+**Bước tiếp theo:** Kích hoạt `/ba-sprint` để lập kế hoạch Sprint 1 cho sản phẩm Hải Sản Cà Mau.
 
 ---
 
@@ -28,13 +28,40 @@
 | Soft-delete (deleted_at) | Không xóa vật lý dữ liệu user | 2026-05-24 |
 | Orchestrator-Worker agents | Tech Lead điều phối các Worker agents | 2026-05-24 |
 | Plan-and-Execute workflow | Phù hợp long-horizon coding tasks | 2026-05-24 |
+| ProductGroup Schema | Hỗ trợ tôm sú có nhiều phân loại kích cỡ (variants) | 2026-05-25 |
+| maxIterations: 10 | Tránh vòng lặp vô hạn (infinite loop) tốn token | 2026-05-25 |
 
 ---
 
 ## 📁 Files Đã Tạo / Sửa (Session này)
 
+**Sprint 6 + Metrics — 2026-05-25**
+
 | File | Hành Động | Mô Tả Ngắn |
 |---|---|---|
+| `.agents/skills/writing-seafood-content/*` | TẠO MỚI | Di chuyển và chuẩn hóa kỹ năng viết nội dung theo dạng gerund |
+| `.agents/skills/writing-seafood-content/assets/schema-templates.md` | SỬA | Bổ sung template ProductGroup schema cho tôm sú phân loại |
+| `AGENTS.md` | SỬA | Thêm quy tắc SEO về pagination canonical và Pyramid internal link |
+| `.agents/workflows/*.md` (10 files) | SỬA | Thêm maxIterations: 10 vào frontmatter và Phạm vi để tránh Rogue loops |
+| `.agents/scripts/load-working-memory.js` | SỬA | Thêm tip hướng dẫn --add-tokens |
+| `.agents/scripts/track-session-metrics.js` | TẠO MỚI | Script tracking input/output token, turns, cảnh báo, chi phí |
+| `.agents/data/session-metrics.json` | TẠO MỚI | File lưu trữ dữ liệu metrics (gitignored) |
+| `.agents/data/README-metrics.md` | TẠO MỚI | Hướng dẫn sử dụng hệ thống metrics |
+| `.agents/hooks.json` | SỬA | Thêm PreInvocation --show và PostInvocation --turn hooks |
+| `.gitignore` | SỬA | Ignore session-metrics.json |
+| `docs/ke-hoach/implementation_plan.md` | TẠO MỚI | Kế hoạch triển khai khắc phục lỗ hổng kiến trúc |
+| `docs/ke-hoach/task.md` | TẠO MỚI | Checklist theo dõi tiến độ của Sprint 6 |
+
+**Sprint 5 — 2026-05-25 (Hotfixes Hạ Tầng)**
+
+| File | Hành Động | Mô Tả Ngắn |
+|---|---|---|
+| `.agents/scripts/load-working-memory.js` | TẠO MỚI | Script Node.js cross-platform đọc working memory từ NOTES.md |
+| `.agents/hooks.json` | SỬA | Chuyển PreInvocation hook CMD thô sang gọi script Node.js |
+| `.agents/skills/session-manager/SKILL.md` | SỬA | Bổ sung quy trình nén ngữ cảnh tự động (Context Compaction) |
+| `GUARDRAILS.md` | SỬA | Bổ sung Bảng chống biện minh (Anti-Rationalization Table) |
+| `docs/plan/comprehensive_project_audit_evaluation.md` | TẠO MỚI | Báo cáo đánh giá và phản biện toàn diện của đợt Project Audit |
+
 | `GEMINI.md` | TẠO MỚI | Antigravity config, agent roles, artifact rules |
 | `GUARDRAILS.md` | TẠO MỚI | Failure patterns và safety constraints |
 | `docs/ky-uc/NOTES.md` | TẠO MỚI | File này — working memory |

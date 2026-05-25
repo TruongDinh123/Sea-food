@@ -1,6 +1,16 @@
-# Workflow: handoff
-# description: Tự động tổng hợp trạng thái, lưu log kỹ thuật, tạo file SESSION_STATUS.md và thông báo bàn giao phiên.
-# ---
+---
+title: handoff
+description: Tự động tổng hợp trạng thái, lưu log kỹ thuật, tạo file SESSION_STATUS.md và thông báo bàn giao phiên.
+maxIterations: 10
+---
+
+# 🔁 Workflow: Handoff — Bàn Giao Phiên Làm Việc
+
+## Phạm Vi & Giới Hạn
+
+**Giới hạn số vòng lặp (maxIterations):** Giới hạn tối đa **10 vòng lặp** (iterations) cho mỗi phiên làm việc để tránh loop vô hạn. Nếu vượt quá giới hạn này mà chưa hoàn thành, dừng lại và yêu cầu hướng dẫn của người dùng.
+
+---
 
 Hãy thực hiện các bước sau để bàn giao phiên hiện tại:
 

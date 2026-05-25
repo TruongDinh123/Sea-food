@@ -122,10 +122,12 @@ Database (Supabase PostgreSQL)
 - **Alt text:** Mọi `<Image>` phải có `alt` mô tả nội dung thực tế (không để rỗng, không dùng "image").
 - **Liên kết tĩnh:** Dùng `<Link href="...">` của Next.js, KHÔNG dùng `onClick` để navigate.
 - **Anchor text:** Mô tả đích đến cụ thể — không dùng "xem thêm", "nhấp vào đây".
-- **JSON-LD Schema:** Trang sản phẩm → `Product` schema. Trang bài viết → `Article` schema.
+- **JSON-LD Schema:** Trang sản phẩm → `Product` hoặc `ProductGroup` schema. Trang bài viết → `Article` schema.
 - **Canonical:** Thêm `alternates: { canonical: '/slug' }` trong `generateMetadata`.
+- **Pagination Canonical:** TUYỆT ĐỐI KHÔNG canonical các trang phân trang (ví dụ: page=2, page=3) quay về trang 1. Mỗi trang trong chuỗi phân trang phải trỏ canonical về chính nó (self-referencing canonical URL).
+- **Liên kết Kim Tự Tháp (Pyramid Architecture):** Cấu trúc liên kết nội bộ theo sơ đồ hình kim tự tháp (Trang chủ → Danh mục cha → Danh mục con → Chi tiết sản phẩm). Các trang sản phẩm quan trọng phải được liên kết trực tiếp từ trang danh mục chính hoặc trang chủ.
 
-> *Why:* Googlebot không thực thi JavaScript để follow onclick links. Thiếu H1 hoặc canonical làm giảm khả năng rank. Schema JSON-LD kích hoạt Rich Results trên SERP.
+> *Why:* Googlebot không thực thi JavaScript để follow onclick links. Thiếu H1 hoặc canonical làm giảm khả năng rank. Schema JSON-LD kích hoạt Rich Results trên SERP. Tránh trỏ canonical trang phân trang về trang 1 giúp Googlebot index được các sản phẩm ở các trang sau mà không coi chúng là trùng lặp nội dung. Mô hình kim tự tháp tối ưu dòng chảy PageRank.
 
 ---
 

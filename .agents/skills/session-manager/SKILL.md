@@ -144,6 +144,29 @@ Kích hoạt sau mỗi task lớn hoàn thành, **không cần chờ đến cu�
 
 ---
 
+## Quy Trình D: Tự Động Nén Ngữ Cảnh (Context Compaction)
+
+Kích hoạt khi cửa sổ ngữ cảnh sắp đầy (vượt quá 90% giới hạn token hoặc phiên làm việc kéo dài >45 phút) để bảo toàn sự chú ý của mô hình, chống hiện tượng **Context Rot**:
+
+### D1. Dọn Dẹp Đầu Ra Công Cụ Cũ (Tool Result Clearing)
+*   Duyệt qua các lượt gọi công cụ cũ trong phiên.
+*   Xóa bỏ các payloads/kết quả thô quá dài (như danh sách file thô của `list_dir`, file code thô của `view_file`, hoặc kết quả tìm kiếm thô của `grep_search`).
+*   Thay thế bằng một dòng tóm tắt cực kỳ ngắn gọn, ví dụ:
+    `[Tool output cleared: Đã tìm kiếm từ khóa X trong 15 files và phát hiện thấy cấu trúc Y]`
+*   *Lợi ích:* Giảm dung lượng token tiêu thụ lập tức, giải phóng bộ nhớ cho các tác vụ suy luận hiện tại.
+
+### D2. Chắt Lọc Ký Ức Bền Vững (Memory Distillation)
+*   Trước khi tiến hành nén ngữ cảnh hoặc reset phiên, agent bắt buộc phải trích xuất toàn bộ quyết định kỹ thuật cốt lõi và các failure patterns phát hiện được vào `docs/ky-uc/NOTES.md` và `GUARDRAILS.md`.
+*   Điều này đảm bảo không có bất kỳ tri thức quan trọng nào bị thất lạc khi lịch sử chat bị thu gọn.
+
+### D3. Đề Xuất Khởi Động Lại Phiên Sạch (Context Reset Gateway)
+*   Nếu dung lượng token vẫn quá tải sau khi dọn dẹp, agent chủ động đề xuất người dùng thực hiện chuỗi lệnh:
+    1.  Chạy `/handoff` để lưu trữ và cam kết trạng thái hiện tại.
+    2.  Người dùng khởi tạo phiên chat mới sạch sẽ để có một context window trống hoàn toàn.
+    3.  Chạy `/resume` để tái nạp Working Memory từ NOTES.md và tiếp tục công việc với hiệu năng tối đa.
+
+---
+
 ## Tham Chiếu
 
 - `docs/ky-uc/NOTES.md` — Working memory chính

@@ -87,6 +87,20 @@
 
 ---
 
+## 🚫 BẢNG CHỐNG BIỆN MINH (ANTI-RATIONALIZATION TABLE)
+
+Để ngăn ngừa tình trạng tác tử AI tự đưa ra các lý do ngụy biện lười biếng nhằm né tránh quy chuẩn lập trình, kiểm thử hoặc tối ưu hóa, bảng dưới đây định nghĩa các quy tắc chế tài bắt buộc:
+
+| Lời Biện Minh Phổ Biến Của AI (Excuse) | Quy Tắc Bắt Bẻ Bắt Buộc (Strict Counter-Argument) | Yêu Cầu Sản Phẩm Bàn Giao (Required Deliverable) |
+|---|---|---|
+| *"Thay đổi logic này rất nhỏ, không cần viết unit test đâu."* | Không có thay đổi nào là quá nhỏ. Mọi logic thay đổi trong Service/Repository đều có thể sinh lỗi hồi quy (*regression*). | Bắt buộc phải viết tối thiểu 2 unit tests hoặc chạy thử code và in ra runtime logs kết quả đúng. |
+| *"Chưa có database thật hoặc mock DB rất phức tạp nên tôi bỏ qua kiểm thử."* | Việc mock database/repository layer là kỹ năng cơ bản. Không được lấy database thật làm rào cản kiểm thử. | Sử dụng mock repository trong unit test hoặc tạo mock dữ liệu tĩnh để chạy thử logic dịch vụ. |
+| *"Giao diện trông ổn rồi, không cần kiểm tra responsive hay accessibility (AOM) đâu."* | Giao diện hải sản phải hướng tới người dùng thực tế (chủ vựa dùng điện thoại là chính). CSS/XPath dễ bị gãy. | Bắt buộc phải tự chạy kiểm tra UI trên mobile viewport và kiểm tra tính hợp lệ của AOM (Accessibility Object Model). |
+| *"Tôi sẽ tối ưu hóa SEO và cấu hình schemas JSON-LD sau khi dựng xong toàn bộ web."* | SEO không phải là việc làm sau cùng. SEO kém từ đầu sẽ khiến Googlebot index sai hoặc bỏ qua trang. | Chạy ngay `check-keyword-density.js` và `validate-schema.js` để kiểm duyệt Pass cho bài viết/sản phẩm mới. |
+| *"Sửa đổi này chỉ để chạy thử nghiệm (draft), tôi sẽ viết code sạch hơn ở phiên sau."* | "Draft code" thường trở thành code vĩnh viễn trên production. Nợ kỹ thuật (*tech debt*) tích lũy sẽ tàn phá hệ thống. | Áp dụng đúng Service-Repository, đặt tên camelCase/PascalCase chuẩn và lint sạch lỗi trước khi nói "done". |
+
+---
+
 ## 📋 Cách Cập Nhật File Này
 
 Khi phát hiện failure pattern mới:
