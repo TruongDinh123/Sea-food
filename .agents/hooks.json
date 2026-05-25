@@ -20,8 +20,8 @@
   ],
   "PostInvocation": [
     {
-      "command": "node .agents/scripts/track-session-metrics.js --turn",
-      "description": "Ghi nhận turn-end metrics (output tokens, turn count) sau mỗi lần agent hoàn thành phản hồi."
+      "command": "node .agents/scripts/calculate-current-turn-tokens.js --update",
+      "description": "Tự động tính toán và cập nhật số lượng input/output tokens và turns sau khi agent phản hồi."
     }
   ],
   "Stop": [

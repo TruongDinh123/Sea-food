@@ -1,10 +1,17 @@
-# Checklist Tích Hợp Skills Vào Các Workflows
+# Checklist Thực Hiện Backend Sprint 1
 
-- [x] Cập nhật `tech-lead-an.md`
-- [x] Cập nhật `ba-sprint.md`
-- [x] Cập nhật `dev-be-dat.md`
-- [x] Cập nhật `dev-fe-dinh.md`
-- [x] Cập nhật `dev-ops-duc.md`
-- [x] Cập nhật `pm-quan.md`
-- [x] Cập nhật `qa-vi.md`
-- [x] Chạy `npm run lint` kiểm tra cú pháp và code
+- [x] T1: Thiết lập Types Layer (`src/types/`)
+    - [x] `merchant.types.ts`
+    - [x] `product.types.ts`
+    - [x] `referral.types.ts`
+- [x] T4: Viết Merchant Repository & Service
+    - [x] `merchant.repository.ts`
+    - [x] `merchant.service.ts`
+- [x] T5: Tạo API Route Handler `/api/merchants`
+    - [x] `src/app/api/merchants/route.ts`
+- [x] T7: Viết Product Repository & Service (Hỗ trợ ProductGroup)
+    - [x] `product.repository.ts`
+    - [x] `product.service.ts`
+- [x] Kiểm tra xác thực (Verification)
+    - [x] Chạy `npm run lint`
+    - [x] Chạy `npm run build`

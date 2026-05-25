@@ -13,9 +13,9 @@
 ## 📍 Trạng Thái Hiện Tại
 > *Agent cập nhật section này sau mỗi bước lớn*
 
-**Đang làm:** Sprint 6 + Metrics Tracking ✅ HOÀN THÀNH
-**Tiến độ:** Đã hoàn thành Sprint 6 (khắc phục 8 gaps kiến trúc) + bổ sung hệ thống theo dõi session metrics (input/output token, turns, cảnh báo ngưỡng, chi phí ước tính). Hooks tự động cập nhật metrics đầu/cuối mỗi invocation.
-**Bước tiếp theo:** Kích hoạt `/ba-sprint` để lập kế hoạch Sprint 1 cho sản phẩm Hải Sản Cà Mau.
+**Đang làm:** Phát triển Tầng Dữ Liệu & API (Sprint 1 Backend) ✅ HOÀN THÀNH
+**Tiến độ:** Đã hoàn tất 4 task Backend cốt lõi: định nghĩa Types Layer (`src/types/`), xây dựng Repository & Service layer cho cả Merchant & Product, và thiết lập API route `/api/merchants` có phân trang. Đã sửa toàn bộ lỗi typescript `any` để đảm bảo hệ thống build và lint vượt qua 100% không có lỗi.
+**Bước tiếp theo:** Bàn giao phiên làm việc cho Frontend Dev (`/dev-fe-dinh`) để thực hiện các task UI của Sprint 1 (globals.css, layout chung, trang thương lái/sản phẩm và sitemap/robots.txt).
 
 ---
 
@@ -34,6 +34,31 @@
 ---
 
 ## 📁 Files Đã Tạo / Sửa (Session này)
+
+**Backend Development — 2026-05-25 (Session 006)**
+
+| File | Hành Động | Mô Tả Ngắn |
+|---|---|---|
+| `src/types/merchant.types.ts` | TẠO MỚI | Định nghĩa Types cho thực thể vựa hải sản |
+| `src/types/product.types.ts` | TẠO MỚI | Định nghĩa Types cho sản phẩm và biến thể |
+| `src/types/referral.types.ts` | TẠO MỚI | Định nghĩa Types cho log đối soát |
+| `src/lib/repositories/merchant.repository.ts` | TẠO MỚI | Repository CRUD cho vựa hải sản (Soft Delete, no SELECT *) |
+| `src/lib/repositories/product.repository.ts` | TẠO MỚI | Repository cho sản phẩm (hỗ trợ slug prefix, JOIN merchant) |
+| `src/lib/services/merchant.service.ts` | TẠO MỚI | Service xử lý logic, validation và phân trang vựa hải sản |
+| `src/lib/services/product.service.ts` | TẠO MỚI | Service xử lý sản phẩm và nhóm biến thể (ProductGroup) |
+| `src/app/api/merchants/route.ts` | TẠO MỚI | API Route GET `/api/merchants` có phân trang, gọi qua Service |
+| `docs/ke-hoach/implementation_plan.md` | SỬA | Cập nhật kế hoạch triển khai Backend Sprint 1 |
+| `docs/ke-hoach/task.md` | SỬA | Cập nhật tiến độ hoàn thành của các task Backend |
+
+**Sprint 1 Planning — 2026-05-25 (Session 005)**
+
+| File | Hành Động | Mô Tả Ngắn |
+|---|---|---|
+| `docs/adr/ADR-001-nextjs-seo-folder-structure.md` | TẠO MỚI | Tài liệu quyết định kiến trúc cấu trúc thư mục SEO cho Next.js 16.2.6 |
+| `AGENTS.md` | SỬA | Cập nhật sơ đồ cấu trúc thư mục src/ chi tiết tối ưu SEO |
+| `docs/ke-hoach/sprint-01.md` | TẠO MỚI | Kế hoạch Sprint 1 phân rã task cho BE, FE và QA |
+| `docs/ke-hoach/task.md` | TẠO MỚI | Checklist theo dõi tiến độ của Sprint 1 |
+| `docs/ky-uc/ky-uc-hien-tai/2026-05-25-session-005/walkthrough.md` | TẠO MỚI | Báo cáo hoàn thành thiết lập cấu trúc SEO & Kế hoạch Sprint 1 |
 
 **Sprint 6 + Metrics — 2026-05-25**
 

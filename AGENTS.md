@@ -29,21 +29,47 @@ Tập tin này định hình toàn bộ hành vi, quy tắc lập trình, và h�
 
 ```
 src/
-├── app/                    ← Next.js App Router pages & layouts
-│   ├── (routes)/           ← Route groups
-│   └── api/                ← API Route Handlers
+├── app/                          ← Next.js App Router Pages, Layouts & Configs
+│   ├── (marketing)/              ← Route Group cho các trang tĩnh, bài viết, giới thiệu
+│   │   ├── page.tsx               ← Trang chủ "/" (Pyramid Root)
+│   │   ├── ve-chung-toi/
+│   │   │   └── page.tsx           ← Trang giới thiệu doanh nghiệp
+│   │   └── blog/
+│   │       ├── page.tsx           ← Danh sách bài viết blog
+│   │       └── [slug]/
+│   │           └── page.tsx       ← Chi tiết bài viết (JSON-LD Article Schema)
+│   ├── (catalog)/                ← Route Group cho sản phẩm & ngành hàng
+│   │   ├── san-pham/
+│   │   │   ├── page.tsx           ← Danh sách tất cả sản phẩm
+│   │   │   └── [slug]/
+│   │   │       └── page.tsx       ← Chi tiết sản phẩm (JSON-LD Product/ProductGroup Schema)
+│   │   └── danh-muc/
+│   │       └── [slug]/
+│   │           └── page.tsx       ← Danh mục sản phẩm (Tôm sú, Cua biển, Khô...)
+│   ├── thuong-lai/               ← Route cho thương lái (Merchants)
+│   │   ├── page.tsx               ← Danh sách thương lái
+│   │   └── [slug]/
+│   │       └── page.tsx           ← Chi tiết thương lái (JSON-LD Profile Schema)
+│   ├── api/                      ← API Route Handlers (chỉ gọi Service Layer)
+│   │   ├── products/route.ts
+│   │   └── merchants/route.ts
+│   ├── sitemap.ts                ← Dynamic Sitemap generator (sitemap.xml)
+│   ├── robots.ts                 ← Dynamic Robots.txt generator (robots.txt)
+│   ├── manifest.ts               ← Dynamic Web App Manifest (PWA)
+│   ├── layout.tsx                ← Root layout (Global Meta tags, Be Vietnam Pro font)
+│   └── globals.css               ← CSS global (Chứa TailwindCSS v4 `@theme`)
 ├── components/
-│   ├── ui/                 ← Atomic components (Button, Badge, Input)
-│   ├── features/           ← Feature-specific (ProductCard, MerchantCard)
-│   └── layout/             ← Layout components (Header, Footer)
+│   ├── ui/                       ← Atomic components (Button, Badge, Card, Input)
+│   ├── features/                 ← Feature-specific components (ProductCard, MerchantList)
+│   └── layout/                   ← Layout components (Header, Footer, Navigation, Breadcrumbs)
 ├── lib/
-│   ├── db/                 ← Database client & configuration
-│   ├── repositories/       ← Data access layer (*.repository.ts)
-│   └── services/           ← Business logic layer (*.service.ts)
-└── types/                  ← TypeScript type definitions (*.types.ts)
+│   ├── db/                       ← Database client & configuration (Supabase client)
+│   ├── repositories/             ← Data access layer (*.repository.ts)
+│   └── services/                 ← Business logic layer (*.service.ts)
+└── types/                        ← TypeScript type definitions (*.types.ts)
 ```
 
-> *Why cấu trúc này:* Agent cần biết đúng chỗ để tạo file. Không tạo `utils/` hay `helpers/` tùy tiện — tất cả phải vào `lib/` với suffix rõ ràng.
+> *Why cấu trúc này:* Đảm bảo phân vai rõ ràng cho từng Agent. Frontend Dev (Dinh) chỉ sửa `src/app/` (trừ api) và `src/components/`. Backend Dev (Dat) chỉ sửa `src/lib/`, `src/types/` và `src/app/api/`. Điều này tránh conflict và giữ cấu trúc SEO chuẩn mực.
 
 ---
 

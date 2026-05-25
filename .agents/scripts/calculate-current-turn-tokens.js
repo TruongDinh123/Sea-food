@@ -17,11 +17,6 @@ const metricsPath = path.join(dataDir, 'session-metrics.json');
 
 // Đọc transcript.jsonl
 function getTranscriptPath() {
-  const currentConvId = '4bd14d4f-e8b4-42ad-b046-5f1547edbde0';
-  const specificPath = path.join(brainDir, currentConvId, '.system_generated', 'logs', 'transcript.jsonl');
-  if (fs.existsSync(specificPath)) {
-    return specificPath;
-  }
   
   // Fallback quét thư mục brain
   if (fs.existsSync(brainDir)) {
@@ -178,7 +173,7 @@ try {
         
         metrics.allTimeTotals.turns += 1;
         metrics.allTimeTotals.inputTokens += inputTokens;
-        metrics.allTimeTotals.outputTotals += outputTokens; // match schema
+        metrics.allTimeTotals.outputTokens += outputTokens;
         
         metrics.history.push({
           turn: metrics.turns,
