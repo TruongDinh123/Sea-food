@@ -33,9 +33,18 @@ Bạn đang hoạt động với tư cách **Frontend Developer** chuyên về g
 
 ## Bước 1: Đọc Ngữ Cảnh
 
-1. Đọc `src/app/globals.css` để nắm design tokens hiện tại (màu, font, spacing).
-2. Kiểm tra các component đã có trong `src/components/` tránh tạo trùng lặp.
-3. Đọc `docs/ky-uc/ky-uc-hien-tai/SESSION_STATUS.md` (nếu tồn tại).
+> ⚠️ **BẮT BUỘC — Không bỏ qua bước này.** Phải đọc Design.md TRƯỚC KHI viết bất kỳ dòng code UI nào.
+
+1. **Đọc `.agents/rules/Design.md`** — File Design System contract. Nắm rõ:
+   - Palette màu (Primitive → Semantic → Component tokens)
+   - Typography rules (font Be Vietnam Pro, weights)
+   - Forbidden patterns (những gì TUYỆT ĐỐI không làm)
+   - Component design language (card style, button style, badge style)
+2. **Đọc `src/app/globals.css`** để nắm design tokens đã được implement (so sánh với Design.md nếu chưa đồng bộ).
+3. Kiểm tra các component đã có trong `src/components/` tránh tạo trùng lặp.
+4. Đọc `docs/ky-uc/ky-uc-hien-tai/SESSION_STATUS.md` (nếu tồn tại).
+
+> 💡 Nếu `globals.css` chưa có đầy đủ CSS variables từ Design.md, hãy bổ sung chúng vào `@theme {}` **trước** khi viết component.
 
 ---
 
@@ -104,8 +113,18 @@ export default async function <TenTrang>Page() {
 
 ---
 
-## Bước 5: Checklist Chất Lượng Code
+## Bước 5: Checklist Chất Lượng Code & Design System
 
+### Design System Compliance (từ `.agents/rules/Design.md`)
+- [ ] **KHÔNG** hardcode hex color trực tiếp (ví dụ: `#0D6EFD`) — phải dùng `--color-primary`.
+- [ ] **KHÔNG** dùng Tailwind arbitrary values cho màu (`bg-[#0D6EFD]`) — phải dùng `bg-primary`.
+- [ ] **KHÔNG** hardcode font-family — phải dùng `var(--font-sans)` hoặc class `font-sans`.
+- [ ] **KHÔNG** dùng `style={{ marginTop: 'npx' }}` — phải dùng Tailwind spacing utilities.
+- [ ] Mọi màu, khoảng cách, border-radius trong component đều trace được về CSS variable trong `@theme`.
+- [ ] Icon dùng `lucide-react`, không mix thư viện khác.
+- [ ] Kích thước card đúng chuẩn: `rounded-xl shadow-sm border border-border`.
+
+### Code Quality
 - [ ] Không có magic numbers — dùng constant có tên rõ nghĩa.
 - [ ] Component Single Responsibility — mỗi component làm 1 việc.
 - [ ] Không có `'use client'` thừa.
@@ -117,17 +136,48 @@ export default async function <TenTrang>Page() {
 ## Bước 6: Cấu Trúc TailwindCSS v4 (CSS-First)
 > 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`tailwind-patterns`** để áp dụng cấu hình css-first của TailwindCSS v4, tối ưu hóa theme tokens và container queries.
 
-Thay vì `tailwind.config.js`, định nghĩa tokens trong `src/app/globals.css`:
+Thay vì `tailwind.config.js`, định nghĩa tokens trong `src/app/globals.css` theo **3 lớp token từ Design.md**:
 
 ```css
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #0D6EFD;
-  --color-secondary: #198754;
-  --font-sans: "Be Vietnam Pro", sans-serif;
+  /* === PRIMITIVE TOKENS (đừng dùng trực tiếp trong component) === */
+  --color-ocean-500: #0D6EFD;
+  --color-ocean-600: #0b5ed7;
+  --color-forest-500: #198754;
+  --color-forest-600: #157347;
+  --color-coral-500: #dc3545;
+  --color-slate-50:  #f8f9fa;
+  --color-slate-100: #f1f3f5;
+  --color-slate-200: #e9ecef;
+  --color-slate-500: #6c757d;
+  --color-slate-900: #212529;
+
+  /* === SEMANTIC TOKENS (dùng trong component) === */
+  --color-primary:       var(--color-ocean-500);
+  --color-primary-hover: var(--color-ocean-600);
+  --color-secondary:     var(--color-forest-500);
+  --color-danger:        var(--color-coral-500);
+  --color-bg:            var(--color-slate-50);
+  --color-surface:       #ffffff;
+  --color-border:        var(--color-slate-200);
+  --color-text-base:     var(--color-slate-900);
+  --color-text-muted:    var(--color-slate-500);
+
+  /* === TYPOGRAPHY === */
+  --font-sans: "Be Vietnam Pro", system-ui, sans-serif;
+
+  /* === COMPONENT TOKENS === */
+  --card-radius:  0.75rem;
+  --card-shadow:  0 1px 3px rgba(0,0,0,0.08);
+  --radius-sm:    0.25rem;
+  --radius-md:    0.5rem;
+  --radius-lg:    0.75rem;
 }
 ```
+
+> ⚠️ Nếu người dùng đã cung cấp file `globals.css` từ project khác, **dùng file đó làm gốc** và không ghi đè. Chỉ bổ sung các token còn thiếu.
 
 ---
 
