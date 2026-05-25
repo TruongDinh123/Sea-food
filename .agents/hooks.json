@@ -18,6 +18,16 @@
       "description": "Hiển thị dashboard metrics (tokens, turns, cảnh báo) đầu mỗi invocation để theo dõi chi phí và context window."
     }
   ],
-  "PostInvocation": [],
-  "Stop": []
+  "PostInvocation": [
+    {
+      "command": "node .agents/scripts/track-session-metrics.js --turn",
+      "description": "Ghi nhận turn-end metrics (output tokens, turn count) sau mỗi lần agent hoàn thành phản hồi."
+    }
+  ],
+  "Stop": [
+    {
+      "command": "node .agents/scripts/track-session-metrics.js --end",
+      "description": "Lưu tổng kết metrics khi agent kết thúc phiên làm việc (Stop event)."
+    }
+  ]
 }

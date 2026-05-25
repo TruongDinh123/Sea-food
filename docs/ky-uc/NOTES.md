@@ -92,11 +92,20 @@
 
 ## ⚠️ Gotchas & Constraints Quan Trọng
 
-1. **AGENTS.md chỉ 45 dòng** — Cần mở rộng lên 200-300 dòng với "Why" explanations.
-2. **`session-manager/SKILL.md` rỗng** — Chưa có nội dung.
-3. **`seafood-content` thiếu `resources/`** — Keywords và templates đang nhồi vào SKILL.md.
-4. **Hooks chưa cấu hình** — `hooks.json` rỗng, chưa có auto-lint.
-5. **Supabase MCP chưa thêm** — Chỉ có `next-devtools` trong `mcp_config.json`.
+### Hiện Tại (2026-05-25)
+
+1. **`src/components/` CHƯA TẠO** — Cần `/dev-fe-dinh` để tạo `ui/`, `features/`, `layout/` trong Sprint 1.
+2. **`src/lib/repositories/` và `src/lib/services/` CHƯA TẠO** — Cần `/dev-be-dat` để tạo trong Sprint 1.
+3. **`src/types/` CHƯA TẠO** — Cần tạo TypeScript type definitions trước khi viết service/repository.
+4. **Terminal Sandbox chưa enable** — Cần bật `enableTerminalSandbox` trong Antigravity IDE Settings (Windows: AppContainer).
+5. **Không có CI/CD pipeline** — Chưa có `.github/workflows/`. Cần tạo trong Sprint 2.
+
+### Đã Giải Quyết (RESOLVED)
+- ~~AGENTS.md chỉ 45 dòng~~ → **232 dòng** ✅
+- ~~Hooks chưa cấu hình~~ → **PostToolUse + PreInvocation + PostInvocation** ✅
+- ~~session-manager/SKILL.md rỗng~~ → **176 dòng, đầy đủ 4 quy trình** ✅
+- ~~Supabase MCP chưa thêm~~ → **Đã có + --read-only** ✅
+- ~~maxIterations chưa có~~ → **Tất cả 10 workflows đều có maxIterations: 10** ✅
 
 ---
 
