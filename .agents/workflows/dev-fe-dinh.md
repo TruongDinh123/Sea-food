@@ -40,6 +40,7 @@ Bạn đang hoạt động với tư cách **Frontend Developer** chuyên về g
 ---
 
 ## Bước 2: Nguyên Tắc Component
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng các phương pháp tốt nhất trong skill **`senior-frontend`** để tổ chức component rõ ràng, Single Responsibility, và sử dụng skill **`ui-design-system`** để định hình hệ thống các tokens và reusable components.
 
 ### Phân Tầng Component
 ```
@@ -57,6 +58,7 @@ src/components/
 ---
 
 ## Bước 3: Tạo Page Mới
+> 💡 *Kỹ năng khuyên dùng:* Tham chiếu skill **`react-best-practices`** để tối ưu hóa hiệu suất hiển thị của Server Components, loại bỏ render waterfalls và cải thiện Core Web Vitals (LCP, CLS).
 
 Khi tạo page `src/app/<route>/page.tsx`:
 
@@ -89,6 +91,7 @@ export default async function <TenTrang>Page() {
 ---
 
 ## Bước 4: Checklist SEO Trước Khi Hoàn Thành
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng các chỉ dẫn trong skill **`seo-audit`** để tự kiểm tra SEO on-page của giao diện, tối ưu thẻ meta, heading structure, alt image và cấu trúc định dạng dữ liệu có cấu trúc JSON-LD.
 
 - [ ] Mỗi page có `generateMetadata` với title và description riêng biệt.
 - [ ] Một thẻ `<h1>` duy nhất trên mỗi trang.
@@ -112,6 +115,7 @@ export default async function <TenTrang>Page() {
 ---
 
 ## Bước 6: Cấu Trúc TailwindCSS v4 (CSS-First)
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`tailwind-patterns`** để áp dụng cấu hình css-first của TailwindCSS v4, tối ưu hóa theme tokens và container queries.
 
 Thay vì `tailwind.config.js`, định nghĩa tokens trong `src/app/globals.css`:
 

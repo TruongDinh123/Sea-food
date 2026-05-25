@@ -1,7 +1,5 @@
 ---
-title: resume
 description: Tiếp tục công việc từ phiên trước — đọc SESSION_STATUS.md, nắm ngữ cảnh và tiếp tục task còn dang dở.
-maxIterations: 10
 ---
 
 # ▶️ Resume — Tiếp Tục Phiên Làm Việc
@@ -54,18 +52,7 @@ Workflow này giúp bạn khôi phục ngữ cảnh từ phiên trước và ti�
 
 ---
 
-## Bước 4: Kiểm Tra Build
-
-```bash
-npm run build
-```
-
-- Nếu **Build thành công** → Thông báo "Dự án đang ở trạng thái ổn định" và chuyển sang Bước 5.
-- Nếu **Build thất bại** → Hiển thị lỗi và hỏi: "Bạn muốn sửa lỗi build này trước, hay để sau?"
-
----
-
-## Bước 5: Xác Nhận Và Tiếp Tục
+## Bước 4: Xác Nhận Và Tiếp Tục
 
 Hỏi người dùng:
 

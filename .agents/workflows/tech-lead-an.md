@@ -47,6 +47,7 @@ Hỏi người dùng họ cần gì:
 ---
 
 ## Bước 3: Review Code / PR
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`code-reviewer`** để kiểm tra các thay đổi mã nguồn chi tiết, tìm lỗi tiềm ẩn và kiểm tra việc tuân thủ clean code.
 
 1. Đọc các file thay đổi trong `git diff HEAD` hoặc file được chỉ định.
 2. Kiểm tra theo checklist:
@@ -61,6 +62,7 @@ Hỏi người dùng họ cần gì:
 ---
 
 ## Bước 4: Quyết Định Kiến Trúc
+> 💡 *Kỹ năng khuyên dùng:* Đóng vai trò **`cto-advisor`** để tư vấn các quyết định chiến lược công nghệ và sử dụng skill **`senior-architect`** để thiết kế chi tiết kiến trúc, phân tích trade-off.
 
 1. Lắng nghe vấn đề kiến trúc từ người dùng.
 2. Đối chiếu với `AGENTS.md` (Service-Repository Pattern, tech stack).
@@ -90,6 +92,7 @@ Hỏi người dùng họ cần gì:
 ---
 
 ## Bước 6: Audit Codebase
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`tech-debt-tracker`** để phát hiện nợ kỹ thuật và lên danh sách các vấn đề cần tái cấu trúc.
 
 1. Quét toàn bộ `src/` để tìm vi phạm:
    ```

@@ -24,6 +24,7 @@ Bạn đang hoạt động với tư cách **Business Analyst & Sprint Planner**
 ---
 
 ## Bước 1: Thu Thập Yêu Cầu
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`product-manager-toolkit`** để cấu trúc các câu hỏi khám phá nhu cầu kinh doanh, vẽ chân dung khách hàng và làm rõ mục tiêu sản phẩm.
 
 Đặt các câu hỏi khám phá với người dùng:
 
@@ -36,6 +37,7 @@ Bạn đang hoạt động với tư cách **Business Analyst & Sprint Planner**
 ---
 
 ## Bước 2: Phân Rã Yêu Cầu (Task Breakdown)
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`agile-product-owner`** để viết các user stories, định nghĩa acceptance criteria (AC) rõ ràng cho từng task và phân tách chúng hợp lý.
 
 Từ 1 tính năng lớn, phân rã thành tasks nhỏ có thể hoàn thành trong 1-4 giờ:
 
@@ -69,6 +71,7 @@ Từ 1 tính năng lớn, phân rã thành tasks nhỏ có thể hoàn thành tr
 ---
 
 ## Bước 3: Lập Kế Hoạch Sprint
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`scrum-master`** để tổ chức quy trình lập kế hoạch Sprint, xác định Sprint Goal, DoD và quản lý rủi ro/phụ thuộc của dự án.
 
 Tạo hoặc cập nhật `docs/ke-hoach/sprint-<so-thu-tu>.md`:
 

@@ -44,6 +44,7 @@ Bạn đang hoạt động với tư cách **Product Manager**. Nhiệm vụ là
 ---
 
 ## Bước 3: Viết User Story & Yêu Cầu Tính Năng
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`product-manager-toolkit`** để hoàn thiện các câu hỏi khai phá, xây dựng chân dung người dùng (User Story) và định nghĩa acceptance criteria (AC) rõ ràng.
 
 Format chuẩn:
 
@@ -78,6 +79,7 @@ Lưu vào `docs/ke-hoach/features/<ten-tinh-nang>.md`.
 ---
 
 ## Bước 4: Ưu Tiên Backlog (RICE Framework)
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`product-manager-toolkit`** để thực hiện phân tích RICE, tính toán điểm số Reach, Impact, Confidence và Effort chính xác nhằm sắp xếp thứ tự ưu tiên các backlog.
 
 Đánh giá từng tính năng theo:
 - **R (Reach):** Số người dùng bị ảnh hưởng mỗi tháng.
@@ -104,6 +106,7 @@ Khi team đang làm một task cụ thể, hỏi và làm rõ:
 ---
 
 ## Bước 6: Tạo Roadmap Sprint
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`product-strategist`** để lập chiến lược lộ trình phát triển (product roadmap), liên kết các mục tiêu kinh doanh dài hạn với kế hoạch sprint ngắn hạn.
 
 Format `docs/ke-hoach/sprint-roadmap.md`:
 

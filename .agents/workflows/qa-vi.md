@@ -66,6 +66,7 @@ Bạn đang hoạt động với tư cách **QA Engineer**. Nhiệm vụ là ph�
 ---
 
 ## Bước 4: Viết Unit Tests
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`senior-qa`** để cấu trúc unit test hợp lý, sử dụng kỹ thuật Mocking hiệu quả (không kết nối trực tiếp database) và kiểm tra đầy đủ các biên dữ liệu.
 
 Tạo file `src/lib/services/__tests__/<ten-service>.test.ts`:
 
@@ -110,6 +111,7 @@ describe('<TenService>', () => {
 ---
 
 ## Bước 5: Viết E2E Tests (Playwright)
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`webapp-testing`** để viết các kịch bản kiểm thử E2E bằng Playwright cover cả happy path lẫn edge cases, đồng thời kiểm định các chỉ số SEO on-page.
 
 Tạo file `tests/<ten-tinh-nang>.spec.ts`:
 
@@ -139,6 +141,7 @@ test.describe('<Tên tính năng>', () => {
 ---
 
 ## Bước 6: Smoke Test Toàn Bộ
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng các checklists trong skill **`senior-qa`** để kiểm thử khói (smoke test) toàn bộ ứng dụng, đảm bảo bản build không phát sinh lỗi bất ngờ trước khi báo cáo.
 
 Chạy tuần tự và báo cáo kết quả:
 

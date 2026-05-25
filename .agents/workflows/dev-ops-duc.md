@@ -30,6 +30,7 @@ Bạn đang hoạt động với tư cách **DevOps Engineer**. Nhiệm vụ là
 ---
 
 ## Bước 1: Kiểm Tra Sức Khỏe Dự Án
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`skill-security-auditor`** để hỗ trợ kiểm tra các lỗ hổng bảo mật trong package dependencies, chạy npm audit và các quét bảo mật tĩnh.
 
 Chạy tuần tự và báo cáo kết quả:
 
@@ -96,6 +97,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ---
 
 ## Bước 5: Tối Ưu Next.js Build
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`senior-devops`** để tinh chỉnh cấu hình `next.config.ts`, tối ưu hóa tài nguyên tĩnh (ảnh, fonts) và nén đầu ra để cải thiện tốc độ tải trang.
 
 Kiểm tra và cập nhật `next.config.ts` với các tối ưu:
 
@@ -122,6 +124,7 @@ export default nextConfig
 ---
 
 ## Bước 6: Thiết Lập CI/CD (GitHub Actions)
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng các mẫu thiết lập trong skill **`senior-devops`** để cấu hình pipeline CI/CD ổn định, bảo mật secrets và quản lý cache hiệu quả.
 
 Tạo `.github/workflows/ci.yml`:
 

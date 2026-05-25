@@ -58,6 +58,7 @@ Database (Supabase PostgreSQL)
 ---
 
 ## Bước 3: Tạo Repository Mới
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`senior-backend`** để triển khai cấu trúc mã nguồn tối ưu cho tầng truy xuất dữ liệu, tuân thủ chặt chẽ Service-Repository pattern.
 
 Khi cần tạo repository cho bảng `<ten_bang>`:
 
@@ -84,6 +85,7 @@ export const <TenBang>Repository = {
 ---
 
 ## Bước 4: Tạo Database Migration
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`database-designer`** để thiết kế schema cơ sở dữ liệu chuẩn, lập chỉ mục (indexing) hiệu quả và tránh các lỗi phổ biến khi tạo khóa ngoại/kiểu dữ liệu.
 
 1. Xác định số thứ tự migration tiếp theo trong `db/migrations/`.
 2. Đặt tên: `{số thứ tự 3 chữ số}_{action}_{object}.sql` (ví dụ: `003_create_products.sql`).
@@ -115,6 +117,7 @@ COMMIT;
 ---
 
 ## Bước 5: Tạo API Route
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng các quy chuẩn trong skill **`api-patterns`** để thiết kế API RESTful, quản lý phân trang, định dạng phản hồi JSON và xử lý mã lỗi HTTP chuẩn xác.
 
 1. Tạo file `src/app/api/<resource>/route.ts`.
 2. Cấu trúc chuẩn:
