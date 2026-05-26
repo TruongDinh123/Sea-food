@@ -13,9 +13,9 @@
 ## 📍 Trạng Thái Hiện Tại
 > *Agent cập nhật section này sau mỗi bước lớn*
 
-**Đang làm:** Tối ưu hóa cấu trúc agent rules, sửa hooks và đồng bộ Design System ✅ HOÀN THÀNH
-**Tiến độ:** Đã đồng bộ hoàn toàn Arc Design System và font chữ Be Vietnam Pro cho dự án. Khắc phục lỗi Husky Git hooks trên Windows (nạp PATH Node động). Tắt tự động lint khi ghi file để tăng tốc độ làm việc. Đã kiểm tra build Next.js (Turbopack) và commit thành công 100%.
-**Bước tiếp theo:** Bàn giao hoặc tiếp tục với Sprint 2 (thiết lập bộ Test Suite, Playwright tests).
+**Đang làm:** Đồng bộ thiết kế Fresh Seafood, thiết lập Hooks bảo mật & xây dựng Semantic Knowledge Base ✅ HOÀN THÀNH
+**Tiến độ:** Đã chuyển đổi thành công từ Arc Boats dark theme sang Fresh Seafood light theme (font Be Vietnam Pro, màu Ocean Blue và Forest Green). Cấu hình PreToolUse hook tự động chặn câu lệnh huỷ hoại trực tiếp. Tạo thư mục Semantic Knowledge Base (docs/knowledge/) với 3 tài liệu chuẩn hoá Database, SEO và Component. Chuẩn hoá relative links, README data, và chính sách archive logs. Đã kiểm tra compile build Next.js và lint thành công 100% không còn cảnh báo hay lỗi.
+**Bước tiếp theo:** Tiếp tục với Sprint 2 (thiết lập Vitest/React Testing Library và viết bộ Test Suite cho các Services/Repositories).
 
 ---
 
@@ -34,6 +34,27 @@
 ---
 
 ## 📁 Files Đã Tạo / Sửa (Session này)
+
+**Đồng bộ thiết kế Fresh Seafood & Hooks bảo mật — 2026-05-26 (Session 003)**
+
+| File | Hành Động | Mô Tả Ngắn |
+|---|---|---|
+| `Design_system/DESIGN.md` | SỬA | Đổi sang phong cách Fresh Seafood (Be Vietnam Pro font, Ocean Blue/Forest Green) |
+| `Design_system/token.json` | SỬA | Cập nhật tokens JSON tương ứng |
+| `src/app/globals.css` | SỬA | Đổi @theme sang Fresh Seafood palette và map alias tương thích ngược |
+| `.agents/scripts/validate-destructive-commands.js` | TẠO MỚI | Script tự động chặn lệnh huỷ hoại database hoặc file vật lý |
+| `.agents/hooks.json` | SỬA | Đăng ký script vào PreToolUse hook |
+| `docs/knowledge/database-schema.md` | TẠO MỚI | Tài liệu hóa cấu trúc PostgreSQL facts và RLS |
+| `docs/knowledge/seo-patterns.md` | TẠO MỚI | Tài liệu hóa mô thức SEO (Pyramid link, Pagination canonical, v.v.) |
+| `docs/knowledge/component-patterns.md` | TẠO MỚI | Tài liệu hướng dẫn Tailwind v4 css-first và early return |
+| `.agents/skills/session-manager/SKILL.md` | SỬA | Chuẩn hoá relative link GUARDRAILS.md thành absolute Markdown link |
+| `.agents/data/README.md` | TẠO MỚI | Tài liệu hoá thư mục data |
+| `GUARDRAILS.md` | SỬA | Thêm guardrail tự động archive logs session cũ chống context rot |
+| `docs/ky-uc/NOTES.md` | SỬA | Đổi màu chủ đạo và cập nhật chính sách lưu trữ session cũ |
+| `docs/ke-hoach/implementation_plan.md` | SỬA | Cập nhật kế hoạch triển khai |
+| `docs/ke-hoach/task.md` | SỬA | Checklist tiến độ hoàn thành 100% |
+| `docs/ky-uc/ky-uc-hien-tai/SESSION_STATUS.md` | SỬA | Cập nhật trạng thái tổng quan phiên 003 |
+| `docs/ky-uc/ky-uc-hien-tai/2026-05-26-session-003/walkthrough.md` | TẠO MỚI | Báo cáo nghiệm thu hoàn thành phiên |
 
 **Tối ưu hóa Agent & Design System — 2026-05-26 (Session 002)**
 
@@ -139,6 +160,7 @@
 3. **`src/types/` CHƯA TẠO** — Cần tạo TypeScript type definitions trước khi viết service/repository.
 4. **Terminal Sandbox chưa enable** — Cần bật `enableTerminalSandbox` trong Antigravity IDE Settings (Windows: AppContainer).
 5. **Không có CI/CD pipeline** — Chưa có `.github/workflows/`. Cần tạo trong Sprint 2.
+6. **Chính Sách Lưu Trữ Session Cũ**: Định kỳ nén và lưu trữ các logs session cũ hơn 30 ngày vào `docs/ky-uc/luu-tru-nhat-ky/` để giữ `NOTES.md` gọn gàng và ngăn ngừa context rot. Chỉ lưu tối đa 5 sessions gần nhất làm working memory.
 
 ### Đã Giải Quyết (RESOLVED)
 - ~~AGENTS.md chỉ 45 dòng~~ → **232 dòng** ✅
@@ -158,8 +180,8 @@
 
 ### Frontend
 - Font: `Be Vietnam Pro` (Google Fonts)
-- Màu: `deepwater-teal` (`#031e25`), `canvas` (`#e5e7eb`), `ink-black` (`#0a0a0a`), `pure-white` (`#ffffff`)
-- TailwindCSS v4: `@theme` trong `globals.css` (Arc Design System)
+- Màu: Ocean Blue (`#0D6EFD`), Forest Green (`#198754`), bg (`#f8f9fa`), surface (`#ffffff`), border (`#e9ecef`), text-base (`#212529`)
+- TailwindCSS v4: `@theme` trong `globals.css` (Fresh Seafood Design System)
 
 ### Git
 - Branch đang dùng: *(agent điền vào khi cần)*

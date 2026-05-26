@@ -1,6 +1,11 @@
 {
   "enabled": true,
-  "PreToolUse": [],
+  "PreToolUse": [
+    {
+      "command": "node .agents/scripts/validate-destructive-commands.js",
+      "description": "Kiểm tra và ngăn chặn các lệnh huỷ hoại database hoặc hệ thống file."
+    }
+  ],
   "PostToolUse": [],
   "PreInvocation": [
     {

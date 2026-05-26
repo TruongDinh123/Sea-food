@@ -86,7 +86,7 @@ Cập nhật 3 sections theo format:
 [Thêm nếu phát hiện constraint mới]
 ```
 
-### B3. Kiểm Tra GUARDRAILS.md
+### B3. Kiểm Tra [GUARDRAILS.md](file:///e:/Web-Seo/GUARDRAILS.md)
 
 Nếu phát hiện failure pattern mới trong phiên → Thêm vào `GUARDRAILS.md`:
 ```markdown
@@ -138,7 +138,7 @@ Kích hoạt sau mỗi task lớn hoàn thành, **không cần chờ đến cu�
 
 1. Cập nhật section "Trạng Thái Hiện Tại" trong NOTES.md
 2. Thêm files vừa tạo/sửa vào bảng "Files Đã Tạo/Sửa"
-3. Nếu có gotcha mới → Thêm ngay vào GUARDRAILS.md
+3. Nếu có gotcha mới → Thêm ngay vào [GUARDRAILS.md](file:///e:/Web-Seo/GUARDRAILS.md)
 
 > *Nguyên tắc: Luôn giả định context window có thể reset bất kỳ lúc nào.*
 
@@ -156,7 +156,7 @@ Kích hoạt khi cửa sổ ngữ cảnh sắp đầy (vượt quá 90% giới h
 *   *Lợi ích:* Giảm dung lượng token tiêu thụ lập tức, giải phóng bộ nhớ cho các tác vụ suy luận hiện tại.
 
 ### D2. Chắt Lọc Ký Ức Bền Vững (Memory Distillation)
-*   Trước khi tiến hành nén ngữ cảnh hoặc reset phiên, agent bắt buộc phải trích xuất toàn bộ quyết định kỹ thuật cốt lõi và các failure patterns phát hiện được vào `docs/ky-uc/NOTES.md` và `GUARDRAILS.md`.
+*   Trước khi tiến hành nén ngữ cảnh hoặc reset phiên, agent bắt buộc phải trích xuất toàn bộ quyết định kỹ thuật cốt lõi và các failure patterns phát hiện được vào `docs/ky-uc/NOTES.md` và [GUARDRAILS.md](file:///e:/Web-Seo/GUARDRAILS.md).
 *   Điều này đảm bảo không có bất kỳ tri thức quan trọng nào bị thất lạc khi lịch sử chat bị thu gọn.
 
 ### D3. Đề Xuất Khởi Động Lại Phiên Sạch (Context Reset Gateway)
@@ -170,6 +170,6 @@ Kích hoạt khi cửa sổ ngữ cảnh sắp đầy (vượt quá 90% giới h
 ## Tham Chiếu
 
 - `docs/ky-uc/NOTES.md` — Working memory chính
-- `GUARDRAILS.md` — Failure patterns
+- [GUARDRAILS.md](file:///e:/Web-Seo/GUARDRAILS.md) — Failure patterns
 - `docs/ky-uc/ky-uc-hien-tai/` — Session history
 - `AGENTS.md` — Persistent rules (đọc mỗi phiên)
