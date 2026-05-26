@@ -75,7 +75,7 @@ export default async function ThuongLaiDetailPage({ params }: PageProps) {
 
       {/* Hero */}
       <section className="bg-deepwater-teal text-pure-white">
-        <div className="mx-auto max-w-7xl px-5 pt-[45px] pb-[45px]">
+        <div className="mx-auto max-w-7xl px-5 py-45">
           <Breadcrumb
             items={[
               { label: 'Thương Lái', href: '/thuong-lai' },
@@ -84,15 +84,15 @@ export default async function ThuongLaiDetailPage({ params }: PageProps) {
           />
           <div className="mt-5 flex items-start justify-between gap-6">
             <div>
-              <p className="text-[11px] font-semibold tracking-[2.22px] uppercase text-pure-white/50 mb-3">
+              <p className="text-caption font-semibold tracking-caption uppercase text-pure-white/50 mb-3">
                 Thương Lái Hải Sản
               </p>
-              <h1 className="text-heading-lg font-semibold tracking-[-0.77px]">
+              <h1 className="text-heading-lg font-semibold tracking-heading-lg">
                 {merchant.name}
               </h1>
             </div>
             <span
-              className={`shrink-0 mt-2 inline-flex items-center px-[9px] py-[5px] text-[11px] font-semibold tracking-[2.22px] uppercase rounded-[5px] ${
+              className={`shrink-0 mt-2 inline-flex items-center px-9 py-5 text-caption tracking-caption uppercase rounded-buttons ${
                 merchant.is_active
                   ? 'bg-pure-white/20 text-pure-white'
                   : 'bg-pure-white/10 text-pure-white/50'
@@ -106,24 +106,24 @@ export default async function ThuongLaiDetailPage({ params }: PageProps) {
 
       {/* Detail content */}
       <section className="bg-canvas">
-        <div className="mx-auto max-w-7xl px-5 py-[45px]">
+        <div className="mx-auto max-w-7xl px-5 py-45">
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
             {/* Contact card */}
             <div className="lg:col-span-1">
-              <div className="bg-pure-white rounded-[32px] p-[20px]">
-                <h2 className="text-[11px] font-semibold tracking-[2.22px] uppercase text-soft-gray mb-[18px]">
+              <div className="bg-pure-white rounded-cards p-20">
+                <h2 className="text-caption font-semibold tracking-caption uppercase text-soft-gray mb-18">
                   Thông Tin Liên Hệ
                 </h2>
-                <div className="space-y-[14px]">
+                <div className="space-y-14">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[5px] bg-deepwater-teal/10">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-buttons bg-deepwater-teal/10">
                       <PhoneIcon size={16} className="text-deepwater-teal" aria-hidden={true} />
                     </div>
                     <div>
-                      <p className="text-[11px] tracking-[2.22px] uppercase text-soft-gray">Điện Thoại</p>
+                      <p className="text-caption tracking-caption uppercase text-soft-gray">Điện Thoại</p>
                       <a
                         href={`tel:${merchant.phone}`}
-                        className="text-[16px] font-medium text-ink-black hover:text-deepwater-teal transition-colors"
+                        className="text-body font-medium text-ink-black hover:text-deepwater-teal transition-colors"
                       >
                         {merchant.phone}
                       </a>
@@ -132,23 +132,23 @@ export default async function ThuongLaiDetailPage({ params }: PageProps) {
 
                   {merchant.address && (
                     <div className="flex items-start gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[5px] bg-deepwater-teal/10">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-buttons bg-deepwater-teal/10">
                         <MapPinIcon size={16} className="text-deepwater-teal" aria-hidden={true} />
                       </div>
                       <div>
-                        <p className="text-[11px] tracking-[2.22px] uppercase text-soft-gray">Địa Chỉ</p>
-                        <p className="text-[16px] font-medium text-ink-black">{merchant.address}</p>
+                        <p className="text-caption tracking-caption uppercase text-soft-gray">Địa Chỉ</p>
+                        <p className="text-body font-medium text-ink-black">{merchant.address}</p>
                       </div>
                     </div>
                   )}
 
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[5px] bg-deepwater-teal/10">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-buttons bg-deepwater-teal/10">
                       <CalendarIcon size={16} className="text-deepwater-teal" aria-hidden={true} />
                     </div>
                     <div>
-                      <p className="text-[11px] tracking-[2.22px] uppercase text-soft-gray">Thành Viên Từ</p>
-                      <p className="text-[16px] font-medium text-ink-black">{createdDate}</p>
+                      <p className="text-caption tracking-caption uppercase text-soft-gray">Thành Viên Từ</p>
+                      <p className="text-body font-medium text-ink-black">{createdDate}</p>
                     </div>
                   </div>
                 </div>
@@ -156,7 +156,7 @@ export default async function ThuongLaiDetailPage({ params }: PageProps) {
                 {/* CTA */}
                 <a
                   href={`tel:${merchant.phone}`}
-                  className="mt-[20px] flex w-full items-center justify-center px-[20px] py-[10px] bg-deepwater-teal text-pure-white text-[14px] font-medium rounded-[5px] hover:opacity-90 transition-opacity duration-150"
+                  className="mt-20 flex w-full items-center justify-center px-20 py-10 bg-deepwater-teal text-pure-white text-body font-medium rounded-buttons hover:opacity-90 transition-opacity duration-150"
                 >
                   Liên Hệ Ngay
                 </a>
@@ -165,38 +165,38 @@ export default async function ThuongLaiDetailPage({ params }: PageProps) {
 
             {/* Info panel */}
             <div className="lg:col-span-2">
-              <div className="bg-pure-white rounded-[32px] p-[20px] h-full">
-                <h2 className="text-[11px] font-semibold tracking-[2.22px] uppercase text-soft-gray mb-[18px]">
+              <div className="bg-pure-white rounded-cards p-20 h-full">
+                <h2 className="text-caption font-semibold tracking-caption uppercase text-soft-gray mb-18">
                   Thông Tin Thu Mua
                 </h2>
-                <div className="space-y-[14px]">
-                  <div className="flex items-center justify-between py-[14px] border-b border-canvas">
-                    <span className="text-[14px] text-soft-gray">Loại hoa hồng</span>
-                    <span className="text-[14px] font-medium text-ink-black capitalize">
+                <div className="space-y-14">
+                  <div className="flex items-center justify-between py-14 border-b border-canvas">
+                    <span className="text-body text-soft-gray">Loại hoa hồng</span>
+                    <span className="text-body font-medium text-ink-black capitalize">
                       {merchant.commission_type === 'percentage' && 'Theo phần trăm'}
                       {merchant.commission_type === 'fixed' && 'Cố định'}
                       {merchant.commission_type === 'monthly_flat' && 'Cố định hàng tháng'}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between py-[14px] border-b border-canvas">
-                    <span className="text-[14px] text-soft-gray">Giá trị hoa hồng</span>
-                    <span className="text-[14px] font-medium text-ink-black">
+                  <div className="flex items-center justify-between py-14 border-b border-canvas">
+                    <span className="text-body text-soft-gray">Giá trị hoa hồng</span>
+                    <span className="text-body font-medium text-ink-black">
                       {merchant.commission_type === 'percentage'
                         ? `${merchant.commission_value}%`
                         : `${merchant.commission_value.toLocaleString('vi-VN')}₫`}
                     </span>
                   </div>
                   {merchant.commission_type === 'monthly_flat' && (
-                    <div className="flex items-center justify-between py-[14px] border-b border-canvas">
-                      <span className="text-[14px] text-soft-gray">Phí hàng tháng</span>
-                      <span className="text-[14px] font-medium text-ink-black">
+                    <div className="flex items-center justify-between py-14 border-b border-canvas">
+                      <span className="text-body text-soft-gray">Phí hàng tháng</span>
+                      <span className="text-body font-medium text-ink-black">
                         {merchant.monthly_flat_rate.toLocaleString('vi-VN')}₫/tháng
                       </span>
                     </div>
                   )}
-                  <div className="flex items-center justify-between py-[14px]">
-                    <span className="text-[14px] text-soft-gray">Khu vực</span>
-                    <span className="text-[14px] font-medium text-ink-black">
+                  <div className="flex items-center justify-between py-14">
+                    <span className="text-body text-soft-gray">Khu vực</span>
+                    <span className="text-body font-medium text-ink-black">
                       {merchant.address ? merchant.address.split(',').pop()?.trim() : 'Cà Mau'}
                     </span>
                   </div>

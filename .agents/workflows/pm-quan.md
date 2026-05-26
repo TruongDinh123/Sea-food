@@ -102,6 +102,11 @@ Khi team đang làm một task cụ thể, hỏi và làm rõ:
 2. **Edge cases:** Dữ liệu trống, ký tự đặc biệt, số âm, giới hạn.
 3. **Error states:** Khi API fail, network lỗi, user không có quyền.
 4. **SEO requirements:** URL slug, meta title, schema markup nếu là trang mới.
+5. **Design System compliance (Bắt buộc cho mọi UI):** Yêu cầu nghiệm thu (AC) cho giao diện phải ghi rõ:
+   - Sử dụng bảng màu Arc: `deepwater-teal`, `canvas`, `ink-black`, `pure-white`.
+   - Sử dụng font chữ `Be Vietnam Pro` cho hiển thị tiếng Việt.
+   - Bo góc theo chuẩn `rounded-cards` (32px) cho card, `rounded-buttons` (5px) cho nút/input.
+   - Tuyệt đối không hardcode hex color hoặc arbitrary pixel thô.
 
 ---
 

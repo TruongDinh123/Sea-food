@@ -113,12 +113,12 @@ export default async function SanPhamDetailPage({ params }: PageProps) {
       />
 
       <div className="bg-canvas min-h-screen">
-        <div className="mx-auto max-w-7xl px-5 pt-[30px] pb-[72px]">
+        <div className="mx-auto max-w-7xl px-5 py-72">
           <Breadcrumb items={breadcrumbItems.slice(0, -1)} />
 
-          <div className="mt-[20px] grid grid-cols-1 gap-[20px] lg:grid-cols-2">
+          <div className="mt-20 grid grid-cols-1 gap-20 lg:grid-cols-2">
             {/* Product image */}
-            <div className="relative aspect-square rounded-[32px] overflow-hidden bg-pure-white">
+            <div className="relative aspect-square rounded-cards overflow-hidden bg-pure-white">
               {product.image_url ? (
                 <Image
                   src={product.image_url}
@@ -134,8 +134,8 @@ export default async function SanPhamDetailPage({ params }: PageProps) {
                 </div>
               )}
               {discountPercent && (
-                <div className="absolute top-[18px] left-[18px] bg-deepwater-teal text-pure-white px-[14px] py-[6px] rounded-[5px]">
-                  <span className="text-[11px] font-semibold tracking-[2.22px] uppercase">
+                <div className="absolute top-18 left-18 bg-deepwater-teal text-pure-white px-14 py-6 rounded-buttons">
+                  <span className="text-caption font-semibold tracking-caption uppercase">
                     Giảm {discountPercent}%
                   </span>
                 </div>
@@ -144,23 +144,23 @@ export default async function SanPhamDetailPage({ params }: PageProps) {
 
             {/* Product details */}
             <div className="flex flex-col">
-              <div className="bg-pure-white rounded-[32px] p-[20px] flex-1">
+              <div className="bg-pure-white rounded-cards p-20 flex-1">
                 {product.category && (
-                  <p className="text-[11px] font-semibold tracking-[2.22px] uppercase text-soft-gray mb-3">
+                  <p className="text-caption font-semibold tracking-caption uppercase text-soft-gray mb-3">
                     {product.category}
                   </p>
                 )}
-                <h1 className="text-heading font-medium tracking-[-0.51px] text-ink-black">
+                <h1 className="text-heading font-medium tracking-heading text-ink-black">
                   {product.name}
                 </h1>
 
                 {/* Pricing */}
-                <div className="mt-[20px] flex items-baseline gap-3">
-                  <span className="text-[32px] font-medium tracking-[-0.51px] text-ink-black">
+                <div className="mt-20 flex items-baseline gap-3">
+                  <span className="text-heading font-medium tracking-heading text-ink-black">
                     {product.price.toLocaleString('vi-VN')}₫
                   </span>
                   {product.original_price && product.original_price > product.price && (
-                    <span className="text-[22px] text-soft-gray line-through">
+                    <span className="text-heading-sm text-soft-gray line-through">
                       {product.original_price.toLocaleString('vi-VN')}₫
                     </span>
                   )}
@@ -168,8 +168,8 @@ export default async function SanPhamDetailPage({ params }: PageProps) {
 
                 {/* Variants */}
                 {hasVariants && (
-                  <div className="mt-[18px]">
-                    <p className="text-[11px] font-semibold tracking-[2.22px] uppercase text-soft-gray mb-3">
+                  <div className="mt-18">
+                    <p className="text-caption font-semibold tracking-caption uppercase text-soft-gray mb-3">
                       Kích Cỡ / Size
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -177,7 +177,7 @@ export default async function SanPhamDetailPage({ params }: PageProps) {
                         <Link
                           key={variant.slug}
                           href={`/san-pham/${variant.slug}`}
-                          className={`px-[14px] py-[9px] text-[14px] font-medium rounded-[5px] border transition-colors duration-150 ${
+                          className={`px-14 py-9 text-body font-medium rounded-buttons border transition-colors duration-150 ${
                             variant.slug === slug
                               ? 'bg-deepwater-teal text-pure-white border-deepwater-teal'
                               : 'bg-pure-white text-ink-black border-canvas hover:border-deepwater-teal'
@@ -192,27 +192,27 @@ export default async function SanPhamDetailPage({ params }: PageProps) {
 
                 {/* Description */}
                 {product.description && (
-                  <div className="mt-[18px] pt-[18px] border-t border-canvas">
-                    <p className="text-[11px] font-semibold tracking-[2.22px] uppercase text-soft-gray mb-2">
+                  <div className="mt-18 pt-18 border-t border-canvas">
+                    <p className="text-caption font-semibold tracking-caption uppercase text-soft-gray mb-2">
                       Mô Tả
                     </p>
-                    <p className="text-[16px] leading-[1.44] text-soft-gray">
+                    <p className="text-body leading-body text-soft-gray">
                       {product.description}
                     </p>
                   </div>
                 )}
 
                 {/* CTA */}
-                <div className="mt-[20px] space-y-3">
+                <div className="mt-20 space-y-3">
                   <Link
                     href="/thuong-lai"
-                    className="flex w-full items-center justify-center px-[20px] py-[10px] bg-deepwater-teal text-pure-white text-[14px] font-medium rounded-[5px] hover:opacity-90 transition-opacity duration-150"
+                    className="flex w-full items-center justify-center px-20 py-10 bg-deepwater-teal text-pure-white text-body font-medium rounded-buttons hover:opacity-90 transition-opacity duration-150"
                   >
                     Liên Hệ Thương Lái
                   </Link>
                   <Link
                     href="/san-pham"
-                    className="flex w-full items-center justify-center gap-2 px-[20px] py-[10px] border border-canvas text-ink-black text-[14px] font-medium rounded-[6.75px] hover:border-deepwater-teal hover:text-deepwater-teal transition-colors duration-150"
+                    className="flex w-full items-center justify-center gap-2 px-20 py-10 border border-canvas text-ink-black text-body font-medium rounded-ghost-buttons hover:border-deepwater-teal hover:text-deepwater-teal transition-colors duration-150"
                   >
                     <ArrowLeftIcon size={14} aria-hidden="true" />
                     Xem Thêm Sản Phẩm

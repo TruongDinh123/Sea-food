@@ -196,19 +196,26 @@ Database (Supabase PostgreSQL)
 
 ---
 
-## 🏗️ Domain Isolation — Multi-Agent Boundaries
+## 🏗️ Domain Isolation & Quy Tắc Thiết Kế (Design System Standard)
 
-Khi nhiều agents làm việc song song, mỗi agent CHỈ được phép sửa trong domain của mình:
+### 1. Phân Chia Vai Trò & Ranh Giới (Single vs Multi-Agent)
+* **Chế độ Single Agent (Làm việc trực tiếp với Antigravity)**: Khi người dùng tương tác trực tiếp với Antigravity trong giao diện chat, Antigravity được cấp quyền **Fullstack** sửa đổi tất cả các file cần thiết trong dự án (`src/`, `db/`, `docs/`, `package.json`...) để xử lý yêu cầu một cách liền mạch, không bị giới hạn bởi bảng phân chia miền dưới đây.
+* **Chế độ Multi-Agent (Chạy song song qua `/spawn`)**: Bảng phân chia miền bắt buộc phải được tuân thủ nghiêm ngặt để tránh merge conflicts:
 
 | Agent | Domain (Chỉ Sửa Files Trong) | Không Được Sửa |
 |---|---|---|
 | **Tech Lead (An)** | `AGENTS.md`, `GEMINI.md`, `.agents/`, `docs/` | `src/`, `db/` |
 | **Backend (Dat)** | `src/lib/`, `src/app/api/`, `db/`, `src/types/` | `src/components/`, `src/app/page.tsx` |
-| **Frontend (Dinh)** | `src/app/`, `src/components/`, `public/` | `src/lib/`, `db/` |
+| **Frontend (Dinh / Senior FE)** | `src/app/`, `src/components/`, `public/` | `src/lib/`, `db/` |
 | **DevOps (Duc)** | `next.config.ts`, `package.json`, `.env.example`, `.husky/` | `src/`, `db/` |
 | **QA (Vi)** | `src/**/*.test.ts`, `src/**/*.spec.ts`, `tests/`, `e2e/` | Code production |
 
-> *Why:* Domain isolation ngăn merge conflicts khi nhiều agents làm việc song song. Mỗi agent tập trung vào expertise của mình, không gây side effects cho domain khác.
+### 2. Quy Tắc Bắt Buộc Về Design System (Cho Tất Cả Các Agent)
+Tất cả các agent liên quan tới việc thiết kế UI, viết Acceptance Criteria (AC), viết mã Frontend hoặc tạo tài liệu dự án (bao gồm **Senior FE, PM, Tech Lead**) đều **BẮT BUỘC** phải tuân thủ và sử dụng hệ thống Design System được định nghĩa trong `Design_system/` (đã đồng bộ vào `src/app/globals.css`). 
+* **Không dùng pixel thô**: Tuyệt đối không tự ý viết các giá trị pixel cụ thể (arbitrary values kiểu `rounded-[32px]`, `p-[20px]`, `py-[100px]`, v.v.) trong code React/Next.js. Phải dùng class Tailwind v4 được đăng ký từ Design System (ví dụ: `rounded-cards`, `rounded-buttons`, `p-card-padding` hoặc các lớp khoảng cách được khai báo sẵn).
+* **Font chữ thống nhất**: Font chữ chính thức cho giao diện Tiếng Việt là **Be Vietnam Pro** (nhập từ Google Fonts), không được sử dụng font `Inter`, `Soehne` hoặc font mặc định của hệ thống cho các văn bản hiển thị.
+
+> *Why:* Đảm bảo tính đồng nhất về mặt thẩm mỹ của thương hiệu hải sản sang trọng (refined minimalism) trên tất cả các trang, đồng thời giúp code gọn gàng, có tính bảo trì cao và tối ưu hóa context cho AI.
 
 ---
 

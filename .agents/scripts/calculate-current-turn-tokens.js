@@ -10,7 +10,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const brainDir = 'C:\\Users\\dinhp\\.gemini\\antigravity-ide\\brain';
+const userHome = process.env.USERPROFILE || process.env.HOME || '';
+const brainDir = userHome ? path.join(userHome, '.gemini', 'antigravity-ide', 'brain') : '';
 const workspaceDir = path.resolve(__dirname, '..', '..');
 const dataDir = path.join(workspaceDir, '.agents', 'data');
 const metricsPath = path.join(dataDir, 'session-metrics.json');

@@ -115,17 +115,20 @@ export default async function <TenTrang>Page() {
 
 ## Bước 5: Checklist Chất Lượng Code & Design System
 
-### Design System Compliance (từ `.agents/rules/Design.md`)
-- [ ] **KHÔNG** hardcode hex color trực tiếp (ví dụ: `#0D6EFD`) — phải dùng `--color-primary`.
-- [ ] **KHÔNG** dùng Tailwind arbitrary values cho màu (`bg-[#0D6EFD]`) — phải dùng `bg-primary`.
-- [ ] **KHÔNG** hardcode font-family — phải dùng `var(--font-sans)` hoặc class `font-sans`.
-- [ ] **KHÔNG** dùng `style={{ marginTop: 'npx' }}` — phải dùng Tailwind spacing utilities.
-- [ ] Mọi màu, khoảng cách, border-radius trong component đều trace được về CSS variable trong `@theme`.
-- [ ] Icon dùng `lucide-react`, không mix thư viện khác.
-- [ ] Kích thước card đúng chuẩn: `rounded-xl shadow-sm border border-border`.
+### Design System Compliance (từ `Design_system/DESIGN.md` và `theme.css`)
+- [ ] **BẮT BUỘC**: Sử dụng đúng các token từ hệ thiết kế Arc:
+  - Nền tối / Hero: `bg-deepwater-teal` (`#031e25`)
+  - Nền sáng / Canvas: `bg-canvas` (`#e5e7eb`)
+  - Chữ chính trên nền sáng: `text-ink-black` (`#0a0a0a`)
+  - Chữ chính trên nền tối: `text-pure-white` (`#ffffff`)
+  - Màu phụ / Placeholder: `text-soft-gray` (`#666d75`)
+- [ ] **KHÔNG** dùng Tailwind arbitrary values cho màu (`bg-[#031e25]`) — phải dùng đúng class tên token (`bg-deepwater-teal`).
+- [ ] **KHÔNG** tự ý viết pixel cứng cho border radius và spacing — phải dùng các class utility đã map (ví dụ: `rounded-cards` cho card 32px, `rounded-buttons` cho button/input 5px, `rounded-ghost-buttons` cho ghost button 6.75px).
+- [ ] **KHÔNG** hardcode font-family — phải sử dụng `var(--font-sans)` (đã map font `Be Vietnam Pro` trong layout).
+- [ ] **Icons**: Để tránh lỗi Turbopack của Next.js 16 khi render lucide-react, hãy sử dụng bộ icon inline SVG có sẵn trong `@/components/ui/Icons` (`Icons.tsx`).
 
 ### Code Quality
-- [ ] Không có magic numbers — dùng constant có tên rõ nghĩa.
+- [ ] Không có magic numbers — dùng constant hoặc CSS variable.
 - [ ] Component Single Responsibility — mỗi component làm 1 việc.
 - [ ] Không có `'use client'` thừa.
 - [ ] TailwindCSS v4 css-first (không dùng `@apply` trong component, chỉ dùng class utility).
@@ -136,48 +139,84 @@ export default async function <TenTrang>Page() {
 ## Bước 6: Cấu Trúc TailwindCSS v4 (CSS-First)
 > 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`tailwind-patterns`** để áp dụng cấu hình css-first của TailwindCSS v4, tối ưu hóa theme tokens và container queries.
 
-Thay vì `tailwind.config.js`, định nghĩa tokens trong `src/app/globals.css` theo **3 lớp token từ Design.md**:
+Các token được định nghĩa đồng bộ trong `src/app/globals.css` theo đúng `Design_system/theme.css` và `variable.css` như sau:
 
 ```css
 @import "tailwindcss";
 
 @theme {
-  /* === PRIMITIVE TOKENS (đừng dùng trực tiếp trong component) === */
-  --color-ocean-500: #0D6EFD;
-  --color-ocean-600: #0b5ed7;
-  --color-forest-500: #198754;
-  --color-forest-600: #157347;
-  --color-coral-500: #dc3545;
-  --color-slate-50:  #f8f9fa;
-  --color-slate-100: #f1f3f5;
-  --color-slate-200: #e9ecef;
-  --color-slate-500: #6c757d;
-  --color-slate-900: #212529;
+  /* Colors */
+  --color-deepwater-teal: #031e25;
+  --color-canvas: #e5e7eb;
+  --color-ink-black: #0a0a0a;
+  --color-pure-white: #ffffff;
+  --color-soft-gray: #666d75;
 
-  /* === SEMANTIC TOKENS (dùng trong component) === */
-  --color-primary:       var(--color-ocean-500);
-  --color-primary-hover: var(--color-ocean-600);
-  --color-secondary:     var(--color-forest-500);
-  --color-danger:        var(--color-coral-500);
-  --color-bg:            var(--color-slate-50);
-  --color-surface:       #ffffff;
-  --color-border:        var(--color-slate-200);
-  --color-text-base:     var(--color-slate-900);
-  --color-text-muted:    var(--color-slate-500);
+  /* Typography */
+  --font-soehne: 'Soehne', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-soehne); /* Sẽ được layout mapping với Be Vietnam Pro */
 
-  /* === TYPOGRAPHY === */
-  --font-sans: "Be Vietnam Pro", system-ui, sans-serif;
+  /* Typography — Scale */
+  --text-caption: 11px;
+  --leading-caption: 1.44;
+  --tracking-caption: 2.22px;
+  --text-body: 14px;
+  --leading-body: 1.44;
+  --tracking-body: -0.2px;
+  --text-subheading: 18px;
+  --leading-subheading: 1.33;
+  --tracking-subheading: -0.32px;
+  --text-heading-sm: 22px;
+  --leading-heading-sm: 1.33;
+  --tracking-heading-sm: -0.35px;
+  --text-heading: 32px;
+  --leading-heading: 1.3;
+  --tracking-heading: -0.51px;
+  --text-heading-lg: 48px;
+  --leading-heading-lg: 1.3;
+  --tracking-heading-lg: -0.77px;
+  --text-display: 140px;
+  --leading-display: 1;
+  --tracking-display: 2.6px;
 
-  /* === COMPONENT TOKENS === */
-  --card-radius:  0.75rem;
-  --card-shadow:  0 1px 3px rgba(0,0,0,0.08);
-  --radius-sm:    0.25rem;
-  --radius-md:    0.5rem;
-  --radius-lg:    0.75rem;
+  /* Spacing */
+  --spacing-4: 4px;
+  --spacing-5: 5px;
+  --spacing-6: 6px;
+  --spacing-9: 9px;
+  --spacing-10: 10px;
+  --spacing-14: 14px;
+  --spacing-18: 18px;
+  --spacing-20: 20px;
+  --spacing-30: 30px;
+  --spacing-36: 36px;
+  --spacing-45: 45px;
+  --spacing-72: 72px;
+  --spacing-80: 80px;
+  --spacing-81: 81px;
+  --spacing-100: 100px;
+  --spacing-215: 215px;
+
+  /* Border Radius */
+  --radius-sm: 2.25px;
+  --radius-md: 5px;
+  --radius-xl: 13.5px;
+  --radius-2xl: 18px;
+  --radius-3xl: 32px;
+
+  /* Named semantic radii */
+  --radius-cards: 32px;
+  --radius-inputs: 5px;
+  --radius-buttons: 5px;
+  --radius-navigation: 2.25px;
+  --radius-ghost-buttons: 6.75px;
+
+  /* Shadows */
+  --shadow-md: rgba(0, 0, 0, 0.05) 0px 10px 15px -3px;
 }
 ```
 
-> ⚠️ Nếu người dùng đã cung cấp file `globals.css` từ project khác, **dùng file đó làm gốc** và không ghi đè. Chỉ bổ sung các token còn thiếu.
+> ⚠️ Các component khi viết code bắt buộc phải tham chiếu và sử dụng các class utility tạo ra từ các token trên để giữ tính nhất quán tuyệt đối. Nhất là không được hardcode hex color khác ngoài bảng màu trên.
 
 ---
 

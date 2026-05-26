@@ -101,7 +101,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
       {/* Hero Header */}
       <section className="bg-deepwater-teal text-pure-white">
-        <div className="mx-auto max-w-7xl px-5 pt-[45px] pb-[36px]">
+        <div className="mx-auto max-w-7xl px-5 py-45">
           <Breadcrumb
             light={true}
             items={[
@@ -109,10 +109,10 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
               { label: catInfo.label, href: `/danh-muc/${slug}` },
             ]}
           />
-          <h1 className="mt-4 text-heading font-medium tracking-[-0.51px]">
+          <h1 className="mt-4 text-heading font-medium tracking-heading">
             {catInfo.label}
           </h1>
-          <p className="mt-3 text-[18px] leading-[1.33] tracking-[-0.32px] text-pure-white/70 max-w-xl">
+          <p className="mt-3 text-subheading leading-subheading tracking-subheading text-pure-white/70 max-w-xl">
             {catInfo.desc}
           </p>
         </div>
@@ -120,9 +120,9 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
       {/* Product list */}
       <section className="bg-canvas">
-        <div className="mx-auto max-w-7xl px-5 py-[45px]">
+        <div className="mx-auto max-w-7xl px-5 py-45">
           {products.length === 0 ? (
-            <p className="text-center text-soft-gray py-[72px]">
+            <p className="text-center text-soft-gray py-72">
               Chưa có sản phẩm nào thuộc danh mục này. Vui lòng quay lại sau.
             </p>
           ) : (
@@ -131,7 +131,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                 <Link
                   key={product.id}
                   href={`/san-pham/${product.slug}`}
-                  className="group block bg-pure-white rounded-[32px] overflow-hidden hover:shadow-md transition-all duration-150"
+                  className="group block bg-pure-white rounded-cards overflow-hidden hover:shadow-md transition-all duration-150"
                 >
                   {/* Image */}
                   <div className="relative aspect-square bg-canvas overflow-hidden">
@@ -145,14 +145,14 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center bg-deepwater-teal/10">
-                        <span className="text-[48px]">🦀</span>
+                        <span className="text-heading-lg">🦀</span>
                       </div>
                     )}
                     {/* Badge */}
                     {product.original_price && product.original_price > product.price && (
-                      <div className="absolute top-[9px] right-[9px] flex items-center gap-1 bg-deepwater-teal text-pure-white px-[9px] py-[5px] rounded-[5px]">
+                      <div className="absolute top-9 right-9 flex items-center gap-1 bg-deepwater-teal text-pure-white px-9 py-5 rounded-buttons">
                         <TagIcon size={10} aria-hidden={true} />
-                        <span className="text-[11px] font-semibold tracking-[1px]">
+                        <span className="text-caption font-semibold tracking-caption">
                           -{Math.round((1 - product.price / product.original_price) * 100)}%
                         </span>
                       </div>
@@ -160,20 +160,20 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                   </div>
 
                   {/* Info */}
-                  <div className="p-[20px]">
-                    <h2 className="text-[16px] font-medium tracking-[-0.2px] text-ink-black group-hover:text-deepwater-teal transition-colors duration-150 line-clamp-2">
+                  <div className="p-20">
+                    <h2 className="text-body font-medium tracking-body text-ink-black group-hover:text-deepwater-teal transition-colors duration-150 line-clamp-2">
                       {product.name}
                     </h2>
-                    <p className="mt-1 text-[11px] text-soft-gray">
+                    <p className="mt-1 text-caption text-soft-gray">
                       {product.merchant_name}
                     </p>
 
-                    <div className="mt-[10px] flex items-baseline gap-2">
-                      <span className="text-[22px] font-medium tracking-[-0.35px] text-ink-black">
+                    <div className="mt-10 flex items-baseline gap-2">
+                      <span className="text-heading-sm font-medium tracking-heading-sm text-ink-black">
                         {product.price.toLocaleString('vi-VN')}₫
                       </span>
                       {product.original_price && product.original_price > product.price && (
-                        <span className="text-[14px] text-soft-gray line-through">
+                        <span className="text-body text-soft-gray line-through">
                           {product.original_price.toLocaleString('vi-VN')}₫
                         </span>
                       )}
@@ -187,13 +187,13 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
           {/* Pagination */}
           {pagination.totalPages > 1 && (
             <nav
-              className="mt-[45px] flex items-center justify-center gap-2"
+              className="mt-45 flex items-center justify-center gap-2"
               aria-label={`Phân trang danh mục ${catInfo.label}`}
             >
               {page > 1 && (
                 <Link
                   href={page - 1 === 1 ? `/danh-muc/${slug}` : `/danh-muc/${slug}?page=${page - 1}`}
-                  className="px-[14px] py-[9px] text-[14px] font-medium border border-canvas rounded-[5px] text-ink-black bg-pure-white hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
+                  className="px-14 py-9 text-body font-medium border border-canvas rounded-buttons text-ink-black bg-pure-white hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
                 >
                   Trang trước
                 </Link>
@@ -203,7 +203,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                   key={p}
                   href={p === 1 ? `/danh-muc/${slug}` : `/danh-muc/${slug}?page=${p}`}
                   aria-current={p === page ? 'page' : undefined}
-                  className={`px-[14px] py-[9px] text-[14px] font-medium rounded-[5px] transition-colors duration-150 ${p === page
+                  className={`px-14 py-9 text-body font-medium rounded-buttons transition-colors duration-150 ${p === page
                       ? 'bg-deepwater-teal text-pure-white border border-deepwater-teal'
                       : 'border border-canvas bg-pure-white text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal'
                     }`}
@@ -214,7 +214,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
               {page < pagination.totalPages && (
                 <Link
                   href={`/danh-muc/${slug}?page=${page + 1}`}
-                  className="px-[14px] py-[9px] text-[14px] font-medium border border-canvas rounded-[5px] bg-pure-white text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
+                  className="px-14 py-9 text-body font-medium border border-canvas rounded-buttons bg-pure-white text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
                 >
                   Trang sau
                 </Link>

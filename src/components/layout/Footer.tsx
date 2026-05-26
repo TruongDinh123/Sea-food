@@ -28,7 +28,7 @@ export default function Footer() {
   return (
     <footer className="bg-deepwater-teal text-pure-white mt-auto">
       {/* Main footer grid */}
-      <div className="mx-auto max-w-7xl px-5 py-[72px]">
+      <div className="mx-auto max-w-7xl px-5 py-72">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
           {/* Brand column */}
           <div className="md:col-span-1">
@@ -39,7 +39,7 @@ export default function Footer() {
             >
               Hải Sản Cà Mau
             </Link>
-            <p className="mt-4 text-[14px] leading-[1.44] text-pure-white/60">
+            <p className="mt-4 text-body leading-body text-pure-white/60">
               Nguồn hải sản tươi sống và đặc sản khô từ vùng biển Cà Mau — Mũi Cà Mau, Việt Nam.
             </p>
           </div>
@@ -47,7 +47,7 @@ export default function Footer() {
           {/* Link columns */}
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
-              <h3 className="text-[11px] font-semibold tracking-[2.22px] uppercase text-pure-white/50 mb-4">
+              <h3 className="text-caption font-semibold tracking-caption uppercase text-pure-white/50 mb-4">
                 {category}
               </h3>
               <ul className="space-y-3">
@@ -55,7 +55,7 @@ export default function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-[14px] text-pure-white/70 hover:text-pure-white transition-colors duration-150"
+                      className="text-body text-pure-white/70 hover:text-pure-white transition-colors duration-150"
                     >
                       {link.label}
                     </Link>
@@ -70,10 +70,10 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-pure-white/10">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5">
-          <p className="text-[11px] tracking-[2.22px] text-pure-white/40 uppercase">
+          <p className="text-caption tracking-caption text-pure-white/40 uppercase">
             © {currentYear} Hải Sản Cà Mau. All rights reserved.
           </p>
-          <p className="text-[11px] text-pure-white/30 hidden md:block">
+          <p className="text-caption text-pure-white/30 hidden md:block">
             Cà Mau, Việt Nam
           </p>
         </div>

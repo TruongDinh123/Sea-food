@@ -38,7 +38,7 @@ export default function Breadcrumb({ items, light = false }: BreadcrumbProps) {
       />
       <nav aria-label="Breadcrumb" className="py-3">
         <ol
-          className={`flex flex-wrap items-center gap-1.5 text-[11px] tracking-[2.22px] uppercase ${
+          className={`flex flex-wrap items-center gap-1.5 text-caption tracking-caption uppercase ${
             light ? 'text-pure-white/60' : 'text-soft-gray'
           }`}
           itemScope

@@ -1,93 +1,87 @@
-# Kế Hoạch Triển Khai: Phát Triển Tầng Dữ Liệu & API (Sprint 1 Backend)
+# Kế Hoạch Triển Khai: Tối Ưu Hóa Cấu Trúc .agents, Sửa Lỗi Git Hooks & Áp Dụng Triệt Để Design System
 
-Tài liệu này đề xuất chi tiết kỹ thuật triển khai mã nguồn Backend cho Sprint 1 (các nhiệm vụ **T1, T4, T5, T7**), tập trung vào thiết lập Types, tầng Repository truy xuất dữ liệu, tầng Service xử lý business logic, và API Route Handler cho Thương lái.
+Kế hoạch này tập trung vào việc tối ưu hóa cấu hình `.agents`, sửa lỗi Husky Git hooks trên Windows, và đồng bộ hóa, áp dụng triệt để hệ thống Design System từ thư mục `Design_system` vào toàn bộ dự án Frontend, đồng thời đổi font mặc định sang `Be Vietnam Pro` để hỗ trợ hiển thị Tiếng Việt tốt nhất.
 
 ---
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - **Cấu trúc Dữ liệu & Kiểu (Types)**: Định nghĩa các Interface TypeScript tại `src/types/` ánh xạ chính xác với database schema hiện có (đặc biệt là xử lý kiểu dữ liệu `NUMERIC` từ PostgreSQL sang `number` trong ứng dụng).
-> - **Nguyên tắc Bảo mật & Dữ liệu**:
->   - Triển khai **Soft Delete** triệt để (`deleted_at IS NOT NULL` là bản ghi bị xóa tạm). Tuyệt đối không dùng lệnh `DELETE` vật lý.
->   - Không sử dụng `SELECT *` trong SQL query. Chỉ chọn đúng các cột cần thiết để tối ưu băng thông và tránh lộ dữ liệu nhạy cảm.
-> - **Hỗ trợ ProductGroup (Variants)**: Sử dụng phương pháp truy vấn theo tiền tố slug (slug prefix) để nhóm các biến thể sản phẩm (ví dụ: các size tôm sú khác nhau) giúp Frontend dễ dàng sinh JSON-LD `ProductGroup` schema chuẩn SEO.
+> - **In thông số Token tự động**: Để khắc phục tình trạng IDE nuốt log từ hook, tôi (AI) sẽ tự động in thủ công thông số Input/Output Token và Turn ước tính ở cuối mỗi phản hồi của tôi trong cuộc hội thoại. Đồng thời, sửa lại đường dẫn động trong script đo token để tránh crash trên Windows.
+> - **Chuyển đổi font mặc định sang Be Vietnam Pro**: `Design_system/DESIGN.md` yêu cầu font `Soehne` (substitute `Inter`), nhưng `GEMINI.md` của dự án yêu cầu dùng font `Be Vietnam Pro` để tối ưu hiển thị Tiếng Việt. Chúng ta sẽ cấu hình `Be Vietnam Pro` làm font chính (`--font-sans`) và import từ Google Fonts.
+> - **Áp dụng triệt để Design System**: Di chuyển toàn bộ định nghĩa biến CSS từ `Design_system/variable.css` và `@theme` từ `Design_system/theme.css` vào `src/app/globals.css`. Cập nhật các component UI để sử dụng các class Tailwind v4 chuẩn của hệ thống thiết kế (ví dụ: `rounded-cards` thay thế cho `rounded-[32px]`, `rounded-buttons` thay thế cho `rounded-[5px]`).
+> - **Nới lỏng phân vai**: Cho phép Antigravity hoạt động dưới dạng **Fullstack Developer** khi tương tác trực tiếp với người dùng thay vì bị giới hạn miền hoạt động nghiêm ngặt như trước.
 
 ---
 
 ## Open Questions
 
 > [!NOTE]
-> *Không có câu hỏi mở cần làm rõ. Cấu trúc cơ sở dữ liệu hiện tại trong `db/migrations/` đã rất rõ ràng và đầy đủ.*
+> *Không có câu hỏi mở cần làm rõ. Việc tích hợp sẽ tuân thủ nghiêm ngặt các giá trị token màu sắc và khoảng cách trong thư mục `Design_system/`.*
 
 ---
 
 ## Proposed Changes
 
-Chúng ta sẽ tạo mới các file sau thuộc tầng Backend:
+### 1. Đồng bộ hóa Design System & Font chữ
 
-### 1. TypeScript Types Layer (T1)
+#### [MODIFY] [globals.css](file:///e:/Web-Seo/src/app/globals.css)
+* Đồng bộ hóa hoàn toàn các token từ `Design_system/variable.css` (màu sắc, typography, spacing, border-radius, shadows, surfaces) vào `@theme` của Tailwind v4.
+* Khai báo font `--font-sans` map với font `Be Vietnam Pro` để hỗ trợ hiển thị tiếng Việt hoàn hảo.
+* Định nghĩa đầy đủ các custom utility classes (`rounded-cards`, `rounded-buttons`, `rounded-inputs`, `rounded-navigation`, `rounded-ghost-buttons`, `shadow-md`, `bg-deepwater-teal`, v.v.).
 
-Định nghĩa các kiểu dữ liệu khớp với database schema của dự án.
+#### [MODIFY] [layout.tsx](file:///e:/Web-Seo/src/app/layout.tsx)
+* Đổi import font `Inter` thành `Be_Vietnam_Pro` từ `next/font/google`.
+* Khai báo và nạp biến font `Be Vietnam Pro` làm `--font-sans` chính cho thẻ `html`/`body`.
 
-#### [NEW] [merchant.types.ts](file:///e:/Web-Seo/src/types/merchant.types.ts)
-*   Định nghĩa `Merchant` interface.
-*   Định nghĩa `CreateMerchantInput` và `UpdateMerchantInput`.
-
-#### [NEW] [product.types.ts](file:///e:/Web-Seo/src/types/product.types.ts)
-*   Định nghĩa `Product` và `ProductWithMerchant` (kết hợp tên vựa phục vụ UI).
-*   Định nghĩa `CreateProductInput` và `UpdateProductInput`.
-
-#### [NEW] [referral.types.ts](file:///e:/Web-Seo/src/types/referral.types.ts)
-*   Định nghĩa `ReferralLog` interface cho bảng `referral_logs`.
-
----
-
-### 2. Merchant Component (T4, T5)
-
-#### [NEW] [merchant.repository.ts](file:///e:/Web-Seo/src/lib/repositories/merchant.repository.ts)
-*   Thực hiện các truy vấn cơ bản lên bảng `merchants`.
-*   Phương thức: `findAll`, `findById`, `count`, `create`, `update`, `softDelete`.
-*   *Lưu ý*: Lọc bỏ các bản ghi có `deleted_at IS NOT NULL`. Ép kiểu dữ liệu `numeric` về `number`.
-
-#### [NEW] [merchant.service.ts](file:///e:/Web-Seo/src/lib/services/merchant.service.ts)
-*   Xử lý logic nghiệp vụ cho Thương lái: kiểm tra đầu vào (validation), chuẩn hóa số điện thoại, phân trang.
-*   Phương thức: `getPublicMerchants` (chỉ lấy vựa đang hoạt động `is_active = true`), `getMerchantDetails`, `createMerchant`, `updateMerchant`, `deleteMerchant`.
-
-#### [NEW] [route.ts](file:///e:/Web-Seo/src/app/api/merchants/route.ts)
-*   API Route Handler `GET /api/merchants` hỗ trợ phân trang qua query params `page` và `limit`.
-*   Chỉ gọi qua Service layer, tuyệt đối không gọi trực tiếp Repository hay DB client.
+#### [MODIFY] các trang và component UI:
+* [page.tsx](file:///e:/Web-Seo/src/app/page.tsx)
+* [Header.tsx](file:///e:/Web-Seo/src/components/layout/Header.tsx)
+* [Footer.tsx](file:///e:/Web-Seo/src/components/layout/Footer.tsx)
+* [Breadcrumb.tsx](file:///e:/Web-Seo/src/components/layout/Breadcrumb.tsx)
+* [san-pham/page.tsx](file:///e:/Web-Seo/src/app/(catalog)/san-pham/page.tsx)
+* [thuong-lai/page.tsx](file:///e:/Web-Seo/src/app/thuong-lai/page.tsx)
+* *Nội dung sửa đổi*: Thay thế các arbitrary classes pixel cứng (như `rounded-[32px]`, `rounded-[5px]`, `py-[100px]`, `tracking-[-0.77px]`) bằng các class Tailwind v4 được đăng ký từ Design System (như `rounded-cards`, `rounded-buttons`, `py-100` hoặc class tiện ích tương ứng).
 
 ---
 
-### 3. Product Component (T7)
+### 2. Tối ưu hóa cấu hình `.agents` & In Token
 
-#### [NEW] [product.repository.ts](file:///e:/Web-Seo/src/lib/repositories/product.repository.ts)
-*   Thực hiện truy vấn lên bảng `products`.
-*   Phương thức: `findAll`, `findById`, `findBySlug`, `findBySlugPrefix` (để hỗ trợ gom nhóm ProductGroup), `count`, `findAllWithMerchant`, `create`, `update`, `softDelete`.
+#### [MODIFY] [hooks.json](file:///e:/Web-Seo/.agents/hooks.json)
+* Loại bỏ hook `PostToolUse` tự động chạy `npm run lint` sau mỗi lần ghi file để tránh chậm hệ thống trên Windows.
+* Tối giản hóa hook `PreInvocation` và `PostInvocation` đo token.
 
-#### [NEW] [product.service.ts](file:///e:/Web-Seo/src/lib/services/product.service.ts)
-*   Xử lý logic nghiệp vụ cho Sản phẩm: validate slug, phân nhóm biến thể kích cỡ (ProductGroup), phân trang.
-*   Phương thức: `getPublicProducts`, `getProductBySlug`, `getProductVariants` (lấy các sản phẩm cùng nhóm tôm sú size 10, 20 bằng tiền tố slug), `createProduct`, `updateProduct`, `deleteProduct`.
+#### [MODIFY] [calculate-current-turn-tokens.js](file:///e:/Web-Seo/.agents/scripts/calculate-current-turn-tokens.js)
+* Chuyển `brainDir` thành tìm kiếm động (dynamic directory path) sử dụng biến môi trường `USERPROFILE` hoặc quét từ workspace để tương thích 100% với Windows của người dùng mà không bị fix cứng đường dẫn tuyệt đối.
+
+#### [MODIFY] [AGENTS.md](file:///e:/Web-Seo/AGENTS.md) & [GEMINI.md](file:///e:/Web-Seo/GEMINI.md)
+* Điều chỉnh quy tắc phân vai để nới lỏng miền hoạt động của Antigravity khi ở chế độ Single Agent trực tiếp với người dùng.
+
+---
+
+### 3. Sửa lỗi Git Hooks
+
+#### [MODIFY] [commit-msg](file:///e:/Web-Seo/.husky/commit-msg)
+* Bổ sung dòng shebang shell `#!/bin/sh` và nạp husky script chính xác để Git Windows có thể chạy thành công qua sh shell.
 
 ---
 
 ## Verification Plan
 
 ### Automated Tests
-*   Chạy thử script kiểm tra kết nối database bằng lệnh:
-    ```bash
-    npx tsx --env-file=.env.local src/lib/db/test-connection.ts
-    ```
-*   Chạy build và lint dự án để đảm bảo kiểu dữ liệu TypeScript đồng bộ, không gây lỗi:
-    ```bash
-    npm run lint
-    ```
-    ```bash
-    npm run build
-    ```
+* Chạy build và lint dự án để đảm bảo font mới và cấu hình Design System không bị lỗi compile:
+  ```bash
+  npm run lint
+  npm run build
+  ```
+* Chạy thử script đo token để kiểm tra tính tương thích đường dẫn động:
+  ```bash
+  node .agents/scripts/calculate-current-turn-tokens.js
+  ```
+* Thử chạy lệnh Git commit sửa đổi để kiểm tra Husky hook:
+  ```bash
+  git commit --amend --no-edit
+  ```
 
 ### Manual Verification
-*   Kiểm tra trực tiếp endpoint `GET http://localhost:3000/api/merchants?page=1&limit=10` để xác minh:
-    *   Cấu trúc dữ liệu trả về chuẩn JSON có metadata phân trang.
-    *   Tránh rò rỉ các trường nhạy cảm hoặc trường đã bị soft delete.
+* Kiểm tra trực tiếp trên trình duyệt giao diện trang chủ, trang sản phẩm và thương lái xem font chữ hiển thị chuẩn `Be Vietnam Pro` (tiếng Việt không bị lỗi font) và các góc bo (radius-cards, buttons) hoạt động chính xác theo Design System.

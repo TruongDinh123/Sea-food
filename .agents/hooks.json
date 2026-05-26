@@ -1,13 +1,7 @@
 {
   "enabled": true,
   "PreToolUse": [],
-  "PostToolUse": [
-    {
-      "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
-      "command": "cmd /c \"npm run lint --silent 2>&1 | findstr /i error\" ",
-      "description": "Auto-check lint errors sau khi ghi file TypeScript/TSX/JS. Nếu có error → agent tự sửa trước khi báo cáo."
-    }
-  ],
+  "PostToolUse": [],
   "PreInvocation": [
     {
       "command": "node .agents/scripts/load-working-memory.js",

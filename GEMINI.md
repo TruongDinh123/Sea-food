@@ -21,25 +21,28 @@
 ---
 
 ## 🎨 Design Overrides
-
-- **TailwindCSS:** Ưu tiên v4 **css-first** (`@theme` trong `globals.css`). **Không** dùng `tailwind.config.js` trừ khi v4 không hỗ trợ tính năng cần thiết.
-- **Font chữ:** Mặc định dùng `Be Vietnam Pro` từ Google Fonts cho giao diện Tiếng Việt.
-- **Màu chủ đạo:** `#0D6EFD` (xanh biển), `#198754` (xanh lá - tôn lên hải sản tươi), nền trắng/xám nhạt.
+- **TailwindCSS:** Ưu tiên v4 **css-first** (`@theme` trong `globals.css`). Không dùng file config JS.
+- **Font chữ:** Mặc định sử dụng **Be Vietnam Pro** (import từ Google Fonts) để tương thích tiếng Việt và giữ thẩm mỹ chuẩn mực.
+- **Màu chủ đạo (Theo Design System):** Muted luxury deepwater palette gồm:
+  - Deepwater Teal (`#031e25`): Màu nền chính cho các khối lớn/Hero.
+  - Canvas (`#e5e7eb`): Màu nền nội dung phụ, viền và đường chia.
+  - Ink Black (`#0a0a0a`): Màu chữ tiêu đề và văn bản chính.
+  - Pure White (`#ffffff`): Màu chữ trên nền tối và màu nền nút nhấn chính.
 
 ---
 
-## 🏗️ Agent Architecture — Phân Vai (Role Assignment)
-
-Dự án sử dụng mô hình **Orchestrator-Worker** với các vai sau:
+## 🏗️ Agent Architecture & Role Overrides
+* **Chế độ Single Agent (Antigravity)**: Khi làm việc trực tiếp với người dùng, Antigravity tự động đóng vai trò là **Fullstack Developer**, có toàn quyền sửa đổi mã nguồn ở tất cả các lớp (frontend, backend, database migrations, config, scripts...) mà không bị hạn chế bởi bảng phân vai.
+* **Chế độ Multi-Agent**: Khi chạy `/spawn` song song nhiều subagents, vai trò được phân định như sau:
 
 | Vai (Role) | Workflow | Phạm vi (Domain) |
 |---|---|---|
 | **Tech Lead** | `/tech-lead-an` | Kiến trúc, review PR, quyết định kỹ thuật |
 | **Backend Dev** | `/dev-be-dat` | `src/lib/`, `src/app/api/`, `db/` |
-| **Frontend Dev** | `/dev-fe-dinh` | `src/app/`, `src/components/`, `public/` |
+| **Frontend Dev / Senior FE** | `/dev-fe-dinh` | `src/app/`, `src/components/`, `public/` |
 | **DevOps** | `/dev-ops-duc` | Deployment, CI/CD, `next.config.ts` |
 | **QA Engineer** | `/qa-vi` | Testing, kiểm tra chất lượng |
-| **Product Manager** | `/pm-quan` | Yêu cầu, backlog, acceptance criteria |
+| **Product Manager** | `/pm-quan` | Yêu cầu, backlog, acceptance criteria (AC) |
 | **BA / Sprint** | `/ba-sprint` | Phân tích, user story, sprint planning |
 
 ---

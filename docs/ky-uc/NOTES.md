@@ -13,9 +13,9 @@
 ## 📍 Trạng Thái Hiện Tại
 > *Agent cập nhật section này sau mỗi bước lớn*
 
-**Đang làm:** Phát triển Tầng Dữ Liệu & API (Sprint 1 Backend) ✅ HOÀN THÀNH
-**Tiến độ:** Đã hoàn tất 4 task Backend cốt lõi: định nghĩa Types Layer (`src/types/`), xây dựng Repository & Service layer cho cả Merchant & Product, và thiết lập API route `/api/merchants` có phân trang. Đã sửa toàn bộ lỗi typescript `any` để đảm bảo hệ thống build và lint vượt qua 100% không có lỗi.
-**Bước tiếp theo:** Bàn giao phiên làm việc cho Frontend Dev (`/dev-fe-dinh`) để thực hiện các task UI của Sprint 1 (globals.css, layout chung, trang thương lái/sản phẩm và sitemap/robots.txt).
+**Đang làm:** Tối ưu hóa cấu trúc agent rules, sửa hooks và đồng bộ Design System ✅ HOÀN THÀNH
+**Tiến độ:** Đã đồng bộ hoàn toàn Arc Design System và font chữ Be Vietnam Pro cho dự án. Khắc phục lỗi Husky Git hooks trên Windows (nạp PATH Node động). Tắt tự động lint khi ghi file để tăng tốc độ làm việc. Đã kiểm tra build Next.js (Turbopack) và commit thành công 100%.
+**Bước tiếp theo:** Bàn giao hoặc tiếp tục với Sprint 2 (thiết lập bộ Test Suite, Playwright tests).
 
 ---
 
@@ -34,6 +34,21 @@
 ---
 
 ## 📁 Files Đã Tạo / Sửa (Session này)
+
+**Tối ưu hóa Agent & Design System — 2026-05-26 (Session 002)**
+
+| File | Hành Động | Mô Tả Ngắn |
+|---|---|---|
+| `AGENTS.md` | SỬA | Nới lỏng phân vai, bắt buộc follow Design System |
+| `GEMINI.md` | SỬA | Đổi màu chủ đạo và font chữ theo Design System |
+| `.husky/commit-msg` | SỬA | Nạp PATH Node.js để fix lỗi Git hooks trên Windows |
+| `.agents/hooks.json` | SỬA | Tắt tự động lint để tăng hiệu suất |
+| `.agents/scripts/calculate-current-turn-tokens.js` | SỬA | Dynamic path cho logs |
+| `src/app/globals.css` | SỬA | Đồng bộ 100% tokens từ Design_system |
+| `src/app/layout.tsx` | SỬA | Import font Be Vietnam Pro thay thế Inter |
+| `src/app/page.tsx`, `Header.tsx`, `Footer.tsx`... | SỬA | Thay thế pixel cứng bằng class token chuẩn |
+| `docs/ke-hoach/implementation_plan.md` | SỬA | Cập nhật kế hoạch triển khai tối ưu hóa hạ tầng |
+| `docs/ke-hoach/task.md` | SỬA | Cập nhật checklist và đánh dấu hoàn thành 100% |
 
 **Backend Development — 2026-05-25 (Session 006)**
 
@@ -143,8 +158,8 @@
 
 ### Frontend
 - Font: `Be Vietnam Pro` (Google Fonts)
-- Màu: `#0D6EFD` (primary), `#198754` (secondary)
-- TailwindCSS v4: `@theme` trong `globals.css`
+- Màu: `deepwater-teal` (`#031e25`), `canvas` (`#e5e7eb`), `ink-black` (`#0a0a0a`), `pure-white` (`#ffffff`)
+- TailwindCSS v4: `@theme` trong `globals.css` (Arc Design System)
 
 ### Git
 - Branch đang dùng: *(agent điền vào khi cần)*

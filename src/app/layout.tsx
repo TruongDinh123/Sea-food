@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Be_Vietnam_Pro } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 
-// Inter là substitute cho Soehne theo Arc Design System
-const inter = Inter({
+// Be Vietnam Pro là font chính thức cho tiếng Việt theo GEMINI.md
+const beVietnamPro = Be_Vietnam_Pro({
   subsets: ['latin', 'vietnamese'],
-  weight: ['300', '400', '500', '600'],
-  variable: '--font-sans',
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-be-vietnam-pro',
   display: 'swap',
 })
 
@@ -49,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="vi" className={`${inter.variable} h-full`}>
+    <html lang="vi" className={`${beVietnamPro.variable} h-full`}>
       <body className="flex min-h-full flex-col bg-canvas antialiased">
         <Header />
         <main className="flex-1">{children}</main>

@@ -52,12 +52,12 @@ export default async function ThuongLaiPage({ searchParams }: PageProps) {
 
       {/* Hero header */}
       <section className="bg-deepwater-teal text-pure-white">
-        <div className="mx-auto max-w-7xl px-5 pt-[45px] pb-[36px]">
+        <div className="mx-auto max-w-7xl px-5 py-45">
           <Breadcrumb items={[{ label: 'Thương Lái', href: '/thuong-lai' }]} />
-          <h1 className="mt-4 text-heading font-medium tracking-[-0.51px]">
+          <h1 className="mt-4 text-heading font-medium tracking-heading">
             Thương Lái Hải Sản Cà Mau
           </h1>
-          <p className="mt-3 text-[18px] leading-[1.33] tracking-[-0.32px] text-pure-white/70 max-w-xl">
+          <p className="mt-3 text-subheading leading-subheading tracking-subheading text-pure-white/70 max-w-xl">
             Kết nối trực tiếp với các vựa thu mua hải sản uy tín tại Mũi Cà Mau.
           </p>
         </div>
@@ -65,9 +65,9 @@ export default async function ThuongLaiPage({ searchParams }: PageProps) {
 
       {/* Merchant grid */}
       <section className="bg-canvas">
-        <div className="mx-auto max-w-7xl px-5 py-[45px]">
+        <div className="mx-auto max-w-7xl px-5 py-45">
           {merchants.length === 0 ? (
-            <p className="text-center text-soft-gray py-[72px]">
+            <p className="text-center text-soft-gray py-72">
               Chưa có thương lái nào. Vui lòng quay lại sau.
             </p>
           ) : (
@@ -76,34 +76,34 @@ export default async function ThuongLaiPage({ searchParams }: PageProps) {
                 <Link
                   key={merchant.id}
                   href={`/thuong-lai/${merchant.id}`}
-                  className="group block bg-pure-white rounded-[32px] p-[20px] border border-canvas hover:shadow-md transition-all duration-150"
+                  className="group block bg-pure-white rounded-cards p-20 border border-canvas hover:shadow-md transition-all duration-150"
                   style={{ boxShadow: 'none' }}
                 >
-                  <div className="mb-[14px]">
-                    <p className="text-[11px] font-semibold tracking-[2.22px] uppercase text-soft-gray mb-2">
+                  <div className="mb-14">
+                    <p className="text-caption font-semibold tracking-caption uppercase text-soft-gray mb-2">
                       Thương Lái
                     </p>
-                    <h2 className="text-[22px] font-medium tracking-[-0.35px] text-ink-black group-hover:text-deepwater-teal transition-colors duration-150">
+                    <h2 className="text-heading-sm font-medium tracking-heading-sm text-ink-black group-hover:text-deepwater-teal transition-colors duration-150">
                       {merchant.name}
                     </h2>
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-[14px] text-soft-gray">
+                    <div className="flex items-center gap-2 text-body text-soft-gray">
                       <PhoneIcon size={14} aria-hidden={true} />
                       <span>{merchant.phone}</span>
                     </div>
                     {merchant.address && (
-                      <div className="flex items-start gap-2 text-[14px] text-soft-gray">
+                      <div className="flex items-start gap-2 text-body text-soft-gray">
                         <MapPinIcon size={14} className="mt-0.5 shrink-0" aria-hidden={true} />
                         <span className="line-clamp-2">{merchant.address}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="mt-[18px] flex items-center gap-1.5">
+                  <div className="mt-18 flex items-center gap-1.5">
                     <span
-                      className={`inline-flex items-center px-[9px] py-[5px] text-[11px] font-semibold tracking-[2.22px] uppercase rounded-[5px] ${
+                      className={`inline-flex items-center px-9 py-5 text-caption tracking-caption uppercase rounded-buttons ${
                         merchant.is_active
                           ? 'bg-deepwater-teal/10 text-deepwater-teal'
                           : 'bg-canvas text-soft-gray'
@@ -120,13 +120,13 @@ export default async function ThuongLaiPage({ searchParams }: PageProps) {
           {/* Pagination — self-referencing canonical theo từng trang */}
           {pagination.totalPages > 1 && (
             <nav
-              className="mt-[45px] flex items-center justify-center gap-2"
+              className="mt-45 flex items-center justify-center gap-2"
               aria-label="Phân trang danh sách thương lái"
             >
               {page > 1 && (
                 <Link
                   href={`/thuong-lai?page=${page - 1}`}
-                  className="px-[14px] py-[9px] text-[14px] font-medium border border-canvas rounded-[5px] text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
+                  className="px-14 py-9 text-body font-medium border border-canvas rounded-buttons text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
                 >
                   Trang trước
                 </Link>
@@ -137,7 +137,7 @@ export default async function ThuongLaiPage({ searchParams }: PageProps) {
                   key={p}
                   href={p === 1 ? '/thuong-lai' : `/thuong-lai?page=${p}`}
                   aria-current={p === page ? 'page' : undefined}
-                  className={`px-[14px] py-[9px] text-[14px] font-medium rounded-[5px] transition-colors duration-150 ${
+                  className={`px-14 py-9 text-body font-medium rounded-buttons transition-colors duration-150 ${
                     p === page
                       ? 'bg-deepwater-teal text-pure-white border border-deepwater-teal'
                       : 'border border-canvas text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal'
@@ -150,7 +150,7 @@ export default async function ThuongLaiPage({ searchParams }: PageProps) {
               {page < pagination.totalPages && (
                 <Link
                   href={`/thuong-lai?page=${page + 1}`}
-                  className="px-[14px] py-[9px] text-[14px] font-medium border border-canvas rounded-[5px] text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
+                  className="px-14 py-9 text-body font-medium border border-canvas rounded-buttons text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
                 >
                   Trang sau
                 </Link>
