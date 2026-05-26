@@ -1,26 +1,190 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================
+   ARC DESIGN SYSTEM — Deepwater Luxury Dark Theme
+   Source: Design_system/theme.css + variable.css
+   Font: Inter (substitute for proprietary Soehne)
+   Theme: dark, refined minimalism, deepwater teal palette
+   ============================================================ */
+
+@theme {
+  /* ===== COLORS — Primitive Tokens ===== */
+  --color-deepwater-teal: #031e25;   /* Hero bg, dark sections, dark text on light */
+  --color-canvas:         #e5e7eb;   /* Secondary bg, borders, dividers */
+  --color-ink-black:      #0a0a0a;   /* Headings, body text, icons on light bg */
+  --color-pure-white:     #ffffff;   /* Text on dark bg, button fills */
+  --color-soft-gray:      #666d75;   /* Placeholder text in inputs */
+
+  /* ===== COLORS — Semantic Aliases ===== */
+  --color-bg-dark:      var(--color-deepwater-teal);
+  --color-bg-light:     var(--color-canvas);
+  --color-text-primary: var(--color-ink-black);
+  --color-text-inverse: var(--color-pure-white);
+  --color-text-muted:   var(--color-soft-gray);
+  --color-border:       var(--color-canvas);
+
+  /* ===== SURFACES ===== */
+  --color-surface-dark:  #031e25;   /* Surface level 0: hero, feature cards */
+  --color-surface-light: #e5e7eb;   /* Surface level 1: content sections */
+  --color-surface-input: rgba(102, 109, 117, 0.06); /* Input fill on light bg */
+
+  /* ===== TYPOGRAPHY — Font Family ===== */
+  /* Inter là substitute chuẩn cho Soehne theo DESIGN.md */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* ===== TYPOGRAPHY — Type Scale ===== */
+  --text-caption:     11px;
+  --text-body:        14px;
+  --text-subheading:  18px;
+  --text-heading-sm:  22px;
+  --text-heading:     32px;
+  --text-heading-lg:  48px;
+  --text-display:     140px;
+
+  /* ===== TYPOGRAPHY — Line Heights ===== */
+  --leading-caption:     1.44;
+  --leading-body:        1.44;
+  --leading-subheading:  1.33;
+  --leading-heading-sm:  1.33;
+  --leading-heading:     1.30;
+  --leading-heading-lg:  1.30;
+  --leading-display:     1.00;
+
+  /* ===== TYPOGRAPHY — Letter Spacing ===== */
+  --tracking-caption:     2.22px;
+  --tracking-body:        -0.20px;
+  --tracking-subheading:  -0.32px;
+  --tracking-heading-sm:  -0.35px;
+  --tracking-heading:     -0.51px;
+  --tracking-heading-lg:  -0.77px;
+  --tracking-display:     2.60px;
+
+  /* ===== TYPOGRAPHY — Font Weights ===== */
+  --font-weight-light:    300;
+  --font-weight-regular:  400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+
+  /* ===== SPACING ===== */
+  --spacing-4:   4px;
+  --spacing-5:   5px;
+  --spacing-6:   6px;
+  --spacing-9:   9px;
+  --spacing-10:  10px;
+  --spacing-14:  14px;
+  --spacing-18:  18px;
+  --spacing-20:  20px;
+  --spacing-30:  30px;
+  --spacing-36:  36px;
+  --spacing-45:  45px;
+  --spacing-72:  72px;
+  --spacing-80:  80px;
+  --spacing-81:  81px;
+  --spacing-100: 100px;
+  --spacing-215: 215px;
+
+  /* ===== LAYOUT ===== */
+  --section-gap:  36px;
+  --card-padding: 20px;
+  --element-gap:  20px;
+
+  /* ===== BORDER RADIUS ===== */
+  --radius-sm:   2.25px;  /* navigation items */
+  --radius-md:   5px;     /* buttons, inputs */
+  --radius-xl:   13.5px;
+  --radius-2xl:  18px;
+  --radius-3xl:  32px;    /* cards */
+
+  /* Named semantic radii */
+  --radius-cards:        32px;
+  --radius-inputs:       5px;
+  --radius-buttons:      5px;
+  --radius-navigation:   2.25px;
+  --radius-ghost-buttons: 6.75px;
+
+  /* ===== SHADOWS ===== */
+  /* Elevation is minimal — only hero section uses shadow */
+  --shadow-md: rgba(0, 0, 0, 0.05) 0px 10px 15px -3px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  background-color: var(--color-surface-light);
+  color: var(--color-text-primary);
+  min-height: 100dvh;
+}
+
+/* ============================================================
+   TYPOGRAPHY UTILITIES
+   Dùng class này trong component thay vì inline style
+   ============================================================ */
+
+.text-display {
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  font-weight: var(--font-weight-medium);
+}
+
+.text-heading-lg {
+  font-size: var(--text-heading-lg);
+  line-height: var(--leading-heading-lg);
+  letter-spacing: var(--tracking-heading-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.text-heading {
+  font-size: var(--text-heading);
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-heading);
+  font-weight: var(--font-weight-medium);
+}
+
+.text-heading-sm {
+  font-size: var(--text-heading-sm);
+  line-height: var(--leading-heading-sm);
+  letter-spacing: var(--tracking-heading-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.text-subheading {
+  font-size: var(--text-subheading);
+  line-height: var(--leading-subheading);
+  letter-spacing: var(--tracking-subheading);
+  font-weight: var(--font-weight-regular);
+}
+
+.text-body {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  font-weight: var(--font-weight-regular);
+}
+
+.text-caption {
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  letter-spacing: var(--tracking-caption);
+  font-weight: var(--font-weight-semibold);
 }

@@ -1,65 +1,73 @@
-import Image from "next/image";
+import type { Metadata } from 'next'
+import Link from 'next/link'
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: 'Hải Sản Tươi Sống Cà Mau — Tôm Sú, Cua Biển Chính Hãng',
+  description:
+    'Hải Sản Cà Mau cung cấp tôm sú, cua biển, ghẹ, mực tươi sống và đặc sản khô từ vùng biển Cà Mau. Kết nối trực tiếp với thương lái uy tín, giá tốt nhất.',
+  alternates: { canonical: '/' },
+}
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      {/* Hero — Deepwater Teal background */}
+      <section className="bg-deepwater-teal text-pure-white">
+        <div className="mx-auto max-w-7xl px-5 py-[100px]">
+          <p className="text-[11px] font-semibold tracking-[2.22px] uppercase text-pure-white/50 mb-6">
+            Hải Sản Cà Mau
           </p>
+          <h1 className="text-heading-lg font-semibold tracking-[-0.77px] max-w-2xl">
+            Tươi Từ Biển Cà Mau
+          </h1>
+          <p className="mt-5 text-[18px] leading-[1.33] tracking-[-0.32px] text-pure-white/70 max-w-lg">
+            Tôm Sú, Cua Biển, Ghẹ và Đặc Sản Khô — kết nối trực tiếp với thương lái uy tín từ vùng biển Mũi Cà Mau.
+          </p>
+          <div className="mt-[36px] flex flex-wrap gap-4">
+            <Link
+              href="/san-pham"
+              className="inline-flex items-center px-[20px] py-[10px] bg-pure-white text-ink-black text-[14px] font-medium rounded-[5px] transition-opacity duration-150 hover:opacity-90"
+            >
+              Xem Sản Phẩm
+            </Link>
+            <Link
+              href="/thuong-lai"
+              className="inline-flex items-center px-[20px] py-[10px] border border-canvas text-pure-white text-[14px] font-medium rounded-[6.75px] transition-colors duration-150 hover:bg-pure-white/10"
+            >
+              Tìm Thương Lái
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Feature sections */}
+      <section className="bg-canvas">
+        <div className="mx-auto max-w-7xl px-5 py-[72px]">
+          <h2 className="text-heading font-medium tracking-[-0.51px] text-ink-black mb-[36px]">
+            Danh Mục Sản Phẩm
+          </h2>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { href: '/danh-muc/tom-su', name: 'Tôm Sú', desc: 'Tôm sú tươi sống, nhiều size từ 10–30 con/kg' },
+              { href: '/danh-muc/cua-bien', name: 'Cua Biển', desc: 'Cua biển Cà Mau loại 1, thịt chắc ngọt' },
+              { href: '/danh-muc/hai-san-kho', name: 'Hải Sản Khô', desc: 'Tôm khô, mực khô, cá khô đặc sản Cà Mau' },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group block bg-deepwater-teal text-pure-white rounded-[32px] p-[20px] hover:opacity-90 transition-opacity duration-150"
+              >
+                <h3 className="text-[22px] font-medium tracking-[-0.35px] mb-[10px]">
+                  {item.name}
+                </h3>
+                <p className="text-[14px] leading-[1.44] text-pure-white/60">
+                  {item.desc}
+                </p>
+              </Link>
+            ))}
+          </div>
         </div>
-      </main>
-    </div>
-  );
+      </section>
+    </>
+  )
 }
