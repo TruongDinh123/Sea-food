@@ -18,10 +18,9 @@
     }
   ],
   "PostInvocation": [
-    {
-      "command": "node .agents/scripts/calculate-current-turn-tokens.js --update",
-      "description": "Tự động tính toán và cập nhật số lượng input/output tokens và turns sau khi agent phản hồi."
-    }
+    // Đã xóa: calculate-current-turn-tokens.js — Antigravity không expose token API,
+    // ước tính 4 chars=1 token không chính xác. Chạy thủ công nếu cần:
+    // node .agents/scripts/track-session-metrics.js --add-tokens --input=N --output=N
   ],
   "Stop": [
     {

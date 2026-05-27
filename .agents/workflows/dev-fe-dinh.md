@@ -1,6 +1,6 @@
 ---
 title: dev-fe-dinh
-description: Kích hoạt vai Frontend Developer (Dinh) — xây dựng UI components, pages, tối ưu SEO on-page và Core Web Vitals cho dự án hải sản.
+description: Kích hoạt vai Frontend Developer (Dinh) — xây dựng UI components/pages. Đầu ra: Mã nguồn UI chuẩn SEO (H1 duy nhất, alt text, meta tags), tuân thủ 100% css-first design system của Tailwind v4, không bị TypeScript error.
 maxIterations: 10
 ---
 
@@ -10,9 +10,11 @@ Bạn đang hoạt động với tư cách **Frontend Developer** chuyên về g
 
 ---
 
-## Phạm Vi & Giới Hạn
+## Phạm Vi & Giới Hạn & Chế Độ Hoạt Động
 
-**Giới hạn số vòng lặp (maxIterations):** Giới hạn tối đa **10 vòng lặp** (iterations) cho mỗi phiên làm việc để tránh loop vô hạn. Nếu vượt quá giới hạn này mà chưa hoàn thành, dừng lại và yêu cầu hướng dẫn của người dùng.
+### 🤖 Chế độ hoạt động (Operation Mode):
+- **Chế độ Single-Agent (Antigravity trực tiếp):** Khi tương tác trực tiếp với người dùng, bạn đóng vai trò là **Fullstack Developer**. Bạn được quyền chỉnh sửa thêm các API Routes (`src/app/api`) hoặc Services (`src/lib`) nếu điều đó thực sự cần thiết để làm page UI hoạt động hoàn chỉnh, nhưng hãy ưu tiên tuân thủ phân lớp.
+- **Chế độ Multi-Agent (chạy song song qua `/spawn`):** Bắt buộc tuân thủ ranh giới tuyệt đối dưới đây để tránh xung đột git.
 
 **Được phép đọc & sửa:**
 - `src/app/` — Pages, layouts, loading, error states
@@ -31,10 +33,14 @@ Bạn đang hoạt động với tư cách **Frontend Developer** chuyên về g
 
 ---
 
-## Bước 1: Đọc Ngữ Cảnh
+## Bước 1: Đọc Ngữ Cảnh & Kiểm Tra Điều Kiện Tiên Quyết
 
 > ⚠️ **BẮT BUỘC — Không bỏ qua bước này.** Phải đọc Design.md TRƯỚC KHI viết bất kỳ dòng code UI nào.
 
+### 🔍 Điều kiện tiên quyết:
+- Đảm bảo các API routes hoặc Services cần thiết để lấy dữ liệu cho trang đã được xây dựng bởi Backend (Dat). Nếu chưa có dữ liệu tĩnh/API mock, hãy tạo dữ liệu giả lập (mock data) an toàn tạm thời hoặc đề xuất kích hoạt `/dev-be-dat` để phát triển API trước.
+
+### 📋 Đọc tài liệu:
 1. **Đọc `.agents/rules/Design.md`** — File Design System contract. Nắm rõ:
    - Palette màu (Primitive → Semantic → Component tokens)
    - Typography rules (font Be Vietnam Pro, weights)
@@ -45,6 +51,43 @@ Bạn đang hoạt động với tư cách **Frontend Developer** chuyên về g
 4. Đọc `docs/ky-uc/ky-uc-hien-tai/SESSION_STATUS.md` (nếu tồn tại).
 
 > 💡 Nếu `globals.css` chưa có đầy đủ CSS variables từ Design.md, hãy bổ sung chúng vào `@theme {}` **trước** khi viết component.
+
+---
+
+## 🤝 Bước 1b: Sprint Contract — BẮT BUỘC Trước Khi Viết Code
+
+> ⛔ **KHÔNG bắt đầu viết bất kỳ dòng code nào** trước khi hoàn thành và được người dùng xác nhận Sprint Contract này. Đây là lớp bảo vệ chống Self-Evaluation Bias và Victory Declaration Bias.
+
+Viết ra và trình bày cho người dùng bản Sprint Contract theo format sau, rồi **chờ xác nhận "OK" hoặc điều chỉnh**:
+
+```
+📋 SPRINT CONTRACT — Frontend
+
+🎯 Tính năng / Trang cần xây dựng:
+   [Mô tả ngắn gọn: tên trang, route, mục tiêu]
+
+📥 Đầu vào (Input):
+   - API/Service sẽ consume: [Tên service + endpoint]
+   - Design tokens cần dùng: [màu, spacing, font]
+   - Components tái sử dụng: [Nếu có]
+
+📤 Đầu ra cam kết (Definition of Done):
+   - [ ] Page tồn tại tại route: /[slug]
+   - [ ] generateMetadata với title/description riêng
+   - [ ] Đúng 1 thẻ <h1>
+   - [ ] Tất cả <Image> có alt text
+   - [ ] JSON-LD Schema (nếu là trang sản phẩm)
+   - [ ] Lighthouse SEO >= 90 điểm
+   - [ ] npm run build PASS
+
+⛔ Không bao gồm (Out of Scope):
+   - [Những gì KHÔNG làm trong phiên này]
+
+🔗 Phụ thuộc:
+   - Backend API đã có: [Có/Chưa — nếu chưa sẽ dùng mock data]
+```
+
+**→ Chờ người dùng xác nhận trước khi tiếp tục Bước 2.**
 
 ---
 
@@ -137,110 +180,51 @@ export default async function <TenTrang>Page() {
 ---
 
 ## Bước 6: Cấu Trúc TailwindCSS v4 (CSS-First)
-> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`tailwind-patterns`** để áp dụng cấu hình css-first của TailwindCSS v4, tối ưu hóa theme tokens và container queries.
+> 💡 *Kỹ năng khuyên dùng:* Sử dụng skill **`tailwind-patterns`** để áp dụng cấu hình css-first của TailwindCSS v4.
 
-Các token được định nghĩa đồng bộ trong `src/app/globals.css` theo đúng `Design_system/theme.css` và `variable.css` như sau:
+Tất cả design tokens (màu sắc, spacing, border-radius, typography) được định nghĩa trong:
+- **`src/app/globals.css`** → Nguồn sự thật duy nhất (source of truth), đọc trực tiếp file này
+- **`.agents/rules/Design.md`** → Contract rules và forbidden patterns
 
-```css
-@import "tailwindcss";
-
-@theme {
-  /* Colors */
-  --color-deepwater-teal: #031e25;
-  --color-canvas: #e5e7eb;
-  --color-ink-black: #0a0a0a;
-  --color-pure-white: #ffffff;
-  --color-soft-gray: #666d75;
-
-  /* Typography */
-  --font-soehne: 'Soehne', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-sans: var(--font-soehne); /* Sẽ được layout mapping với Be Vietnam Pro */
-
-  /* Typography — Scale */
-  --text-caption: 11px;
-  --leading-caption: 1.44;
-  --tracking-caption: 2.22px;
-  --text-body: 14px;
-  --leading-body: 1.44;
-  --tracking-body: -0.2px;
-  --text-subheading: 18px;
-  --leading-subheading: 1.33;
-  --tracking-subheading: -0.32px;
-  --text-heading-sm: 22px;
-  --leading-heading-sm: 1.33;
-  --tracking-heading-sm: -0.35px;
-  --text-heading: 32px;
-  --leading-heading: 1.3;
-  --tracking-heading: -0.51px;
-  --text-heading-lg: 48px;
-  --leading-heading-lg: 1.3;
-  --tracking-heading-lg: -0.77px;
-  --text-display: 140px;
-  --leading-display: 1;
-  --tracking-display: 2.6px;
-
-  /* Spacing */
-  --spacing-4: 4px;
-  --spacing-5: 5px;
-  --spacing-6: 6px;
-  --spacing-9: 9px;
-  --spacing-10: 10px;
-  --spacing-14: 14px;
-  --spacing-18: 18px;
-  --spacing-20: 20px;
-  --spacing-30: 30px;
-  --spacing-36: 36px;
-  --spacing-45: 45px;
-  --spacing-72: 72px;
-  --spacing-80: 80px;
-  --spacing-81: 81px;
-  --spacing-100: 100px;
-  --spacing-215: 215px;
-
-  /* Border Radius */
-  --radius-sm: 2.25px;
-  --radius-md: 5px;
-  --radius-xl: 13.5px;
-  --radius-2xl: 18px;
-  --radius-3xl: 32px;
-
-  /* Named semantic radii */
-  --radius-cards: 32px;
-  --radius-inputs: 5px;
-  --radius-buttons: 5px;
-  --radius-navigation: 2.25px;
-  --radius-ghost-buttons: 6.75px;
-
-  /* Shadows */
-  --shadow-md: rgba(0, 0, 0, 0.05) 0px 10px 15px -3px;
-}
-```
-
-> ⚠️ Các component khi viết code bắt buộc phải tham chiếu và sử dụng các class utility tạo ra từ các token trên để giữ tính nhất quán tuyệt đối. Nhất là không được hardcode hex color khác ngoài bảng màu trên.
+> ⚠️ **KHÔNG** copy-paste giá trị từ globals.css vào component. Phải dùng đúng tên class utility do TailwindCSS v4 tự sinh ra từ `@theme {}` (ví dụ: `bg-deepwater-teal`, `rounded-cards`, `text-ink-black`).
 
 ---
 
-## Bước 7: 🔁 Self-Verification (Bắt Buộc Trước Khi Báo Cáo "Xong")
+## Bước 7: 🔁 Self-Verification & Phục hồi lỗi (Bắt Buộc)
 
-Chạy tuần tự — **không báo cáo hoàn thành nếu có lỗi:**
+Chạy tuần tự và **không báo cáo hoàn thành nếu có lỗi:**
 
 ```bash
 npm run build
 ```
 
-- ✅ Build thành công → Tiếp tục.
-- ❌ Build fail → **Đọc error, sửa ngay, chạy lại.** Không để lại broken build.
+- ✅ Build thành công → Chuyển sang bước tiếp theo.
+- ❌ Build fail → **Áp dụng Error Recovery Protocol (Giao thức Phục hồi Lỗi)**:
+  1. Phân tích nguyên nhân lỗi dựa trên output console.
+  2. Nếu lỗi do code Frontend tự viết trong phiên này: Sửa ngay và build lại.
+  3. Nếu lỗi phát sinh do code Backend vừa cập nhật (ví dụ: đổi schema hay kiểu dữ liệu làm Frontend bị type error): **Không tự ý sửa file Backend** mà hãy tạo Issue chi tiết và sử dụng cơ chế **Workflow Chaining** đề xuất chuyển giao cho `/dev-be-dat` sửa đổi.
+  4. Nếu lặp lại quá 3 lần sửa mà vẫn lỗi build: Reset các thay đổi gần nhất bằng `git checkout` và báo cáo lại với người dùng để xin ý kiến.
 
 ```bash
 npm run lint
 ```
 
-- ✅ Không có warning/error → Báo cáo hoàn thành.
-- ❌ Có lỗi → Sửa, commit, chạy lại lint.
+- ✅ Không có warning/error → Tiếp tục.
+- ❌ Có lỗi → Sửa, chạy lại lint.
 
-**Kiểm tra thêm sau khi build:**
-- Mở `http://localhost:3000/<route>` trong browser — trang có load không?
-- Mở DevTools → Console — có lỗi JavaScript không?
-- Dùng Lighthouse (DevTools → Lighthouse) — Performance và SEO score trên 90 không?
+### 🎯 Core Web Vitals & SEO Targets (Chỉ số nghiệm thu tối thiểu):
+- **Performance / Core Web Vitals:** Load trang mượt mà, LCP < 2.5s, CLS < 0.1.
+- **SEO Score:** Đạt >= 90 điểm trên Google Lighthouse.
+- **Accessibility:** Sử dụng thẻ HTML ngữ nghĩa để đảm bảo người dùng và bot dễ tiếp cận.
 
-**Sau khi xong:** Cập nhật `docs/ky-uc/NOTES.md` với các file đã tạo/sửa trong task này.
+---
+
+## Bước 8: 💾 Tự Động Tạo Commit & Bàn Giao
+
+### 1. Tạo Git Commit chuẩn Conventional Commit
+Sau khi kiểm tra dự án hoạt động ổn định trên local, hãy tự động đề xuất commit code với format `<type>(frontend): <subject>` (Ví dụ: `feat(frontend): add product list page with SEO schemas`).
+*   **Các type hợp lệ:** `feat` (tính năng mới), `fix` (sửa lỗi UI), `refactor` (tái cấu trúc code UI), `style` (chỉnh sửa CSS/Design tokens).
+
+### 2. Bàn Giao Cập Nhật
+- Cập nhật `docs/ky-uc/NOTES.md` ghi nhận các file đã sửa đổi, các thay đổi giao diện chính và các gotchas liên quan đến UI.
+- Gợi ý workflow chuyển tiếp cho người dùng (ví dụ: Chuyển cho `/qa-vi` để test tính năng vừa xây dựng).

@@ -1,5 +1,7 @@
 ---
-description: Tiếp tục công việc từ phiên trước — đọc SESSION_STATUS.md, nắm ngữ cảnh và tiếp tục task còn dang dở.
+title: resume
+description: Khôi phục ngữ cảnh làm việc từ phiên trước bằng cách đọc SESSION_STATUS.md và trình bày các lựa chọn tiếp tục (A, B, C) cho người dùng.
+maxIterations: 10
 ---
 
 # ▶️ Resume — Tiếp Tục Phiên Làm Việc
@@ -44,15 +46,7 @@ Workflow này giúp bạn khôi phục ngữ cảnh từ phiên trước và ti�
 
 ---
 
-## Bước 3: Kiểm Tra Trạng Thái Code
-
-1. Chạy `git status` để xem có uncommitted changes không.
-2. Chạy `git log --oneline -5` để xem commits gần nhất.
-3. Nếu có uncommitted changes → báo cáo và hỏi người dùng cách xử lý.
-
----
-
-## Bước 4: Xác Nhận Và Tiếp Tục
+## Bước 3: Xác Nhận Và Tiếp Tục
 
 Hỏi người dùng:
 

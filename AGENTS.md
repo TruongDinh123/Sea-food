@@ -229,6 +229,18 @@ Tác tử AI phải luôn xin ý kiến phê duyệt của người dùng trư�
 4. **Secrets:** Không bao giờ in giá trị của biến chứa: `KEY`, `SECRET`, `PASSWORD`, `TOKEN`.
 5. **Main branch:** Không push trực tiếp lên `main`. Tạo branch feature → PR.
 
+### 📊 Bảng 3-Tier Boundary (GitHub Analysis — 2,500+ AGENTS.md repos)
+
+Mọi agent phải phân loại hành động theo 3 mức trước khi thực hiện:
+
+| Tier | Nguyên tắc | Ví dụ cụ thể cho dự án này |
+|---|---|---|
+| **✅ Always** (Luôn làm — không cần hỏi) | Các hành động an toàn, reversible, đã được quy định rõ | Log thay đổi vào NOTES.md; dùng soft delete (deleted_at); dùng UTC timestamps; chạy `npm run build` trước khi báo xong |
+| **❓ Ask First** (Hỏi trước — chờ OK) | Hành động có tác động đáng kể, khó undo | Thêm cột mới vào DB; thay đổi cấu trúc API response; cài thêm npm package; thay đổi next.config.ts; tạo migration mới |
+| **🚫 Never** (Không bao giờ — dù được yêu cầu) | Hành động không thể undo hoặc vi phạm bảo mật | DROP TABLE; push thẳng lên main; in giá trị SECRET/TOKEN; DELETE không có WHERE; override .env.local |
+
+> *Why:* Phân loại 3-tier thay vì chỉ dựa vào cảm tính giúp agent ra quyết định nhất quán và giảm thiểu các lỗi không thể undo. Tham khảo: GitHub analysis of 2,500+ AGENTS.md repositories (2026).
+
 > *Why:* Với auto-continue enabled trong Antigravity, agent có thể thực hiện chuỗi dài hành động mà không dừng. Guardrails ngăn các hành động không thể undo được thực hiện tự động.
 
 **Đọc thêm:** [`GUARDRAILS.md`](./GUARDRAILS.md) — Danh sách đầy đủ failure patterns đã học được.
@@ -252,13 +264,43 @@ Tác tử AI phải luôn xin ý kiến phê duyệt của người dùng trư�
 Agent phải tự kiểm tra trước khi nói "done":
 
 ```bash
+# Bước 1: Build & Lint
 npm run build    # Không có TypeScript error
 npm run lint     # Không có ESLint warning/error
+
+# Bước 2: Verify Commit Hooks đang active
+cat .husky/pre-commit    # Phải tồn tại và chứa tsc + lint check
+cat .husky/commit-msg    # Phải tồn tại và chứa commitlint
+
+# Bước 3: Dry-run commit message (kiểm tra format trước khi commit thật)
+echo "feat(scope): mô tả ngắn gọn" | npx commitlint
+# Phải không có lỗi → mới được commit thật
+
+# Bước 4: Commit với format Conventional Commits
+git commit -m "<type>(<scope>): <subject>"
+# Hooks sẽ tự chạy: tsc → eslint → commitlint
 ```
 
-Nếu build fail → sửa trước khi báo cáo. Không để lại broken build.
+> 📖 Xem hướng dẫn đầy đủ: `.agents/workflows/references/commit-hook-guide.md`
+
+Nếu build fail → sửa trước khi báo cáo. Không để lại broken build. **Không dùng `--no-verify` để bypass hooks.**
+
 
 ---
 
-*File này được review hàng tháng. Thay đổi phải qua PR với ít nhất 1 reviewer.*
-*Lần review cuối: 2026-05-25*
+## 📚 Tham Chiếu Nhanh (References)
+
+Các tài nguyên hỗ trợ dành cho agent — Chỉ load khi cần:
+
+| Tài nguyên | Đường dẫn | Dùng khi nào |
+|---|---|---|
+| Backend code templates | [`.agents/workflows/references/code-templates-backend.md`](.agents/workflows/references/code-templates-backend.md) | Viết Repository, Service, Migration, API Route |
+| Frontend code templates | [`.agents/workflows/references/code-templates-frontend.md`](.agents/workflows/references/code-templates-frontend.md) | Viết Pages, Components, Loading/Error states |
+| Design System contract | [`.agents/rules/Design.md`](.agents/rules/Design.md) | Kiểm tra màu sắc, spacing, forbidden patterns |
+| Failure patterns | [`GUARDRAILS.md`](GUARDRAILS.md) | Khi gặp vấn đề lặp lại |
+| Session memory | [`docs/ky-uc/NOTES.md`](docs/ky-uc/NOTES.md) | Đầu mỗi phiên |
+
+---
+
+*File này được review hàng tháng. Thay đổi phải qua PR với ít nhất 1 reviewer.*  
+*Lần review cuối: 2026-05-27*

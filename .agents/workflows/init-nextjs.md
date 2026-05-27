@@ -1,6 +1,6 @@
 ---
 title: init-nextjs
-description: Khởi tạo dự án Next.js với đầy đủ cấu hình chuẩn SEO, git hooks, husky và linter.
+description: Khởi tạo dự án Next.js ban đầu. Đầu ra: Bộ khung dự án Next.js hoàn chỉnh, cấu hình linter/husky/commitlint, tệp `.env.example`, và module kiểm tra biến môi trường `src/lib/env.ts`.
 maxIterations: 10
 ---
 

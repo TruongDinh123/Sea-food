@@ -61,3 +61,11 @@
 - **Bắt đầu phiên mới:** Đọc file `docs/ky-uc/ky-uc-hien-tai/SESSION_STATUS.md` (nếu tồn tại) để nắm ngữ cảnh.
 - **Kết thúc phiên:** Chạy workflow `/handoff` để lưu trạng thái.
 - **Tiếp tục phiên cũ:** Dùng workflow `/resume`.
+
+---
+
+## ⚡ Quy Tắc Tối Ưu Hóa Tài Nguyên Máy Local (Tránh Đơ Máy)
+
+- **Không tự động chạy `npm run build`**: Antigravity tuyệt đối KHÔNG tự động thực thi lệnh `npm run build` (`next build`) trong quá trình tự động kiểm tra code, review, hoặc bàn giao công việc (handoff) trên máy local của người dùng.
+- **Sử dụng Type Check thay thế**: Để kiểm tra lỗi biên dịch TypeScript nhanh chóng và nhẹ nhàng, chỉ sử dụng lệnh `npm run type-check` (tương đương `npx tsc --noEmit`) kết hợp với `npm run lint`.
+- **Yêu cầu build thực tế**: Lệnh `npm run build` chỉ được thực hiện khi người dùng yêu cầu trực tiếp, hoặc trước khi tiến hành triển khai (deploy) sản phẩm.

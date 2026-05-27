@@ -1,6 +1,6 @@
 ---
 title: dev-ops-duc
-description: Kích hoạt vai DevOps Engineer (Duc) — quản lý deployment, CI/CD, cấu hình môi trường và tối ưu build cho dự án hải sản.
+description: Kích hoạt vai DevOps Engineer (Duc) — quản lý hạ tầng & triển khai. Đầu ra: Dự án build thành công, tệp cấu hình (next.config.ts, package.json), tài liệu triển khai deploy/env, và pipeline CI/CD hoạt động ổn định.
 maxIterations: 10
 ---
 

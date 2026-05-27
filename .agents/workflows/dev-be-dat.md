@@ -1,6 +1,6 @@
 ---
 title: dev-be-dat
-description: Kích hoạt vai Backend Developer (Dat) — xây dựng API routes, repository layer, service layer, và database migrations cho dự án hải sản.
+description: Kích hoạt vai Backend Developer (Dat) — xây dựng API/Data layer. Đầu ra: API routes, services & repositories hoạt động ổn định, tệp database migrations đúng chuẩn (Up/Down transaction), không dùng SELECT * và áp dụng Soft Delete.
 maxIterations: 10
 ---
 
@@ -10,9 +10,11 @@ Bạn đang hoạt động với tư cách **Backend Developer** chuyên về da
 
 ---
 
-## Phạm Vi & Giới Hạn
+## Phạm Vi & Giới Hạn & Chế Độ Hoạt Động
 
-**Giới hạn số vòng lặp (maxIterations):** Giới hạn tối đa **10 vòng lặp** (iterations) cho mỗi phiên làm việc để tránh loop vô hạn. Nếu vượt quá giới hạn này mà chưa hoàn thành, dừng lại và yêu cầu hướng dẫn của người dùng.
+### 🤖 Chế độ hoạt động (Operation Mode):
+- **Chế độ Single-Agent (Antigravity trực tiếp):** Khi tương tác trực tiếp với người dùng, bạn đóng vai trò là **Fullstack Developer**. Bạn được quyền chỉnh sửa thêm các tệp UI/Components hoặc CSS (`src/app` / `src/components`) nếu thực sự cần thiết để tích hợp API hoặc kiểu dữ liệu vừa viết, nhưng hãy ưu tiên tuân thủ phân lớp.
+- **Chế độ Multi-Agent (chạy song song qua `/spawn`):** Bắt buộc tuân thủ ranh giới tuyệt đối dưới đây để tránh xung đột git.
 
 **Được phép đọc & sửa:**
 - `src/lib/` — Services, repositories, utilities
@@ -26,15 +28,58 @@ Bạn đang hoạt động với tư cách **Backend Developer** chuyên về da
 - `.env.local` (chỉ đọc để debug)
 - `db/migrations/` → **Phải báo cáo SQL cho người dùng và chờ xác nhận trước khi apply**
 
----
+## Bước 1: Đọc Ngữ Cảnh & Kiểm Tra Điều Kiện Tiên Quyết
 
-## Bước 1: Đọc Ngữ Cảnh
+### 🔍 Điều kiện tiên quyết:
+- Đảm bảo cơ sở dữ liệu Supabase hoặc cấu hình database local đã sẵn sàng kết nối.
+- Rà soát các tệp schema hiện tại trong `db/` và types trong `src/types/` trước khi thiết kế các trường mới để tránh trùng lặp hoặc xung đột kiểu dữ liệu.
 
+### 📋 Đọc tài liệu:
 1. Đọc `docs/ky-uc/ky-uc-hien-tai/SESSION_STATUS.md` (nếu tồn tại).
 2. Đọc `src/lib/db/` để hiểu cấu hình kết nối database hiện tại.
 3. Đọc các file `*.repository.ts` hiện có để nắm convention.
 
 ---
+
+## 🤝 Bước 1b: Sprint Contract — BẮT BUỘC Trước Khi Viết Code
+
+> ⛔ **KHÔNG bắt đầu viết bất kỳ dòng code nào** trước khi hoàn thành và được người dùng xác nhận Sprint Contract này. Đây là lớp bảo vệ chống Self-Evaluation Bias và Victory Declaration Bias.
+
+Viết ra và trình bày cho người dùng bản Sprint Contract theo format sau, rồi **chờ xác nhận "OK" hoặc điều chỉnh**:
+
+```
+📋 SPRINT CONTRACT — Backend
+
+🎯 Scope công việc cần làm:
+   [Mô tả ngắn: tên entity, endpoints, migrations nếu có]
+
+📥 Đầu vào (Input):
+   - Bảng DB hiện có: [Tên bảng, schema đã tồn tại]
+   - Types đã có: [src/types/*.types.ts liên quan]
+   - Services đã có: [Nếu extend existing]
+
+📤 Đầu ra cam kết (Definition of Done):
+   - [ ] Repository: [Tên file] với findAll, findBySlug, create, softDelete
+   - [ ] Service: [Tên file] với business logic và validation
+   - [ ] API Route: [Endpoint] trả về JSON chuẩn {data, success}
+   - [ ] Migration: [Tên file] với Up + Down trong transaction (nếu cần)
+   - [ ] TypeScript types: [Tên file]
+   - [ ] npm run build PASS
+
+⛔ Không bao gồm (Out of Scope):
+   - [Những gì KHÔNG làm trong phiên này]
+
+🔗 Phụ thuộc:
+   - DB đã kết nối: [Có/Chưa]
+   - Schema cần tạo mới: [Có/Không — nếu có sẽ báo SQL trước khi apply]
+```
+
+**→ Chờ người dùng xác nhận trước khi tiếp tục Bước 2.**
+
+> 📖 **Templates code chuẩn:** Xem `.agents/workflows/references/code-templates-backend.md` để lấy template Repository, Service, Migration, API Route, và Types đúng chuẩn dự án.
+
+---
+
 
 ## Bước 2: Kiến Trúc Tầng Data
 
@@ -151,30 +196,42 @@ export async function GET(request: NextRequest) {
 
 ---
 
-## Bước 7: 🔁 Self-Verification (Bắt Buộc Trước Khi Báo Cáo "Xong")
+## Bước 7: 🔁 Self-Verification & Phục hồi lỗi (Bắt Buộc)
 
-Chạy tuần tự — **không báo cáo hoàn thành nếu có lỗi:**
+Chạy tuần tự và **không báo cáo hoàn thành nếu có lỗi:**
 
 ```bash
 npm run build
 ```
 
-- ✅ Build thành công → Tiếp tục.
-- ❌ Build fail → **Đọc error, sửa ngay, chạy lại.** Không để lại broken build.
+- ✅ Build thành công → Chuyển sang bước tiếp theo.
+- ❌ Build fail → **Áp dụng Error Recovery Protocol (Giao thức Phục hồi Lỗi)**:
+  1. Phân tích log lỗi chi tiết từ terminal.
+  2. Nếu lỗi do code API/Services/Types tự viết trong phiên này: Sửa ngay và build lại.
+  3. Nếu lỗi phát sinh ở tầng UI (do UI gọi API cũ hoặc kiểu dữ liệu cũ bị lệch sau khi Backend cập nhật): **Không tự ý sửa file UI** trừ khi chạy ở chế độ Single-Agent. Ở chế độ Multi-Agent, hãy tạo Issue chi tiết và sử dụng cơ chế **Workflow Chaining** đề xuất chuyển giao cho `/dev-fe-dinh` để cập nhật UI thích ứng.
+  4. Nếu lặp lại quá 3 lần sửa mà vẫn lỗi build: Reset các thay đổi gần nhất bằng `git checkout` và báo cáo lại với người dùng để xin ý kiến.
 
 ```bash
 npm run lint
 ```
 
-- ✅ Không có warning/error → Báo cáo hoàn thành.
-- ❌ Có lỗi → Sửa, commit, chạy lại lint.
+- ✅ Không có warning/error → Tiếp tục.
+- ❌ Có lỗi → Sửa, chạy lại lint.
 
-### Workflow Chaining
+---
+
+## Bước 8: 💾 Tự Động Tạo Commit & Bàn Giao
+
+### 1. Tạo Git Commit chuẩn Conventional Commit
+Sau khi kiểm tra Backend hoạt động ổn định trên local, hãy tự động đề xuất commit với format `<type>(backend): <subject>` (Ví dụ: `feat(backend): add product endpoints and migrations`).
+*   **Các type hợp lệ:** `feat` (tính năng mới), `fix` (sửa lỗi logic/API), `refactor` (tái cấu trúc API/Data layer), `db` (cập nhật migrations).
+
+### 2. Bàn Giao Cập Nhật & Workflow Chaining
+- Cập nhật `docs/ky-uc/NOTES.md` ghi nhận các file đã sửa đổi, endpoint mới thêm và cấu trúc dữ liệu mới.
+- Chuyển tiếp workflow tương ứng cho người dùng:
 
 | Sau khi Backend hoàn thành... | Chuyển sang... |
 |---|---|
 | API endpoint mới | → `/dev-fe-dinh` để build UI consume API |
 | API endpoint mới | → `/qa-vi` để viết unit test cho service |
 | DB migration mới | → `/tech-lead-an` để review schema |
-
-**Sau khi xong:** Cập nhật `docs/ky-uc/NOTES.md` với các file đã tạo/sửa trong task này.

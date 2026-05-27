@@ -1,6 +1,6 @@
 ---
 title: pm-quan
-description: Kích hoạt vai Product Manager (Quan) — quản lý backlog, viết yêu cầu tính năng, định nghĩa acceptance criteria và ưu tiên công việc.
+description: Kích hoạt vai Product Manager (Quan) — quản lý sản phẩm. Đầu ra: Các tệp User Story kèm theo Acceptance Criteria (AC) rõ ràng, bảng đánh giá độ ưu tiên các tính năng (RICE score), và lộ trình sprint roadmap chi tiết.
 maxIterations: 10
 ---
 

@@ -220,7 +220,26 @@ function checkThresholds(metrics) {
 }
 
 // ============================================================
-// HIỂN THỊ DASHBOARD
+// HIỂN THỊ SUMMARY (1 DÒNG — Token-efficient)
+// Dùng cho PreInvocation hook để tránh tốn token context mỗi lần gọi.
+// Dùng --full để xem đầy đủ dashboard khi cần debug.
+// ============================================================
+function showSummary(metrics) {
+  const { grandTotal } = metrics.tokens;
+  const warnings = checkThresholds(metrics);
+  const warnStr = warnings.length > 0
+    ? ` | ⚠️ ${warnings.map(w => w.code).join(', ')}`
+    : '';
+  console.log(`[Metrics] Turn ${metrics.turns} | Tokens: ${formatNum(grandTotal)} (~$${metrics.estimatedCostUSD.toFixed(4)})${warnStr}`);
+  // Nếu có cảnh báo nghiêm trọng thì in thêm 1 dòng hướng dẫn
+  const dangerWarnings = warnings.filter(w => w.level === 'DANGER');
+  if (dangerWarnings.length > 0) {
+    dangerWarnings.forEach(w => console.warn(w.message));
+  }
+}
+
+// ============================================================
+// HIỂN THỊ DASHBOARD ĐẦY ĐỦ (Chỉ dùng khi debug: --full)
 // ============================================================
 function showDashboard(metrics) {
   const { inputTotal, outputTotal, grandTotal } = metrics.tokens;
@@ -240,35 +259,25 @@ function showDashboard(metrics) {
   console.log(`║  📦 Tổng tokens   : ${formatNum(grandTotal).padEnd(37)}║`);
   console.log(`║  💰 Chi phí ước tính: $${cost.toFixed(4).padEnd(35)}║`);
   console.log('╠══════════════════════════════════════════════════════════╣');
-
-  // Progress bars
   console.log('║  Context Usage (Input):                                  ║');
   console.log(`║  ${progressBar(inputTotal, THRESHOLDS.inputTokensDanger, 30).padEnd(56)}║`);
   console.log('║  Output Cost (Output):                                   ║');
   console.log(`║  ${progressBar(outputTotal, THRESHOLDS.outputTokensDanger, 30).padEnd(56)}║`);
   console.log('║  Turns Load:                                             ║');
   console.log(`║  ${progressBar(metrics.turns, THRESHOLDS.turnsDanger, 30).padEnd(56)}║`);
-
-  // Cảnh báo
   if (warnings.length > 0) {
     console.log('╠══════════════════════════════════════════════════════════╣');
     console.log('║  ⚠️  CẢNH BÁO                                            ║');
     warnings.forEach(w => {
-      // Wrap message nếu dài hơn 54 chars
-      const msg = w.message;
-      const parts = msg.match(/.{1,54}/g) || [msg];
-      parts.forEach(p => {
-        console.log(`║  ${p.padEnd(56)}║`);
-      });
+      const parts = w.message.match(/.{1,54}/g) || [w.message];
+      parts.forEach(p => console.log(`║  ${p.padEnd(56)}║`));
     });
   } else {
     console.log('╠══════════════════════════════════════════════════════════╣');
     console.log('║  ✅ Không có cảnh báo — Session đang ổn                 ║');
   }
-
-  // All-time totals
   console.log('╠══════════════════════════════════════════════════════════╣');
-  console.log('║  📈 ALL-TIME TOTALS (Cộng dồn tất cả sessions)          ║');
+  console.log('║  📈 ALL-TIME TOTALS                                      ║');
   console.log(`║  Sessions : ${String(metrics.allTimeTotals.sessionsCount).padEnd(45)}║`);
   console.log(`║  Turns    : ${String(metrics.allTimeTotals.turns).padEnd(45)}║`);
   console.log(`║  Input    : ${formatNum(metrics.allTimeTotals.inputTokens).padEnd(45)}║`);
@@ -283,7 +292,11 @@ const args = process.argv.slice(2);
 const metrics = readMetrics();
 
 if (args.includes('--show') || args.length === 0) {
-  // Hiển thị dashboard
+  // 1 dòng summary — dùng cho PreInvocation hook (tiết kiệm token)
+  showSummary(metrics);
+
+} else if (args.includes('--full')) {
+  // Full dashboard — dùng thủ công khi debug: node track-session-metrics.js --full
   showDashboard(metrics);
 
 } else if (args.includes('--turn')) {

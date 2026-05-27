@@ -1,6 +1,6 @@
 ---
 title: ba-sprint
-description: Kích hoạt vai Business Analyst (BA) để phân tích yêu cầu, lập kế hoạch sprint, viết user stories và phân rã task chi tiết cho team phát triển.
+description: Kích hoạt vai Business Analyst (BA). Đầu ra: Tài liệu phân tích yêu cầu (Epic/User Story), bảng phân rã nhiệm vụ (Task Breakdown) chi tiết cho từng vai trò và kế hoạch Sprint (Sprint Plan) kèm Definition of Done (DoD).
 maxIterations: 10
 ---
 
