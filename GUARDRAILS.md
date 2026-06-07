@@ -53,6 +53,11 @@
 **Tác động:** Lộ thông tin nội bộ, UX xấu.
 **Guardrail:** Mọi API Route Handler phải có try/catch. Error response chỉ trả về `{ error: 'message' }`, không trả về stack trace hay internal error details.
 
+### [2026-05-26] HIGH: Archive Memory Overload & Context Rot
+**Pattern vi phạm:** Giữ quá nhiều session logs cũ (> 30 ngày) hoặc các logs không liên quan trong context làm việc làm chậm và loãng bộ nhớ của agent.
+**Tác động:** Tăng chi phí token và gây ra hiện tượng context rot (AI bị lẫn lộn giữa các session cũ và mới).
+**Guardrail:** Bắt buộc dọn dẹp các files log session cũ (>30 ngày) bằng cách nén (hoặc di chuyển) vào thư mục lưu trữ (`docs/ky-uc/luu-tru-nhat-ky/`) và cập nhật file chỉ mục tổng hợp. NOTES.md chỉ giữ lại các task hoạt động của session hiện tại và 5 sessions gần nhất.
+
 ---
 
 ## 🟡 MEDIUM — Code Quality Patterns

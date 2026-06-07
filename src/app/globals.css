@@ -1,26 +1,104 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* ── FONT FAMILIES ── */
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* ── BRAND PALETTE — Muted Luxury Deepwater ── */
+  --color-deepwater: #031e25;
+  --color-deepwater-mid: #04333f;
+  --color-canvas: #e5e7eb;
+  --color-ink: #0a0a0a;
+  --color-white: #ffffff;
+  --color-amber-accent: #d97706;
+  --color-amber-light: #f9a825;
+  --color-soft-gray: #666d75;
+  --color-slate-subtle: #f9fafb;
+
+  /* ── TYPOGRAPHY SCALE (từ Design_system/theme.css) ── */
+  --text-caption: 11px;
+  --leading-caption: 1.44;
+  --tracking-caption: 0.14em;
+
+  --text-body: 14px;
+  --leading-body: 1.44;
+  --tracking-body: -0.01em;
+
+  --text-subheading: 18px;
+  --leading-subheading: 1.33;
+  --tracking-subheading: -0.02em;
+
+  --text-heading-sm: 22px;
+  --leading-heading-sm: 1.33;
+  --tracking-heading-sm: -0.016em;
+
+  --text-heading: 32px;
+  --leading-heading: 1.3;
+  --tracking-heading: -0.016em;
+
+  --text-heading-lg: 48px;
+  --leading-heading-lg: 1.3;
+  --tracking-heading-lg: -0.016em;
+
+  /* ── SPACING TOKENS (từ Design_system/variable.css) ── */
+  --spacing-section: 72px;
+  --spacing-card-padding: 20px;
+  --spacing-element-gap: 20px;
+  --spacing-section-gap: 36px;
+
+  /* ── BORDER RADIUS TOKENS ── */
+  --radius-sm: 2.25px;
+  --radius-md: 5px;
+  --radius-cards: 12px;
+  --radius-xl: 13.5px;
+  --radius-2xl: 18px;
+  --radius-3xl: 32px;
+  --radius-inputs: 5px;
+  --radius-buttons: 5px;
+  --radius-ghost-buttons: 6.75px;
+
+  /* ── SHADOW TOKENS ── */
+  --shadow-card: rgba(0, 0, 0, 0.05) 0px 10px 15px -3px;
+  --shadow-float: 0 20px 40px rgba(3, 30, 37, 0.12);
+
+  /* ── SURFACES ── */
+  --surface-deepwater: #031e25;
+  --surface-light: #e5e7eb;
+  --surface-input: #666d75;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ── GLOBAL BASE STYLES ── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  background-color: #f9fafb;
+  color: var(--color-ink);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── UTILITY: Ẩn scrollbar nhưng giữ scroll ── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── UTILITY: Text truncate nhiều dòng ── */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

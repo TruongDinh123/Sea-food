@@ -41,7 +41,6 @@ try {
   for (let j = startIndex; j < endIndex; j++) {
     console.log(lines[j]);
   }
-  console.log('💡 Tip: node .agents/scripts/track-session-metrics.js --add-tokens --input=N --output=N --model=gemini-flash');
   console.log('================================================================\n');
 
 } catch (error) {

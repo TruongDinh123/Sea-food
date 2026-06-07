@@ -28,6 +28,11 @@
         "e:/Web-Seo/db"
       ],
       "description": "Governed filesystem access — chỉ cho phép đọc/ghi trong src/, docs/, db/. Không có quyền truy cập .env.local hoặc node_modules."
+    },
+    "notebooklm": {
+      "command": "notebooklm-mcp",
+      "args": [],
+      "description": "NotebookLM MCP Server - cho phép tương tác với các tài liệu và RAG qua NotebookLM (Bản Python)"
     }
   }
 }

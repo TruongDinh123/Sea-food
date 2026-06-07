@@ -42,3 +42,10 @@ next-env.d.ts
 
 # agent metrics data (không commit — dữ liệu session cục bộ)
 .agents/data/session-metrics.json
+
+.vercel
+playwright-report/
+test-results/
+coverage/
+.agent
+.agents/

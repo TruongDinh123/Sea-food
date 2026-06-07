@@ -1,21 +1,16 @@
 {
   "enabled": true,
-  "PreToolUse": [],
-  "PostToolUse": [
+  "PreToolUse": [
     {
-      "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
-      "command": "cmd /c \"npm run lint --silent 2>&1 | findstr /i error\" ",
-      "description": "Auto-check lint errors sau khi ghi file TypeScript/TSX/JS. Nếu có error → agent tự sửa trước khi báo cáo."
+      "command": "node .agents/scripts/validate-destructive-commands.js",
+      "description": "Kiểm tra và ngăn chặn các lệnh huỷ hoại database hoặc hệ thống file."
     }
   ],
+  "PostToolUse": [],
   "PreInvocation": [
     {
       "command": "node .agents/scripts/load-working-memory.js",
       "description": "Auto-load working memory context — hiển thị trạng thái hiện tại từ NOTES.md đầu mỗi invocation."
-    },
-    {
-      "command": "node .agents/scripts/track-session-metrics.js --show",
-      "description": "Hiển thị dashboard metrics (tokens, turns, cảnh báo) đầu mỗi invocation để theo dõi chi phí và context window."
     }
   ],
   "PostInvocation": [],
