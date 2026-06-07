@@ -1,164 +1,108 @@
-import type { Metadata } from 'next'
-import Link from 'next/link'
-import { PhoneIcon, MapPinIcon } from '@/components/ui/Icons'
-import { MerchantService } from '@/lib/services/merchant.service'
-import Breadcrumb from '@/components/layout/Breadcrumb'
+import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import { merchantService } from "@/lib/services";
+import { enrichMerchant } from "@/lib/utils/enrichment";
+import { MapPin } from "lucide-react";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
-interface PageProps {
-  searchParams: Promise<{ page?: string }>
-}
-
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: 'Danh Sách Thương Lái Hải Sản Cà Mau Uy Tín',
-    description:
-      'Tìm kiếm thương lái hải sản uy tín tại Cà Mau. Danh sách các vựa thu mua tôm sú, cua biển, mực tươi với giá tốt nhất vùng Mũi Cà Mau.',
-    alternates: { canonical: '/thuong-lai' },
+export const metadata: Metadata = {
+  title: "Danh Sách Vựa Thương Lái Uy Tín Cà Mau | Hải Sản Cao Cấp",
+  description: "Danh sách các vựa thương lái hải sản khô, tươi sống uy tín hàng đầu Năm Căn, Sông Đốc. Kết nối mua trực tiếp giá gốc, đầy đủ giấy phép ATVSTP.",
+  alternates: {
+    canonical: "/thuong-lai",
+  },
+  openGraph: {
+    title: "Danh Sách Vựa Thương Lái Uy Tín Cà Mau | Hải Sản Cao Cấp",
+    description: "Danh sách các vựa thương lái hải sản khô, tươi sống uy tín hàng đầu Năm Căn, Sông Đốc. Kết nối mua trực tiếp giá gốc, đầy đủ giấy phép ATVSTP.",
+    url: "/thuong-lai",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Danh Sách Vựa Thương Lái Uy Tín Cà Mau | Hải Sản Cao Cấp",
+    description: "Danh sách các vựa thương lái hải sản khô, tươi sống uy tín hàng đầu Năm Căn, Sông Đốc. Kết nối mua trực tiếp giá gốc, đầy đủ giấy phép ATVSTP.",
   }
-}
+};
 
-export default async function ThuongLaiPage({ searchParams }: PageProps) {
-  const params = await searchParams
-  const page = Math.max(1, parseInt(params.page ?? '1', 10))
-
-  const { data: merchants, pagination } = await MerchantService.getPublicMerchants(page, 12)
-
-  // JSON-LD — LocalBusiness list
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Danh Sách Thương Lái Hải Sản Cà Mau',
-    description: 'Danh sách các thương lái thu mua hải sản uy tín tại Cà Mau',
-    numberOfItems: pagination.total,
-    itemListElement: merchants.map((merchant, index) => ({
-      '@type': 'ListItem',
-      position: (page - 1) * 12 + index + 1,
-      item: {
-        '@type': 'LocalBusiness',
-        name: merchant.name,
-        telephone: merchant.phone,
-        address: merchant.address ?? 'Cà Mau, Việt Nam',
-        url: `${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://haisancamau.vn'}/thuong-lai/${merchant.id}`,
-      },
-    })),
-  }
+export default async function MerchantListPage() {
+  const rawMerchants = await merchantService.getAllActiveMerchants();
+  const merchants = rawMerchants.map(enrichMerchant);
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
-      {/* Hero header */}
-      <section className="bg-deepwater-teal text-pure-white">
-        <div className="mx-auto max-w-7xl px-5 py-45">
-          <Breadcrumb items={[{ label: 'Thương Lái', href: '/thuong-lai' }]} />
-          <h1 className="mt-4 text-heading font-medium tracking-heading">
-            Thương Lái Hải Sản Cà Mau
-          </h1>
-          <p className="mt-3 text-subheading leading-subheading tracking-subheading text-pure-white/70 max-w-xl">
-            Kết nối trực tiếp với các vựa thu mua hải sản uy tín tại Mũi Cà Mau.
-          </p>
+    <div className="w-full">
+      <div className="py-4 px-4 sm:px-6 lg:px-8">
+        <Breadcrumbs items={[{ label: 'Thương Lái' }]} />
+      </div>
+      <div className="px-4 sm:px-6 lg:px-8 pb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#031e25] uppercase tracking-wide">
+          Danh Sách Vựa Thương Lái Uy Tín Cà Mau — Đối Tác Đồng Hành
+        </h1>
+      </div>
+      <div id="featured-merchants-carousel" className="py-4 px-4 sm:px-6 lg:px-8 bg-transparent space-y-8 font-sans">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between pb-4 border-b border-[#e5e7eb] gap-4">
+          <div className="space-y-1">
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-[#d97706] m-0">Đối Tác Uy Tín</h2>
+            <p className="text-xl sm:text-2xl font-black uppercase text-[#0a0a0a] m-0">Thương Lái Thu Mua Tiêu Biểu</p>
+          </div>
+          <span className="text-xs text-gray-400 font-mono font-bold">Tiêu Chuẩn E-E-A-T Thẩm Định</span>
         </div>
-      </section>
 
-      {/* Merchant grid */}
-      <section className="bg-canvas">
-        <div className="mx-auto max-w-7xl px-5 py-45">
-          {merchants.length === 0 ? (
-            <p className="text-center text-soft-gray py-72">
-              Chưa có thương lái nào. Vui lòng quay lại sau.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {merchants.map((merchant) => (
-                <Link
-                  key={merchant.id}
-                  href={`/thuong-lai/${merchant.id}`}
-                  className="group block bg-pure-white rounded-cards p-20 border border-canvas hover:shadow-md transition-all duration-150"
-                  style={{ boxShadow: 'none' }}
-                >
-                  <div className="mb-14">
-                    <p className="text-caption font-semibold tracking-caption uppercase text-soft-gray mb-2">
-                      Thương Lái
-                    </p>
-                    <h2 className="text-heading-sm font-medium tracking-heading-sm text-ink-black group-hover:text-deepwater-teal transition-colors duration-150">
-                      {merchant.name}
-                    </h2>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-body text-soft-gray">
-                      <PhoneIcon size={14} aria-hidden={true} />
-                      <span>{merchant.phone}</span>
-                    </div>
-                    {merchant.address && (
-                      <div className="flex items-start gap-2 text-body text-soft-gray">
-                        <MapPinIcon size={14} className="mt-0.5 shrink-0" aria-hidden={true} />
-                        <span className="line-clamp-2">{merchant.address}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-18 flex items-center gap-1.5">
-                    <span
-                      className={`inline-flex items-center px-9 py-5 text-caption tracking-caption uppercase rounded-buttons ${
-                        merchant.is_active
-                          ? 'bg-deepwater-teal/10 text-deepwater-teal'
-                          : 'bg-canvas text-soft-gray'
-                      }`}
-                    >
-                      {merchant.is_active ? 'Đang Hoạt Động' : 'Tạm Nghỉ'}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {/* Pagination — self-referencing canonical theo từng trang */}
-          {pagination.totalPages > 1 && (
-            <nav
-              className="mt-45 flex items-center justify-center gap-2"
-              aria-label="Phân trang danh sách thương lái"
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {merchants.map((merchant) => (
+            <Link
+              key={merchant.id}
+              href={`/thuong-lai/${merchant.slug}`}
+              className="bg-white border border-[#e5e7eb] p-6 group cursor-pointer transition duration-300 hover:shadow-md flex flex-col justify-between decoration-transparent text-inherit block"
             >
-              {page > 1 && (
-                <Link
-                  href={`/thuong-lai?page=${page - 1}`}
-                  className="px-14 py-9 text-body font-medium border border-canvas rounded-buttons text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
-                >
-                  Trang trước
-                </Link>
-              )}
+              <div className="space-y-4">
+                {/* Avatar and Info */}
+                <div className="flex gap-4 items-center">
+                  <Image
+                    src={merchant.avatar}
+                    alt={merchant.name}
+                    width={56}
+                    height={56}
+                    className="rounded-full object-cover border border-[#e5e7eb] shrink-0"
+                  />
+                  <div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="text-xs font-bold text-[#0a0a0a] uppercase tracking-wide m-0">
+                        {merchant.name.split(' - ')[0]}
+                      </p>
+                      {merchant.isCertified && (
+                        <span className="text-[9px] font-black uppercase text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-500/20 font-mono">
+                          OCOP 4★
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[10px] opacity-50 font-medium tracking-wide m-0">⭐ {merchant.rating} ({merchant.reviewsCount} đánh giá) • {merchant.location}</p>
+                  </div>
+                </div>
 
-              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
-                <Link
-                  key={p}
-                  href={p === 1 ? '/thuong-lai' : `/thuong-lai?page=${p}`}
-                  aria-current={p === page ? 'page' : undefined}
-                  className={`px-14 py-9 text-body font-medium rounded-buttons transition-colors duration-150 ${
-                    p === page
-                      ? 'bg-deepwater-teal text-pure-white border border-deepwater-teal'
-                      : 'border border-canvas text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal'
-                  }`}
-                >
-                  {p}
-                </Link>
-              ))}
+                <p className="text-xs text-gray-500 leading-relaxed font-light line-clamp-3 m-0">
+                  &quot;{merchant.bio}&quot;
+                </p>
+                
+                <div className="text-[11px] text-gray-400 font-mono flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Bến: {merchant.address}</span>
+                </div>
+              </div>
 
-              {page < pagination.totalPages && (
-                <Link
-                  href={`/thuong-lai?page=${page + 1}`}
-                  className="px-14 py-9 text-body font-medium border border-canvas rounded-buttons text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
-                >
-                  Trang sau
-                </Link>
-              )}
-            </nav>
+              <div className="pt-3 border-t border-[#e5e7eb] mt-4 flex items-center justify-between text-[11px] font-bold text-[#0a0a0a] uppercase tracking-wider">
+                <span className="text-gray-400 font-mono text-[9px]">KINH NGHIỆM: {merchant.experience.split(' ')[0]} NĂM</span>
+                <span className="text-[#d97706] group-hover:translate-x-1.5 transition-transform duration-300">Ghé vựa &rarr;</span>
+              </div>
+            </Link>
+          ))}
+          {merchants.length === 0 && (
+            <p className="col-span-full text-center text-sm text-[var(--color-ink)]/50 py-12 m-0">
+              Hiện chưa có thương lái nào hoạt động trên hệ thống.
+            </p>
           )}
         </div>
-      </section>
-    </>
-  )
+      </div>
+    </div>
+  );
 }

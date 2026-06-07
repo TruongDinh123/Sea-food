@@ -1,59 +1,98 @@
-import sql from './client';
+import fs from 'fs';
+import path from 'path';
+import postgres from 'postgres';
 
-async function seedData() {
-  console.log('🌱 Đang chèn dữ liệu mẫu vào database...');
+let databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl) {
   try {
-    // 1. Chèn Merchants
-    console.log('🔹 Chèn merchants...');
-    const merchants = await sql`
-      INSERT INTO merchants (name, phone, address, commission_type, commission_value, monthly_flat_rate)
-      VALUES 
-        ('Vựa Khô Năm Hùng', '0912345678', 'Thị trấn Sông Đốc, Trần Văn Thời, Cà Mau', 'percentage', 5.00, 0.00),
-        ('Vựa Hải Sản Đất Mũi', '0987654321', 'Xã Đất Mũi, Ngọc Hiển, Cà Mau', 'fixed', 15000.00, 0.00),
-        ('Đại Lý Tôm Khô Tư Đáp', '0909998887', 'Phường 5, TP. Cà Mau, Cà Mau', 'monthly_flat', 0.00, 500000.00)
-      RETURNING id, name;
-    `;
-    console.log(`✅ Đã chèn ${merchants.length} merchants.`);
-
-    const merchantNamHung = merchants[0].id;
-    const merchantDatMui = merchants[1].id;
-    const merchantTuDap = merchants[2].id;
-
-    // 2. Chèn Products
-    console.log('🔹 Chèn products...');
-    const products = await sql`
-      INSERT INTO products (merchant_id, name, slug, price, original_price, category, description, image_url, is_auto_listed)
-      VALUES
-        (${merchantNamHung}, 'Tôm khô Cà Mau Rạch Gốc loại 1', 'tom-kho-ca-mau-rach-goc-loai-1', 650000.00, 750000.00, 'Tôm Khô', 'Tôm khô Rạch Gốc tự nhiên, vị ngọt thanh, màu sắc tự nhiên không hóa chất phẩm màu.', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80', true),
-        (${merchantNamHung}, 'Khô cá sặc rằn U Minh hạ 3 nắng', 'kho-ca-sac-ran-u-minh-ha-3-nang', 280000.00, 320000.00, 'Khô Cá', 'Khô cá sặc rằn béo ngậy đặc sản vùng U Minh Hạ, đóng gói hút chân không.', 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80', true),
-        (${merchantDatMui}, 'Cua Cà Mau loại 1 (dây nhỏ)', 'cua-ca-mau-loai-1-day-nho', 450000.00, 500000.00, 'Cua Tươi', 'Cua thịt Cà Mau chính gốc dây trói siêu nhỏ, chắc thịt thơm ngon ngọt.', 'https://images.unsplash.com/photo-1551248429-40975aa4de74?auto=format&fit=crop&w=800&q=80', false),
-        (${merchantTuDap}, 'Bồn bồn muối chua ngọt Cái Nước', 'bon-bon-muoi-chua-ngot-cai-nuoc', 60000.00, 70000.00, 'Đặc Sản Khác', 'Bồn bồn tươi muối chua ngọt đặc sản Cái Nước Cà Mau ăn kèm cá kho cực ngon.', 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80', true)
-      RETURNING id, name;
-    `;
-    console.log(`✅ Đã chèn ${products.length} products.`);
-
-    const productTomKho = products[0].id;
-    const productSacRan = products[1].id;
-
-    // 3. Chèn Referral Logs
-    console.log('🔹 Chèn referral logs...');
-    const logs = await sql`
-      INSERT INTO referral_logs (product_id, merchant_id, buyer_phone, order_value, calculated_commission, status)
-      VALUES
-        (${productTomKho}, ${merchantNamHung}, '0911222333', 1300000.00, 65000.00, 'completed'),
-        (${productSacRan}, ${merchantNamHung}, '0922333444', 280000.00, 14000.00, 'pending'),
-        (${productTomKho}, ${merchantNamHung}, '0933444555', 650000.00, 0.00, 'cancelled')
-      RETURNING id;
-    `;
-    console.log(`✅ Đã chèn ${logs.length} referral logs.`);
-
-    console.log('\n🎉 Đã chèn dữ liệu mẫu hoàn tất!');
+    const envPath = path.resolve(process.cwd(), '.env.local');
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, 'utf-8');
+      const match = envContent.match(/^DATABASE_URL=(.+)$/m);
+      if (match) {
+        databaseUrl = match[1].trim().replace(/^["']|["']$/g, '');
+      }
+    }
   } catch (error) {
-    console.error('❌ Lỗi khi chèn dữ liệu mẫu:');
-    console.error(error);
+    console.error('Lỗi khi đọc file .env.local làm fallback:', error);
+  }
+}
+
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL không được định nghĩa trong biến môi trường hoặc file .env.local');
+}
+
+const sql = postgres(databaseUrl, { max: 1 });
+
+async function seed() {
+  console.log('=== Bắt đầu nạp dữ liệu mẫu (Seeding Database) ===');
+
+  try {
+    // 1.1. Dọn dẹp tài khoản test và dữ liệu cũ
+    console.log('Đang làm sạch dữ liệu cũ...');
+    await sql`DELETE FROM auth.users WHERE email IN ('merchant@example.com', 'admin@example.com');`;
+    await sql`TRUNCATE TABLE referral_logs, order_items, orders, products, merchants, blogs RESTART IDENTITY CASCADE;`;
+
+    // 1.2. Thêm tài khoản test vào auth.users
+    console.log('Đang tạo tài khoản test...');
+    const merchantUserId = 'e2e00000-0000-0000-0000-000000000001';
+    const adminUserId = 'e2e00000-0000-0000-0000-000000000002';
+    
+    await sql`
+      INSERT INTO auth.users (id, email, encrypted_password)
+      VALUES 
+        (${merchantUserId}, 'merchant@example.com', 'MerchantPassword123!'),
+        (${adminUserId}, 'admin@example.com', 'AdminPassword123!')
+      ON CONFLICT (email) DO NOTHING;
+    `;
+
+    // 2. Thêm Merchants
+    console.log('Đang tạo merchants mẫu...');
+    const merchants = await sql`
+      INSERT INTO merchants (name, phone, address, commission_type, commission_value, monthly_flat_rate, user_id)
+      VALUES 
+        ('Vựa Tôm Khô Năm Căn', '0987654321', 'Khóm 1, Thị trấn Năm Căn, Cà Mau', 'percentage', 5.00, 0.00, ${merchantUserId}),
+        ('Vựa Cua Biển Út Đạt', '0912345678', 'Thị trấn Sông Đốc, Trần Văn Thời, Cà Mau', 'fixed', 20000.00, 0.00, NULL),
+        ('Hợp Tác Xã Khô Cá Khoai', '0944556677', 'Thị trấn Cái Đôi Vàm, Phú Tân, Cà Mau', 'monthly_flat', 0.00, 500000.00, NULL)
+      RETURNING id, name;
+    `;
+    console.log(`Đã tạo ${merchants.length} merchants.`);
+
+    const namCanId = merchants.find(m => m.name === 'Vựa Tôm Khô Năm Căn')?.id;
+    const utDatId = merchants.find(m => m.name === 'Vựa Cua Biển Út Đạt')?.id;
+    const phuTanId = merchants.find(m => m.name === 'Hợp Tác Xã Khô Cá Khoai')?.id;
+
+    // 3. Thêm Products
+    console.log('Đang tạo sản phẩm mẫu...');
+    await sql`
+      INSERT INTO products (merchant_id, name, slug, price, original_price, category, description, image_url)
+      VALUES 
+        (${namCanId}, 'Tôm Đất Khô Rạch Gốc Loại 1', 'tom-dat-kho-rach-goc-loai-1', 680000.00, 750000.00, 'Tôm khô', 'Tôm đất khô thiên nhiên được tuyển chọn từng con từ vùng Rạch Gốc, phơi nắng tự nhiên, không phẩm màu hóa chất.', '/images/products/tom-kho.jpg'),
+        (${namCanId}, 'Tôm Khô Loại Đặc Biệt (Cỡ Lớn)', 'tom-kho-loai-dac-biet-co-lon', 850000.00, 900000.00, 'Tôm khô', 'Tôm khô đặc biệt size cực đại thích hợp làm quà biếu sang trọng. Vị ngọt đậm đà tự nhiên.', '/images/products/tom-kho-lon.jpg'),
+        (${utDatId}, 'Cua Gạch Cà Mau Chính Hiệu (Size 3 con/kg)', 'cua-gach-ca-mau-chinh-hieu', 450000.00, 500000.00, 'Cua tươi sống', 'Cua gạch Cà Mau nổi tiếng chắc thịt, đầy gạch béo ngậy. Cam kết dây trói siêu nhẹ trói không trọng lượng.', '/images/products/cua-gach.jpg'),
+        (${utDatId}, 'Cua Thịt Cà Mau Y3 chắc ngọt', 'cua-thit-ca-mau-y3', 350000.00, 390000.00, 'Cua tươi sống', 'Cua thịt Y3 chính gốc Đầm Dơi/Năm Căn Cà Mau. Thịt ngọt lịm, bao ăn 1 đổi 1 nếu bị ốp.', '/images/products/cua-thit.jpg'),
+        (${phuTanId}, 'Khô Cá Khoai Cái Đôi Vàm', 'kho-ca-khoai-cai-doi-vam', 250000.00, 280000.00, 'Khô cá', 'Khô cá khoai đặc sản Cái Đôi Vàm thơm ngon. Thích hợp làm mồi nhậu nướng chấm mắm me.', '/images/products/ca-khoai.jpg')
+    `;
+    console.log('Đã tạo xong các sản phẩm.');
+
+    // 4. Thêm Blogs
+    console.log('Đang tạo bài viết blogs mẫu...');
+    await sql`
+      INSERT INTO blogs (title, slug, meta_description, content, cover_image_url, is_published, publish_date)
+      VALUES 
+        ('Bí quyết chọn tôm khô ngon không hóa chất chuẩn Cà Mau', 'cach-chon-tom-kho-ngon-ca-mau', 'Hướng dẫn phân biệt tôm khô đất tự nhiên Cà Mau với tôm khô công nghiệp tẩm phẩm màu hóa chất độc hại.', 'Tôm khô Cà Mau từ lâu đã nổi tiếng khắp cả nước nhờ hương vị ngọt tự nhiên, thơm ngon đặc trưng. Tuy nhiên, hiện nay trên thị trường có nhiều sản phẩm nhái, tẩm phẩm màu đỏ hóa chất độc hại. Để chọn được tôm khô chuẩn ngon: 1. Quan sát màu sắc: Tôm đất khô tự nhiên có màu đỏ cam hơi nhạt ở phần lưng và trắng hồng ở phần bụng. Tránh mua tôm đỏ đều toàn thân vì dễ tẩm phẩm màu. 2. Độ cứng: Tôm đất thiên nhiên phơi đủ nắng có thịt dai, săn chắc, không quá mềm cũng không quá cứng giòn. 3. Mùi vị: Khi ăn thử có vị ngọt đậm đặc trưng, không bị mặn chát hay có mùi khai của Urê.', '/images/blogs/bi-quyet-tom-kho.jpg', true, NOW()),
+        ('Mẹo chọn cua biển Cà Mau chắc thịt bao ăn chính gốc', 'bi-quyet-chon-cua-bien-ca-mau', 'Chia sẻ kinh nghiệm thực tế cách chọn cua gạch, cua thịt Cà Mau chắc thịt, ngon béo không sợ bị mua nhầm cua ốp.', 'Để chọn được những con cua biển Cà Mau chắc thịt, nhiều gạch và tươi ngon: 1. Xem yếm cua: Cua thịt ngon có yếm cứng, khi lấy tay bóp mạnh vào phần yếm dưới bụng cua không bị lún (nếu lún là cua ốp). 2. Xem màu da hốc khuỷu trên càng cua: Nếu hốc khuỷu có màu hồng đỏ hoặc sậm màu là cua đã già, thịt chắc béo. Cua non sẽ có hốc khuỷu trắng nhạt. 3. Xem gai trên mai cua: Cua già chắc thịt sẽ có các gai trên mai cua mòn đi, sần sùi chứ không nhọn hoắt như cua non.', '/images/blogs/meo-chon-cua.jpg', true, NOW())
+    `;
+    console.log('Đã tạo xong các bài viết blogs.');
+
+    console.log('=== Nạp dữ liệu mẫu thành công! ===');
+  } catch (error) {
+    console.error('❌ Lỗi trong quá trình seed database:', error);
+    process.exit(1);
   } finally {
     await sql.end();
   }
 }
 
-seedData();
+seed();

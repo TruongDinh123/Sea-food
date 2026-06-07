@@ -1,228 +1,158 @@
-import type { Metadata } from 'next'
-import Image from 'next/image'
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { TagIcon } from '@/components/ui/Icons'
-import { ProductService } from '@/lib/services/product.service'
-import Breadcrumb from '@/components/layout/Breadcrumb'
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { productService, merchantService } from "@/lib/services";
+import { enrichProduct, enrichMerchant } from "@/lib/utils/enrichment";
+import CategoryClient from "../../san-pham/CategoryClient";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
 interface PageProps {
-  params: Promise<{ slug: string }>
-  searchParams: Promise<Record<string, string | undefined>>
+  params: Promise<{ slug: string }>;
 }
 
-const CATEGORY_MAP: Record<string, { label: string; desc: string }> = {
-  'tom-su': {
-    label: 'Tôm Sú Cà Mau',
-    desc: 'Tôm sú sinh thái nuôi tự nhiên, thịt chắc ngọt, đậm đà vị biển Cà Mau.',
-  },
+// Dữ liệu danh mục tập trung — single source of truth
+const CATEGORY_META: Record<string, {
+  name: string;
+  description: string;
+  ogImage: string;
+  keywords: string;
+}> = {
   'cua-bien': {
-    label: 'Cua Biển Cà Mau',
-    desc: 'Thương hiệu cua biển nổi tiếng với thịt ngọt, gạch béo ngậy vạn người mê.',
+    name: 'Cua Biển Cà Mau',
+    description: 'Cua biển Cà Mau tươi sống nguyên con, đánh bắt tự nhiên từ rừng ngập mặn Năm Căn. Cam kết cua chắc thịt, gạch đỏ au, giao sống tận nhà toàn quốc.',
+    ogImage: '/images/products/cua-ca-mau.jpg',
+    keywords: 'cua biển Cà Mau, cua gạch son, cua Năm Căn, mua cua tươi sống',
   },
-  'hai-san-kho': {
-    label: 'Đặc Sản Khô Cà Mau',
-    desc: 'Tôm khô đất, mực khô câu, cá khô chế biến thủ công giữ trọn vị quê nhà.',
+  'tom-su': {
+    name: 'Tôm Sú Quảng Canh',
+    description: 'Tôm sú sinh thái rừng ngập mặn Cà Mau — nuôi quảng canh hoàn toàn tự nhiên, không hóa chất, thịt ngọt đậm. Đạt chuẩn xuất khẩu Nhật Bản, Châu Âu.',
+    ogImage: '/images/og-default.jpg',
+    keywords: 'tôm sú Cà Mau, tôm sú quảng canh, tôm sú sinh thái, mua tôm sú tươi',
   },
+  'do-kho': {
+    name: 'Đồ Khô Cao Cấp',
+    description: 'Tôm khô Vinh Kim, khô mực câu Phú Quốc phơi nắng tự nhiên — đặc sản khô biển không tẩm ướp hóa chất, hương vị nguyên bản từ làng nghề truyền thống.',
+    ogImage: '/images/og-default.jpg',
+    keywords: 'tôm khô Vinh Kim, khô mực Phú Quốc, đồ khô hải sản, mua khô biển',
+  },
+};
+
+const VALID_SLUGS = Object.keys(CATEGORY_META);
+
+export async function generateStaticParams() {
+  return VALID_SLUGS.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params
-  const catInfo = CATEGORY_MAP[slug]
-
-  if (!catInfo) {
-    return { title: 'Không Tìm Thấy Danh Mục | Hải Sản Cà Mau' }
-  }
+  const { slug } = await params;
+  const meta = CATEGORY_META[slug];
+  if (!meta) return { title: "Danh Mục Không Tồn Tại" };
 
   return {
-    title: `${catInfo.label} — Tươi Sống Tiêu Chuẩn Xuất Khẩu`,
-    description: `${catInfo.desc} Giá gốc thu mua tại vựa thương lái uy tín nhất vùng Mũi Cà Mau.`,
-    alternates: { canonical: `/danh-muc/${slug}` },
-  }
+    title: `${meta.name} Tươi Sống Sỉ & Lẻ | Hải Sản Cao Cấp Cà Mau`,
+    description: meta.description,
+    keywords: meta.keywords,
+    alternates: {
+      canonical: `/danh-muc/${slug}`,
+    },
+    openGraph: {
+      title: `${meta.name} Tươi Sống — Mua Trực Tiếp Từ Vựa Thương Lái`,
+      description: meta.description,
+      url: `/danh-muc/${slug}`,
+      type: "website",
+      images: [
+        {
+          url: meta.ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${meta.name} tươi sống chất lượng cao từ vựa Cà Mau`,
+        }
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${meta.name} Tươi Sống Sỉ & Lẻ | Hải Sản Cao Cấp`,
+      description: meta.description,
+      images: [meta.ogImage],
+    }
+  };
 }
 
-export default async function CategoryPage({ params, searchParams }: PageProps) {
-  const { slug } = await params
-  const catInfo = CATEGORY_MAP[slug]
+export default async function CategoryDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  const meta = CATEGORY_META[slug];
 
-  if (!catInfo) {
-    notFound()
-  }
+  // 404 nếu slug không hợp lệ
+  if (!meta) notFound();
 
-  const sParams = await searchParams
-  const page = Math.max(1, parseInt(sParams['page'] ?? '1', 10))
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const canonicalUrl = `${baseUrl}/danh-muc/${slug}`;
 
-  const { data: products, pagination } = await ProductService.getPublicProducts({
-    page,
-    limit: 12,
-    category: slug,
-  })
+  const rawProducts = await productService.getAllProducts();
+  const rawMerchants = await merchantService.getAllActiveMerchants();
 
-  // Self-referencing canonical URL
-  const selfCanonical = page === 1
-    ? `/danh-muc/${slug}`
-    : `/danh-muc/${slug}?page=${page}`
+  const products = rawProducts.map(enrichProduct);
+  const merchants = rawMerchants.map(enrichMerchant);
 
-  // JSON-LD Schema — CollectionPage
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    '@id': `${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://haisancamau.vn'}${selfCanonical}`,
-    name: catInfo.label,
-    description: catInfo.desc,
-    url: `${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://haisancamau.vn'}${selfCanonical}`,
-    mainEntity: {
-      '@type': 'ItemList',
-      numberOfItems: pagination.total,
-      itemListElement: products.map((product, index) => ({
-        '@type': 'ListItem',
-        position: (page - 1) * 12 + index + 1,
-        item: {
-          '@type': 'Product',
-          name: product.name,
-          url: `${process.env.NEXT_PUBLIC_BASE_URL ?? 'https://haisancamau.vn'}/san-pham/${product.slug}`,
-          offers: {
-            '@type': 'Offer',
-            price: product.price,
-            priceCurrency: 'VND',
-            availability: 'https://schema.org/InStock',
-          },
-        },
-      })),
-    },
-  }
+  // Lọc sản phẩm theo danh mục để dùng trong ItemList schema
+  const categoryProducts = products.filter(p => p.category === slug).slice(0, 10);
+
+  // BreadcrumbList JSON-LD
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Trang chủ", "item": baseUrl },
+      { "@type": "ListItem", "position": 2, "name": "Sản phẩm", "item": `${baseUrl}/san-pham` },
+      { "@type": "ListItem", "position": 3, "name": meta.name, "item": canonicalUrl },
+    ],
+  };
+
+  // ItemList JSON-LD — giúp Google hiểu đây là trang danh sách sản phẩm
+  const itemListJsonLd = categoryProducts.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `${meta.name} — Hải Sản Cao Cấp`,
+    "description": meta.description,
+    "url": canonicalUrl,
+    "numberOfItems": categoryProducts.length,
+    "itemListElement": categoryProducts.map((p, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${baseUrl}/san-pham/${p.slug}`,
+      "name": p.name,
+    })),
+  } : null;
 
   return (
-    <>
+    <div className="w-full">
+      {/* BreadcrumbList JSON-LD */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
+      {/* ItemList JSON-LD */}
+      {itemListJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }}
+        />
+      )}
 
-      {/* Hero Header */}
-      <section className="bg-deepwater-teal text-pure-white">
-        <div className="mx-auto max-w-7xl px-5 py-45">
-          <Breadcrumb
-            light={true}
-            items={[
-              { label: 'Sản Phẩm', href: '/san-pham' },
-              { label: catInfo.label, href: `/danh-muc/${slug}` },
-            ]}
-          />
-          <h1 className="mt-4 text-heading font-medium tracking-heading">
-            {catInfo.label}
-          </h1>
-          <p className="mt-3 text-subheading leading-subheading tracking-subheading text-pure-white/70 max-w-xl">
-            {catInfo.desc}
-          </p>
-        </div>
-      </section>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <Breadcrumbs
+          items={[
+            { label: 'Sản phẩm', href: '/san-pham' },
+            { label: meta.name },
+          ]}
+          className="mb-4"
+        />
+      </div>
 
-      {/* Product list */}
-      <section className="bg-canvas">
-        <div className="mx-auto max-w-7xl px-5 py-45">
-          {products.length === 0 ? (
-            <p className="text-center text-soft-gray py-72">
-              Chưa có sản phẩm nào thuộc danh mục này. Vui lòng quay lại sau.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((product) => (
-                <Link
-                  key={product.id}
-                  href={`/san-pham/${product.slug}`}
-                  className="group block bg-pure-white rounded-cards overflow-hidden hover:shadow-md transition-all duration-150"
-                >
-                  {/* Image */}
-                  <div className="relative aspect-square bg-canvas overflow-hidden">
-                    {product.image_url ? (
-                      <Image
-                        src={product.image_url}
-                        alt={`${product.name} — Hải sản tươi Cà Mau`}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-deepwater-teal/10">
-                        <span className="text-heading-lg">🦀</span>
-                      </div>
-                    )}
-                    {/* Badge */}
-                    {product.original_price && product.original_price > product.price && (
-                      <div className="absolute top-9 right-9 flex items-center gap-1 bg-deepwater-teal text-pure-white px-9 py-5 rounded-buttons">
-                        <TagIcon size={10} aria-hidden={true} />
-                        <span className="text-caption font-semibold tracking-caption">
-                          -{Math.round((1 - product.price / product.original_price) * 100)}%
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="p-20">
-                    <h2 className="text-body font-medium tracking-body text-ink-black group-hover:text-deepwater-teal transition-colors duration-150 line-clamp-2">
-                      {product.name}
-                    </h2>
-                    <p className="mt-1 text-caption text-soft-gray">
-                      {product.merchant_name}
-                    </p>
-
-                    <div className="mt-10 flex items-baseline gap-2">
-                      <span className="text-heading-sm font-medium tracking-heading-sm text-ink-black">
-                        {product.price.toLocaleString('vi-VN')}₫
-                      </span>
-                      {product.original_price && product.original_price > product.price && (
-                        <span className="text-body text-soft-gray line-through">
-                          {product.original_price.toLocaleString('vi-VN')}₫
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {/* Pagination */}
-          {pagination.totalPages > 1 && (
-            <nav
-              className="mt-45 flex items-center justify-center gap-2"
-              aria-label={`Phân trang danh mục ${catInfo.label}`}
-            >
-              {page > 1 && (
-                <Link
-                  href={page - 1 === 1 ? `/danh-muc/${slug}` : `/danh-muc/${slug}?page=${page - 1}`}
-                  className="px-14 py-9 text-body font-medium border border-canvas rounded-buttons text-ink-black bg-pure-white hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
-                >
-                  Trang trước
-                </Link>
-              )}
-              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
-                <Link
-                  key={p}
-                  href={p === 1 ? `/danh-muc/${slug}` : `/danh-muc/${slug}?page=${p}`}
-                  aria-current={p === page ? 'page' : undefined}
-                  className={`px-14 py-9 text-body font-medium rounded-buttons transition-colors duration-150 ${p === page
-                      ? 'bg-deepwater-teal text-pure-white border border-deepwater-teal'
-                      : 'border border-canvas bg-pure-white text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal'
-                    }`}
-                >
-                  {p}
-                </Link>
-              ))}
-              {page < pagination.totalPages && (
-                <Link
-                  href={`/danh-muc/${slug}?page=${page + 1}`}
-                  className="px-14 py-9 text-body font-medium border border-canvas rounded-buttons bg-pure-white text-ink-black hover:bg-deepwater-teal hover:text-pure-white hover:border-deepwater-teal transition-colors duration-150"
-                >
-                  Trang sau
-                </Link>
-              )}
-            </nav>
-          )}
-        </div>
-      </section>
-    </>
-  )
+      <CategoryClient
+        initialProducts={products}
+        merchants={merchants}
+        activeCategorySlug={slug}
+      />
+    </div>
+  );
 }

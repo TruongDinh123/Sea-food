@@ -1,7 +1,8 @@
-import { sql } from '../db/client';
-import type { Merchant, CreateMerchantInput, UpdateMerchantInput } from '@/types/merchant.types';
+import postgres from 'postgres';
+import sql from '../db/index';
+import { Merchant, CreateMerchantInput, UpdateMerchantInput } from '../../types/merchant.types';
 
-export interface DBMerchantRow {
+interface DbMerchant {
   id: number;
   name: string;
   phone: string;
@@ -10,133 +11,108 @@ export interface DBMerchantRow {
   commission_type: 'percentage' | 'fixed' | 'monthly_flat';
   commission_value: string | number;
   monthly_flat_rate: string | number;
+  user_id: string | null;
   created_at: string | Date;
   updated_at: string | Date;
   deleted_at: string | Date | null;
 }
 
-// Helper to convert database row types to application Merchant types
-function mapRow(row: DBMerchantRow): Merchant {
-  return {
-    id: row.id,
-    name: row.name,
-    phone: row.phone,
-    address: row.address,
-    is_active: row.is_active,
-    commission_type: row.commission_type,
-    commission_value: Number(row.commission_value),
-    monthly_flat_rate: Number(row.monthly_flat_rate),
-    created_at: new Date(row.created_at),
-    updated_at: new Date(row.updated_at),
-    deleted_at: row.deleted_at ? new Date(row.deleted_at) : null,
-  };
-}
+export class MerchantRepository {
+  private mapRow(row: DbMerchant): Merchant {
+    return {
+      id: row.id,
+      name: row.name,
+      phone: row.phone,
+      address: row.address,
+      is_active: row.is_active,
+      commission_type: row.commission_type,
+      commission_value: Number(row.commission_value),
+      monthly_flat_rate: Number(row.monthly_flat_rate),
+      user_id: row.user_id,
+      created_at: new Date(row.created_at),
+      updated_at: new Date(row.updated_at),
+      deleted_at: row.deleted_at ? new Date(row.deleted_at) : null,
+    };
+  }
 
-export const MerchantRepository = {
-  findAll: async (options?: { 
-    isActive?: boolean; 
-    limit?: number; 
-    offset?: number; 
-  }): Promise<Merchant[]> => {
-    const limit = options?.limit ?? 20;
-    const offset = options?.offset ?? 0;
+  async findById(id: number, tx?: postgres.Sql | postgres.TransactionSql): Promise<Merchant | null> {
+    const client = tx || sql;
+    const rows = await client`
+      SELECT * FROM merchants
+      WHERE id = ${id} AND deleted_at IS NULL
+    `;
+    if (rows.length === 0) return null;
+    return this.mapRow(rows[0] as DbMerchant);
+  }
 
-    const rows = await sql`
-      SELECT 
-        id, name, phone, address, is_active, 
-        commission_type, commission_value, monthly_flat_rate,
-        created_at, updated_at, deleted_at
-      FROM merchants
+  async findByUserId(userId: string, tx?: postgres.Sql | postgres.TransactionSql): Promise<Merchant | null> {
+    const client = tx || sql;
+    const rows = await client`
+      SELECT * FROM merchants
+      WHERE user_id = ${userId} AND deleted_at IS NULL
+    `;
+    if (rows.length === 0) return null;
+    return this.mapRow(rows[0] as DbMerchant);
+  }
+
+  async findAll(tx?: postgres.Sql | postgres.TransactionSql): Promise<Merchant[]> {
+    const client = tx || sql;
+    const rows = await client`
+      SELECT * FROM merchants
       WHERE deleted_at IS NULL
-      ${options?.isActive !== undefined ? sql`AND is_active = ${options.isActive}` : sql``}
       ORDER BY id DESC
-      LIMIT ${limit} OFFSET ${offset}
     `;
-    return (rows as unknown as DBMerchantRow[]).map(mapRow);
-  },
+    return rows.map((row) => this.mapRow(row as DbMerchant));
+  }
 
-  findById: async (id: number): Promise<Merchant | null> => {
-    const rows = await sql`
-      SELECT 
-        id, name, phone, address, is_active, 
-        commission_type, commission_value, monthly_flat_rate,
-        created_at, updated_at, deleted_at
-      FROM merchants
-      WHERE id = ${id} AND deleted_at IS NULL
-      LIMIT 1
+  async create(input: CreateMerchantInput, tx?: postgres.Sql | postgres.TransactionSql): Promise<Merchant> {
+    const client = tx || sql;
+    const data = {
+      name: input.name,
+      phone: input.phone,
+      address: input.address ?? null,
+      is_active: input.is_active ?? true,
+      commission_type: input.commission_type ?? 'percentage',
+      commission_value: input.commission_value ?? 5.00,
+      monthly_flat_rate: input.monthly_flat_rate ?? 0.00,
+      user_id: input.user_id ?? null,
+      created_at: new Date(),
+      updated_at: new Date(),
+    };
+
+    const rows = await client`
+      INSERT INTO merchants ${client(data)}
+      RETURNING *
     `;
+    return this.mapRow(rows[0] as DbMerchant);
+  }
 
-    if (rows.length === 0) return null;
-    return mapRow(rows[0] as unknown as DBMerchantRow);
-  },
+  async update(id: number, input: UpdateMerchantInput, tx?: postgres.Sql | postgres.TransactionSql): Promise<Merchant | null> {
+    const client = tx || sql;
+    const updateData: Record<string, postgres.ParameterOrJSON<never>> = {
+      ...input,
+      updated_at: new Date(),
+    } as Record<string, postgres.ParameterOrJSON<never>>;
 
-  count: async (options?: { isActive?: boolean }): Promise<number> => {
-    const rows = await sql`
-      SELECT COUNT(*)::int as total
-      FROM merchants
-      WHERE deleted_at IS NULL
-      ${options?.isActive !== undefined ? sql`AND is_active = ${options.isActive}` : sql``}
-    `;
-    return rows[0]?.total ?? 0;
-  },
+    const columns = Object.keys(updateData);
+    if (columns.length === 0) {
+      return this.findById(id, tx);
+    }
 
-  create: async (data: CreateMerchantInput): Promise<Merchant> => {
-    const rows = await sql`
-      INSERT INTO merchants (
-        name, phone, address, is_active, 
-        commission_type, commission_value, monthly_flat_rate
-      )
-      VALUES (
-        ${data.name}, ${data.phone}, ${data.address}, ${data.is_active}, 
-        ${data.commission_type}, ${data.commission_value}, ${data.monthly_flat_rate}
-      )
-      RETURNING 
-        id, name, phone, address, is_active, 
-        commission_type, commission_value, monthly_flat_rate,
-        created_at, updated_at, deleted_at
-    `;
-
-    return mapRow(rows[0] as unknown as DBMerchantRow);
-  },
-
-  update: async (id: number, data: UpdateMerchantInput): Promise<Merchant | null> => {
-    // Lấy bản ghi hiện tại để kiểm tra
-    const current = await MerchantRepository.findById(id);
-    if (!current) return null;
-
-    // Chuẩn bị dữ liệu cập nhật
-    const name = data.name ?? current.name;
-    const phone = data.phone ?? current.phone;
-    const address = data.address !== undefined ? data.address : current.address;
-    const is_active = data.is_active !== undefined ? data.is_active : current.is_active;
-    const commission_type = data.commission_type ?? current.commission_type;
-    const commission_value = data.commission_value !== undefined ? data.commission_value : current.commission_value;
-    const monthly_flat_rate = data.monthly_flat_rate !== undefined ? data.monthly_flat_rate : current.monthly_flat_rate;
-
-    const rows = await sql`
+    const rows = await client`
       UPDATE merchants
-      SET 
-        name = ${name},
-        phone = ${phone},
-        address = ${address},
-        is_active = ${is_active},
-        commission_type = ${commission_type},
-        commission_value = ${commission_value},
-        monthly_flat_rate = ${monthly_flat_rate},
-        updated_at = NOW()
+      SET ${client(updateData, columns)}
       WHERE id = ${id} AND deleted_at IS NULL
-      RETURNING 
-        id, name, phone, address, is_active, 
-        commission_type, commission_value, monthly_flat_rate,
-        created_at, updated_at, deleted_at
+      RETURNING *
     `;
 
     if (rows.length === 0) return null;
-    return mapRow(rows[0] as unknown as DBMerchantRow);
-  },
+    return this.mapRow(rows[0] as DbMerchant);
+  }
 
-  softDelete: async (id: number): Promise<boolean> => {
-    const rows = await sql`
+  async softDelete(id: number, tx?: postgres.Sql | postgres.TransactionSql): Promise<boolean> {
+    const client = tx || sql;
+    const rows = await client`
       UPDATE merchants
       SET deleted_at = NOW(), updated_at = NOW()
       WHERE id = ${id} AND deleted_at IS NULL
@@ -144,4 +120,6 @@ export const MerchantRepository = {
     `;
     return rows.length > 0;
   }
-};
+}
+
+

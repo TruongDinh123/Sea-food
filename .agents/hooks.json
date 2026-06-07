@@ -11,21 +11,8 @@
     {
       "command": "node .agents/scripts/load-working-memory.js",
       "description": "Auto-load working memory context — hiển thị trạng thái hiện tại từ NOTES.md đầu mỗi invocation."
-    },
-    {
-      "command": "node .agents/scripts/track-session-metrics.js --show",
-      "description": "Hiển thị dashboard metrics (tokens, turns, cảnh báo) đầu mỗi invocation để theo dõi chi phí và context window."
     }
   ],
-  "PostInvocation": [
-    // Đã xóa: calculate-current-turn-tokens.js — Antigravity không expose token API,
-    // ước tính 4 chars=1 token không chính xác. Chạy thủ công nếu cần:
-    // node .agents/scripts/track-session-metrics.js --add-tokens --input=N --output=N
-  ],
-  "Stop": [
-    {
-      "command": "node .agents/scripts/track-session-metrics.js --end",
-      "description": "Lưu tổng kết metrics khi agent kết thúc phiên làm việc (Stop event)."
-    }
-  ]
+  "PostInvocation": [],
+  "Stop": []
 }

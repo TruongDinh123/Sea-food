@@ -14,10 +14,13 @@
   },
   "dependencies": {
     "lucide-react": "^1.16.0",
+    "motion": "^12.40.0",
     "next": "16.2.6",
     "postgres": "^3.4.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
@@ -28,6 +31,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.2",
+    "@vitest/coverage-v8": "^4.1.7",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "husky": "^9.1.7",

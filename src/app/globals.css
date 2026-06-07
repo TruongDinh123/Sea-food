@@ -1,174 +1,104 @@
 @import "tailwindcss";
 
-/* ============================================================
-   SEAFOOD DESIGN SYSTEM — Modern Fresh Seafood Light Theme
-   Source: Design_system/DESIGN.md + .agents/rules/Design.md
-   Font: Be Vietnam Pro (Google Fonts)
-   Theme: light, fresh seafood theme
-   ============================================================ */
-
 @theme {
-  /* Fresh Seafood Colors (Standard) */
-  --color-primary: #0D6EFD;
-  --color-primary-hover: #0b5ed7;
-  --color-primary-active: #0a58ca;
-  --color-secondary: #198754;
-  --color-secondary-hover: #157347;
+  /* ── FONT FAMILIES ── */
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-bg: #f8f9fa;
-  --color-surface: #ffffff;
-  --color-border: #e9ecef;
-  --color-text-base: #212529;
-  --color-text-muted: #6c757d;
-  --color-text-inverse: #ffffff;
+  /* ── BRAND PALETTE — Muted Luxury Deepwater ── */
+  --color-deepwater: #031e25;
+  --color-deepwater-mid: #04333f;
+  --color-canvas: #e5e7eb;
+  --color-ink: #0a0a0a;
+  --color-white: #ffffff;
+  --color-amber-accent: #d97706;
+  --color-amber-light: #f9a825;
+  --color-soft-gray: #666d75;
+  --color-slate-subtle: #f9fafb;
 
-  /* Arc Design System Aliases for Backward Compatibility and Automatic Theme Migration */
-  --color-deepwater-teal: #0D6EFD; /* Map to Ocean Blue */
-  --color-canvas: #f8f9fa;         /* Map to Slate Light Background */
-  --color-ink-black: #212529;      /* Map to Slate Ink Text */
-  --color-pure-white: #ffffff;     /* Map to Pure White */
-  --color-soft-gray: #6c757d;      /* Map to Slate Muted Text */
-
-  /* Typography */
-  --font-soehne: var(--font-be-vietnam-pro), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-sans: var(--font-soehne);
-
-  /* Typography — Scale */
+  /* ── TYPOGRAPHY SCALE (từ Design_system/theme.css) ── */
   --text-caption: 11px;
   --leading-caption: 1.44;
-  --tracking-caption: 2.22px;
+  --tracking-caption: 0.14em;
+
   --text-body: 14px;
   --leading-body: 1.44;
-  --tracking-body: -0.2px;
+  --tracking-body: -0.01em;
+
   --text-subheading: 18px;
   --leading-subheading: 1.33;
-  --tracking-subheading: -0.32px;
+  --tracking-subheading: -0.02em;
+
   --text-heading-sm: 22px;
   --leading-heading-sm: 1.33;
-  --tracking-heading-sm: -0.35px;
+  --tracking-heading-sm: -0.016em;
+
   --text-heading: 32px;
   --leading-heading: 1.3;
-  --tracking-heading: -0.51px;
+  --tracking-heading: -0.016em;
+
   --text-heading-lg: 48px;
   --leading-heading-lg: 1.3;
-  --tracking-heading-lg: -0.77px;
-  --text-display: 140px;
-  --leading-display: 1;
-  --tracking-display: 2.6px;
+  --tracking-heading-lg: -0.016em;
 
-  /* Spacing */
-  --spacing-4: 4px;
-  --spacing-5: 5px;
-  --spacing-6: 6px;
-  --spacing-9: 9px;
-  --spacing-10: 10px;
-  --spacing-14: 14px;
-  --spacing-18: 18px;
-  --spacing-20: 20px;
-  --spacing-30: 30px;
-  --spacing-36: 36px;
-  --spacing-45: 45px;
-  --spacing-72: 72px;
-  --spacing-80: 80px;
-  --spacing-81: 81px;
-  --spacing-100: 100px;
-  --spacing-215: 215px;
+  /* ── SPACING TOKENS (từ Design_system/variable.css) ── */
+  --spacing-section: 72px;
+  --spacing-card-padding: 20px;
+  --spacing-element-gap: 20px;
+  --spacing-section-gap: 36px;
 
-  /* Border Radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 18px;
-  --radius-3xl: 24px;
-
-  /* Named semantic radii */
+  /* ── BORDER RADIUS TOKENS ── */
+  --radius-sm: 2.25px;
+  --radius-md: 5px;
   --radius-cards: 12px;
-  --radius-inputs: 8px;
-  --radius-buttons: 8px;
-  --radius-navigation: 4px;
-  --radius-ghost-buttons: 8px;
+  --radius-xl: 13.5px;
+  --radius-2xl: 18px;
+  --radius-3xl: 32px;
+  --radius-inputs: 5px;
+  --radius-buttons: 5px;
+  --radius-ghost-buttons: 6.75px;
 
-  /* Shadows */
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  /* ── SHADOW TOKENS ── */
+  --shadow-card: rgba(0, 0, 0, 0.05) 0px 10px 15px -3px;
+  --shadow-float: 0 20px 40px rgba(3, 30, 37, 0.12);
+
+  /* ── SURFACES ── */
+  --surface-deepwater: #031e25;
+  --surface-light: #e5e7eb;
+  --surface-input: #666d75;
 }
 
-/* ============================================================
-   BASE STYLES
-   ============================================================ */
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  font-size: 16px;
-  scroll-behavior: smooth;
+/* ── GLOBAL BASE STYLES ── */
+body {
+  font-family: var(--font-sans);
+  background-color: #f9fafb;
+  color: var(--color-ink);
+  margin: 0;
+  padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  font-family: var(--font-sans);
-  font-size: var(--text-body);
-  font-weight: var(--font-weight-regular);
-  line-height: var(--leading-body);
-  letter-spacing: var(--tracking-body);
-  background-color: var(--color-bg);
-  color: var(--color-text-base);
-  min-height: 100dvh;
+/* ── UTILITY: Ẩn scrollbar nhưng giữ scroll ── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
-/* ============================================================
-   TYPOGRAPHY UTILITIES
-   ============================================================ */
-
-.text-display {
-  font-size: var(--text-display);
-  line-height: var(--leading-display);
-  letter-spacing: var(--tracking-display);
-  font-weight: var(--font-weight-medium);
+/* ── UTILITY: Text truncate nhiều dòng ── */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.text-heading-lg {
-  font-size: var(--text-heading-lg);
-  line-height: var(--leading-heading-lg);
-  letter-spacing: var(--tracking-heading-lg);
-  font-weight: var(--font-weight-semibold);
-}
-
-.text-heading {
-  font-size: var(--text-heading);
-  line-height: var(--leading-heading);
-  letter-spacing: var(--tracking-heading);
-  font-weight: var(--font-weight-medium);
-}
-
-.text-heading-sm {
-  font-size: var(--text-heading-sm);
-  line-height: var(--leading-heading-sm);
-  letter-spacing: var(--tracking-heading-sm);
-  font-weight: var(--font-weight-medium);
-}
-
-.text-subheading {
-  font-size: var(--text-subheading);
-  line-height: var(--leading-subheading);
-  letter-spacing: var(--tracking-subheading);
-  font-weight: var(--font-weight-regular);
-}
-
-.text-body {
-  font-size: var(--text-body);
-  line-height: var(--leading-body);
-  letter-spacing: var(--tracking-body);
-  font-weight: var(--font-weight-regular);
-}
-
-.text-caption {
-  font-size: var(--text-caption);
-  line-height: var(--leading-caption);
-  letter-spacing: var(--tracking-caption);
-  font-weight: var(--font-weight-semibold);
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

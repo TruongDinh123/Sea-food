@@ -1,228 +1,148 @@
-import type { Metadata } from 'next'
-import Image from 'next/image'
-import { notFound } from 'next/navigation'
-import { ArrowLeftIcon } from '@/components/ui/Icons'
-import Link from 'next/link'
-import { ProductService } from '@/lib/services/product.service'
-import Breadcrumb from '@/components/layout/Breadcrumb'
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { productService, merchantService } from "@/lib/services";
+import { enrichProduct, enrichMerchant } from "@/lib/utils/enrichment";
+import ProductDetailClient from "./ProductDetailClient";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
 interface PageProps {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string }>;
 }
 
-// Static expiry date — 7 ngày từ build time (không dùng Date.now() trong render)
-const PRICE_VALID_UNTIL = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-  .toISOString()
-  .split('T')[0]
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params
-  const product = await ProductService.getProductBySlug(slug)
-  if (!product) return { title: 'Không Tìm Thấy | Hải Sản Cà Mau' }
+  const resolvedParams = await params;
+  const { slug } = resolvedParams;
 
-  const discountPercent = product.original_price && product.original_price > product.price
-    ? Math.round((1 - product.price / product.original_price) * 100)
-    : null
-
-  return {
-    title: `${product.name} — Hải Sản Tươi Cà Mau`,
-    description:
-      `${product.name} tươi sống từ Cà Mau. Giá: ${product.price.toLocaleString('vi-VN')}₫/kg${discountPercent ? ` (giảm ${discountPercent}%)` : ''}. ${product.description ?? 'Hải sản tươi chất lượng cao từ vùng biển Mũi Cà Mau.'}`.slice(0, 160),
-    alternates: { canonical: `/san-pham/${slug}` },
-    openGraph: {
-      images: product.image_url ? [{ url: product.image_url, alt: product.name }] : [],
-    },
+  try {
+    const product = await productService.getProductBySlug(slug);
+    return {
+      title: `${product.name} - Hải Sản Cao Cấp`,
+      description: product.description || `Mua ngay ${product.name} chất lượng cao trực tiếp từ thương lái uy tín.`,
+      alternates: {
+        canonical: `/san-pham/${slug}`,
+      },
+      openGraph: {
+        title: `${product.name} - Hải Sản Cao Cấp`,
+        description: product.description || `Mua ngay ${product.name} chất lượng cao trực tiếp từ thương lái uy tín.`,
+        type: "website",
+        url: `/san-pham/${slug}`,
+        images: product.image_url ? [product.image_url] : [],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${product.name} - Hải Sản Cao Cấp`,
+        description: product.description || `Mua ngay ${product.name} chất lượng cao trực tiếp từ thương lái uy tín.`,
+        images: product.image_url ? [product.image_url] : [],
+      }
+    };
+  } catch {
+    return {
+      title: "Không Tìm Thấy Sản Phẩm | Hải Sản Cao Cấp",
+    };
   }
 }
 
-export default async function SanPhamDetailPage({ params }: PageProps) {
-  const { slug } = await params
-  const product = await ProductService.getProductBySlug(slug)
-  if (!product) notFound()
+export default async function ProductDetailPage({ params }: PageProps) {
+  const resolvedParams = await params;
+  const { slug } = resolvedParams;
 
-  // Lấy các biến thể size cùng nhóm
-  const baseSlug = slug.replace(/-\d+$/, '') // "tom-su-size-20" → "tom-su-size"
-  const variants = await ProductService.getProductVariants(baseSlug)
-  const hasVariants = variants.length > 1
+  let dbProduct;
+  let dbMerchant;
 
-  const discountPercent = product.original_price && product.original_price > product.price
-    ? Math.round((1 - product.price / product.original_price) * 100)
-    : null
+  try {
+    dbProduct = await productService.getProductBySlug(slug);
+    dbMerchant = await merchantService.getMerchantById(dbProduct.merchant_id);
+  } catch {
+    notFound();
+  }
 
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://haisancamau.vn'
+  // Làm giàu dữ liệu cho UI phong phú
+  const product = enrichProduct(dbProduct);
+  const merchant = enrichMerchant(dbMerchant);
+
+  // Lấy sản vật liên đới (cùng danh mục)
+  const categoryFilter = dbProduct.category || undefined;
+  const categoryProducts = categoryFilter 
+    ? await productService.getAllProducts({ category: categoryFilter }) 
+    : [];
+  const similarProducts = categoryProducts
+    .filter(p => p.id !== dbProduct.id)
+    .slice(0, 3)
+    .map(enrichProduct);
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const canonicalUrl = `${baseUrl}/san-pham/${product.slug}`;
 
   // JSON-LD Product Schema
-  const jsonLd = hasVariants
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'ProductGroup',
-        name: product.name,
-        url: `${BASE_URL}/san-pham/${slug}`,
-        description: product.description ?? `${product.name} tươi sống chất lượng cao từ Cà Mau`,
-        image: product.image_url ? [product.image_url] : [],
-        brand: { '@type': 'Brand', name: 'Hải Sản Cà Mau' },
-        hasVariant: variants.map((v) => ({
-          '@type': 'Product',
-          name: v.name,
-          sku: v.slug,
-          url: `${BASE_URL}/san-pham/${v.slug}`,
-          offers: {
-            '@type': 'Offer',
-            price: v.price,
-            priceCurrency: 'VND',
-            availability: 'https://schema.org/InStock',
-            priceValidUntil: PRICE_VALID_UNTIL,
-          },
-        })),
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.images,
+    "description": product.description || "",
+    "sku": `PROD-${product.id}`,
+    "offers": {
+      "@type": "Offer",
+      "url": canonicalUrl,
+      "priceCurrency": "VND",
+      "price": product.price,
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "@type": "LocalBusiness",
+        "name": merchant.name,
+        "address": merchant.address,
+        "telephone": merchant.phone,
       }
-    : {
-        '@context': 'https://schema.org',
-        '@type': 'Product',
-        name: product.name,
-        sku: product.slug,
-        url: `${BASE_URL}/san-pham/${slug}`,
-        description: product.description ?? `${product.name} tươi sống chất lượng cao từ Cà Mau`,
-        image: product.image_url ? [product.image_url] : [],
-        brand: { '@type': 'Brand', name: 'Hải Sản Cà Mau' },
-        offers: {
-          '@type': 'Offer',
-          price: product.price,
-          priceCurrency: 'VND',
-          availability: 'https://schema.org/InStock',
-          priceValidUntil: PRICE_VALID_UNTIL,
-          seller: {
-            '@type': 'Organization',
-            name: 'Hải Sản Cà Mau',
-          },
-        },
-      }
+    }
+  };
 
-  const breadcrumbItems = [
-    { label: 'Sản Phẩm', href: '/san-pham' },
-    ...(product.category
-      ? [{ label: product.category, href: `/san-pham?danh-muc=${product.category}` }]
-      : []),
-    { label: product.name, href: `/san-pham/${slug}` },
-  ]
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Trang chủ",
+        "item": baseUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Sản phẩm",
+        "item": `${baseUrl}/san-pham`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": product.name,
+        "item": canonicalUrl
+      }
+    ]
+  };
 
   return (
-    <>
+    <div className="w-full">
+      {/* JSON-LD injection */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
 
-      <div className="bg-canvas min-h-screen">
-        <div className="mx-auto max-w-7xl px-5 py-72">
-          <Breadcrumb items={breadcrumbItems.slice(0, -1)} />
+      {/* Breadcrumb điều hướng */}
+      <Breadcrumbs
+        items={[
+          { label: "Sản phẩm", href: "/san-pham" },
+          { label: product.name },
+        ]}
+        className="mb-4 px-1"
+      />
 
-          <div className="mt-20 grid grid-cols-1 gap-20 lg:grid-cols-2">
-            {/* Product image */}
-            <div className="relative aspect-square rounded-cards overflow-hidden bg-pure-white">
-              {product.image_url ? (
-                <Image
-                  src={product.image_url}
-                  alt={`${product.name} — hải sản tươi Cà Mau`}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center bg-deepwater-teal/5">
-                  <span className="text-[80px]" role="img" aria-label={product.name}>🦐</span>
-                </div>
-              )}
-              {discountPercent && (
-                <div className="absolute top-18 left-18 bg-deepwater-teal text-pure-white px-14 py-6 rounded-buttons">
-                  <span className="text-caption font-semibold tracking-caption uppercase">
-                    Giảm {discountPercent}%
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Product details */}
-            <div className="flex flex-col">
-              <div className="bg-pure-white rounded-cards p-20 flex-1">
-                {product.category && (
-                  <p className="text-caption font-semibold tracking-caption uppercase text-soft-gray mb-3">
-                    {product.category}
-                  </p>
-                )}
-                <h1 className="text-heading font-medium tracking-heading text-ink-black">
-                  {product.name}
-                </h1>
-
-                {/* Pricing */}
-                <div className="mt-20 flex items-baseline gap-3">
-                  <span className="text-heading font-medium tracking-heading text-ink-black">
-                    {product.price.toLocaleString('vi-VN')}₫
-                  </span>
-                  {product.original_price && product.original_price > product.price && (
-                    <span className="text-heading-sm text-soft-gray line-through">
-                      {product.original_price.toLocaleString('vi-VN')}₫
-                    </span>
-                  )}
-                </div>
-
-                {/* Variants */}
-                {hasVariants && (
-                  <div className="mt-18">
-                    <p className="text-caption font-semibold tracking-caption uppercase text-soft-gray mb-3">
-                      Kích Cỡ / Size
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {variants.map((variant) => (
-                        <Link
-                          key={variant.slug}
-                          href={`/san-pham/${variant.slug}`}
-                          className={`px-14 py-9 text-body font-medium rounded-buttons border transition-colors duration-150 ${
-                            variant.slug === slug
-                              ? 'bg-deepwater-teal text-pure-white border-deepwater-teal'
-                              : 'bg-pure-white text-ink-black border-canvas hover:border-deepwater-teal'
-                          }`}
-                        >
-                          {variant.name.replace(product.name, '').trim() || variant.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Description */}
-                {product.description && (
-                  <div className="mt-18 pt-18 border-t border-canvas">
-                    <p className="text-caption font-semibold tracking-caption uppercase text-soft-gray mb-2">
-                      Mô Tả
-                    </p>
-                    <p className="text-body leading-body text-soft-gray">
-                      {product.description}
-                    </p>
-                  </div>
-                )}
-
-                {/* CTA */}
-                <div className="mt-20 space-y-3">
-                  <Link
-                    href="/thuong-lai"
-                    className="flex w-full items-center justify-center px-20 py-10 bg-deepwater-teal text-pure-white text-body font-medium rounded-buttons hover:opacity-90 transition-opacity duration-150"
-                  >
-                    Liên Hệ Thương Lái
-                  </Link>
-                  <Link
-                    href="/san-pham"
-                    className="flex w-full items-center justify-center gap-2 px-20 py-10 border border-canvas text-ink-black text-body font-medium rounded-ghost-buttons hover:border-deepwater-teal hover:text-deepwater-teal transition-colors duration-150"
-                  >
-                    <ArrowLeftIcon size={14} aria-hidden="true" />
-                    Xem Thêm Sản Phẩm
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  )
+      <ProductDetailClient product={product} merchant={merchant} similarProducts={similarProducts} />
+    </div>
+  );
 }

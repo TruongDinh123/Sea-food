@@ -56,11 +56,12 @@ export default defineConfig({
     // { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],
 
-  // Tự động khởi động dev server trước khi chạy tests
+  /*
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: true, // Không restart nếu đã chạy
     timeout: 120_000,
   },
+  */
 })

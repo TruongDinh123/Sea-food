@@ -1,103 +1,53 @@
-import type { Metadata } from 'next'
-import Link from 'next/link'
-import Breadcrumb from '@/components/layout/Breadcrumb'
+import type { Metadata } from "next";
+import Link from "next/link";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
 export const metadata: Metadata = {
-  title: 'Về Chúng Tôi — Hải Sản Cà Mau Sạch',
-  description:
-    'Sứ mệnh kết nối trực tiếp thực khách với các vựa thương lái uy tín tại Mũi Cà Mau. Hải sản tươi sống tự nhiên, truy xuất nguồn gốc rõ ràng.',
-  alternates: { canonical: '/ve-chung-toi' },
-}
+  title: "Về Chúng Tôi - Hải Sản Cao Cấp",
+  description: "Tìm hiểu về sứ mệnh kết nối thương lái hải sản khô Cà Mau và người tiêu dùng của Hải Sản Cao Cấp Marketplace.",
+  alternates: {
+    canonical: "/ve-chung-toi",
+  },
+};
 
-export default function VeChungToiPage() {
+export default function AboutUsPage() {
   return (
-    <>
-      {/* Hero Header */}
-      <section className="bg-deepwater-teal text-pure-white">
-        <div className="mx-auto max-w-7xl px-5 pt-[45px] pb-[72px]">
-          <Breadcrumb light={true} items={[{ label: 'Về Chúng Tôi', href: '/ve-chung-toi' }]} />
-          <h1 className="mt-4 text-display font-medium tracking-[2.6px] uppercase leading-none text-pure-white/90 max-w-3xl text-[36px] sm:text-[48px] md:text-[64px] lg:text-[80px]">
-            Hành Trình Tươi Sống
-          </h1>
-          <p className="mt-6 text-[18px] leading-[1.33] tracking-[-0.32px] text-pure-white/70 max-w-xl">
-            Mang tinh hoa của biển cả Mũi Cà Mau đến bàn ăn mọi nhà thông qua liên kết trực tiếp với các thương lái uy tín.
+    <div className="space-y-8 max-w-3xl mx-auto">
+      <Breadcrumbs items={[{ label: 'Về Chúng Tôi' }]} className="mb-4" />
+
+      <article className="bg-[var(--color-white)] p-card-padding rounded-cards border border-[var(--color-canvas)] shadow-sm space-y-6">
+        <h1 className="text-3xl font-extrabold text-[var(--color-deepwater)] tracking-tight">
+          Về Chúng Tôi
+        </h1>
+
+        <p className="text-sm leading-relaxed text-[var(--color-ink)]/90">
+          Chào mừng bạn đến với <strong>Hải Sản Khô Marketplace</strong> - Nền tảng kết nối trực tiếp các vựa hải sản, thương lái uy tín tại Cà Mau và các tỉnh miền Tây với người tiêu dùng trên toàn quốc.
+        </p>
+
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-[var(--color-deepwater)]">Sứ mệnh của chúng tôi</h2>
+          <p className="text-sm leading-relaxed text-[var(--color-ink)]/80">
+            Chúng tôi sinh ra với sứ mệnh xóa bỏ rào cản trung gian, giúp người mua có thể sở hữu sản phẩm tôm khô, cua khô, cá khô chất lượng cao nhất với giá gốc từ vựa, đồng thời hỗ trợ thương lái địa phương tối ưu hóa kênh bán hàng kỹ thuật số.
           </p>
         </div>
-      </section>
 
-      {/* Main Content */}
-      <section className="bg-canvas">
-        <div className="mx-auto max-w-7xl px-5 py-[72px]">
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-            <div>
-              <h2 className="text-heading font-medium tracking-[-0.51px] text-ink-black mb-5">
-                Sứ Mệnh Của Chúng Tôi
-              </h2>
-              <p className="text-[14px] leading-[1.44] text-ink-black/80 mb-4">
-                Cà Mau sở hữu hệ sinh thái rừng ngập mặn trù phú, là nơi sinh trưởng của nhiều loài hải sản ngon bậc nhất Việt Nam như tôm sú, cua biển. Tuy nhiên, việc mua bán truyền thống qua nhiều tầng trung gian khiến chất lượng hải sản giảm sút khi đến tay người tiêu dùng, đồng thời giá cả bị đẩy lên cao.
-              </p>
-              <p className="text-[14px] leading-[1.44] text-ink-black/80">
-                Hải Sản Cà Mau ra đời với sứ mệnh xóa nhòa khoảng cách này bằng cách thiết lập một cổng kết nối kỹ thuật số trực tiếp giữa thực khách, nhà hàng với các vựa hải sản, thương lái uy tín nhất tại Mũi Cà Mau.
-              </p>
-            </div>
-
-            <div className="bg-pure-white rounded-[32px] p-[30px] border border-canvas">
-              <h2 className="text-[11px] font-semibold tracking-[2.22px] uppercase text-soft-gray mb-6">
-                Giá Trị Cốt Lõi
-              </h2>
-              <div className="space-y-[18px]">
-                {[
-                  {
-                    title: '1. Tươi Ngon Sinh Thái',
-                    desc: 'Tôm sú, cua biển được thu hoạch tự nhiên từ vùng rừng ngập mặn sinh thái Cà Mau, đảm bảo độ chắc thịt, béo ngọt tự nhiên không qua hóa chất.',
-                  },
-                  {
-                    title: '2. Minh Bạch Nguồn Gốc',
-                    desc: 'Mỗi sản phẩm đều ghi rõ tên thương lái, địa chỉ vựa thu mua và ngày đánh bắt để người tiêu dùng an tâm truy xuất nguồn gốc.',
-                  },
-                  {
-                    title: '3. Kết Nối Trực Tiếp',
-                    desc: 'Loại bỏ trung gian không cần thiết, giúp nâng cao giá trị thu nhập cho ngư dân địa phương và đem lại giá thành hợp lý nhất cho khách hàng.',
-                  },
-                ].map((val) => (
-                  <div key={val.title}>
-                    <h3 className="text-[16px] font-medium tracking-[-0.2px] text-ink-black mb-1">
-                      {val.title}
-                    </h3>
-                    <p className="text-[14px] leading-[1.44] text-soft-gray">
-                      {val.desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Action banner */}
-          <div className="mt-[72px] bg-deepwater-teal text-pure-white rounded-[32px] p-[30px] sm:p-[45px] text-center max-w-4xl mx-auto">
-            <h2 className="text-[22px] font-medium tracking-[-0.35px] mb-3">
-              Trải Nghiệm Hương Vị Biển Cà Mau Ngay Hôm Nay
-            </h2>
-            <p className="text-[14px] text-pure-white/70 max-w-md mx-auto mb-6">
-              Xem ngay danh sách hải sản tươi ngon nhất được cập nhật trực tiếp tại vựa thương lái hôm nay.
-            </p>
-            <div className="flex justify-center gap-4 flex-wrap">
-              <Link
-                href="/san-pham"
-                className="inline-flex items-center px-[20px] py-[10px] bg-pure-white text-ink-black text-[14px] font-medium rounded-[5px] transition-opacity duration-150 hover:opacity-90"
-              >
-                Khám Phá Sản Phẩm
-              </Link>
-              <Link
-                href="/thuong-lai"
-                className="inline-flex items-center px-[20px] py-[10px] border border-pure-white/30 text-pure-white text-[14px] font-medium rounded-[5px] transition-colors duration-150 hover:bg-pure-white/10"
-              >
-                Gặp Gỡ Thương Lái
-              </Link>
-            </div>
-          </div>
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-[var(--color-deepwater)]">Cam kết chất lượng</h2>
+          <p className="text-sm leading-relaxed text-[var(--color-ink)]/80">
+            Tất cả thương lái tham gia hệ thống đều được kiểm duyệt chặt chẽ về giấy phép vệ sinh an toàn thực phẩm cũng như quy trình sản xuất truyền thống tự nhiên. Chúng tôi cam kết nói không với hóa chất bảo quản và phẩm màu độc hại.
+          </p>
         </div>
-      </section>
-    </>
-  )
+
+        <div className="border-t border-[var(--color-canvas)] pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span className="text-sm font-semibold text-[var(--color-ink)]">Bạn muốn mua sắm ngay?</span>
+          <Link
+            href="/san-pham"
+            className="bg-[var(--color-deepwater)] hover:opacity-90 text-[var(--color-white)] font-bold py-2 px-6 rounded-md text-sm transition-opacity"
+          >
+            Đến cửa hàng
+          </Link>
+        </div>
+      </article>
+    </div>
+  );
 }

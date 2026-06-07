@@ -199,23 +199,25 @@ Database (Supabase PostgreSQL)
 ## 🏗️ Domain Isolation & Quy Tắc Thiết Kế (Design System Standard)
 
 ### 1. Phân Chia Vai Trò & Ranh Giới (Single vs Multi-Agent)
-* **Chế độ Single Agent (Làm việc trực tiếp với Antigravity)**: Khi người dùng tương tác trực tiếp với Antigravity trong giao diện chat, Antigravity được cấp quyền **Fullstack** sửa đổi tất cả các file cần thiết trong dự án (`src/`, `db/`, `docs/`, `package.json`...) để xử lý yêu cầu một cách liền mạch, không bị giới hạn bởi bảng phân chia miền dưới đây.
-* **Chế độ Multi-Agent (Chạy song song qua `/spawn`)**: Bảng phân chia miền bắt buộc phải được tuân thủ nghiêm ngặt để tránh merge conflicts:
+* **Chế độ Single Agent (Làm việc trực tiếp với Antigravity)**: Antigravity được cấp quyền **Fullstack** — sửa đổi tất cả file cần thiết trong dự án (`src/`, `db/`, `docs/`, `.agents/`, `package.json`...) không bị giới hạn bởi domain boundary.
+* **Chế độ Multi-Agent (Chạy song song)**: Bảng phân chia domain bắt buộc tuân thủ nghiêm ngặt để tránh merge conflicts:
 
-| Agent | Domain (Chỉ Sửa Files Trong) | Không Được Sửa |
-|---|---|---|
-| **Tech Lead (An)** | `AGENTS.md`, `GEMINI.md`, `.agents/`, `docs/` | `src/`, `db/` |
-| **Backend (Dat)** | `src/lib/`, `src/app/api/`, `db/`, `src/types/` | `src/components/`, `src/app/page.tsx` |
-| **Frontend (Dinh / Senior FE)** | `src/app/`, `src/components/`, `public/` | `src/lib/`, `db/` |
-| **DevOps (Duc)** | `next.config.ts`, `package.json`, `.env.example`, `.husky/` | `src/`, `db/` |
-| **QA (Vi)** | `src/**/*.test.ts`, `src/**/*.spec.ts`, `tests/`, `e2e/` | Code production |
+| Agent Chuyên Biệt | Domain (Chỉ Sửa Files Trong) | Không Được Sửa |
+|:---|:---|:---|
+| `orchestrator` / `project-planner` | `AGENTS.md`, `GEMINI.md`, `.agents/`, `docs/` | `src/`, `db/` |
+| `backend-specialist` / `database-architect` | `src/lib/`, `src/app/api/`, `db/`, `src/types/` | `src/components/`, `src/app/page.tsx` |
+| `frontend-specialist` | `src/app/`, `src/components/`, `public/` | `src/lib/`, `db/` |
+| `devops-engineer` | `next.config.ts`, `package.json`, `.env.example`, `.husky/` | `src/`, `db/` |
+| `test-engineer` / `qa-automation-engineer` | `src/**/*.test.ts`, `src/**/*.spec.ts`, `e2e/` | Code production |
+
+> **Cách kích hoạt Multi-Agent trong Antigravity:** Dùng `/coordinate` hoặc `/orchestrate` để điều phối nhiều agents song song.
 
 ### 2. Quy Tắc Bắt Buộc Về Design System (Cho Tất Cả Các Agent)
-Tất cả các agent liên quan tới việc thiết kế UI, viết Acceptance Criteria (AC), viết mã Frontend hoặc tạo tài liệu dự án (bao gồm **Senior FE, PM, Tech Lead**) đều **BẮT BUỘC** phải tuân thủ và sử dụng hệ thống Design System được định nghĩa trong `Design_system/` (đã đồng bộ vào `src/app/globals.css`). 
-* **Không dùng pixel thô**: Tuyệt đối không tự ý viết các giá trị pixel cụ thể (arbitrary values kiểu `rounded-[32px]`, `p-[20px]`, `py-[100px]`, v.v.) trong code React/Next.js. Phải dùng class Tailwind v4 được đăng ký từ Design System (ví dụ: `rounded-cards`, `rounded-buttons`, `p-card-padding` hoặc các lớp khoảng cách được khai báo sẵn).
-* **Font chữ thống nhất**: Font chữ chính thức cho giao diện Tiếng Việt là **Be Vietnam Pro** (nhập từ Google Fonts), không được sử dụng font `Inter`, `Soehne` hoặc font mặc định của hệ thống cho các văn bản hiển thị.
+Mọi agent liên quan đến UI, Frontend, hoặc tài liệu đều **BẮT BUỘC** tuân thủ Design System trong `Design_system/` (đã đồng bộ vào `src/app/globals.css`).
+* **Không dùng pixel thô**: Cấm tuyệt đối arbitrary values (`rounded-[32px]`, `p-[20px]`...). Phải dùng class Tailwind v4 từ Design System (`rounded-cards`, `p-card-padding`...).
+* **Font chữ thống nhất**: Font chính thức là **Be Vietnam Pro** (Google Fonts). Cấm dùng `Inter`, `Soehne`, hoặc font mặc định hệ thống.
 
-> *Why:* Đảm bảo tính đồng nhất về mặt thẩm mỹ của thương hiệu hải sản sang trọng (refined minimalism) trên tất cả các trang, đồng thời giúp code gọn gàng, có tính bảo trì cao và tối ưu hóa context cho AI.
+> *Why:* Đảm bảo đồng nhất thẩm mỹ thương hiệu hải sản sang trọng (refined minimalism). Code gọn gàng, AI không "sáng tạo" ngoài Design System.
 
 ---
 
@@ -228,6 +230,7 @@ Tác tử AI phải luôn xin ý kiến phê duyệt của người dùng trư�
 3. **Xóa file:** Bất kỳ lệnh `rm` hay xóa file nào cần approval.
 4. **Secrets:** Không bao giờ in giá trị của biến chứa: `KEY`, `SECRET`, `PASSWORD`, `TOKEN`.
 5. **Main branch:** Không push trực tiếp lên `main`. Tạo branch feature → PR.
+6. **Xác thực nguồn tin (NotebookLM & Ground Truth):** Chỉ sử dụng thông tin từ tài liệu chính thức được đồng bộ từ NotebookLM. Tuyệt đối không tự bịa đặt thông số, phỏng đoán hoặc đưa các logic ngoài tài liệu vào hệ thống khi chưa có sự xác nhận của người dùng.
 
 ### 📊 Bảng 3-Tier Boundary (GitHub Analysis — 2,500+ AGENTS.md repos)
 
@@ -235,7 +238,7 @@ Mọi agent phải phân loại hành động theo 3 mức trước khi thực h
 
 | Tier | Nguyên tắc | Ví dụ cụ thể cho dự án này |
 |---|---|---|
-| **✅ Always** (Luôn làm — không cần hỏi) | Các hành động an toàn, reversible, đã được quy định rõ | Log thay đổi vào NOTES.md; dùng soft delete (deleted_at); dùng UTC timestamps; chạy `npm run build` trước khi báo xong |
+| **✅ Always** (Luôn làm — không cần hỏi) | Các hành động an toàn, reversible, đã được quy định rõ | Log thay đổi vào memory files; dùng soft delete (deleted_at); dùng UTC timestamps; chạy `npm run type-check` trước khi báo xong |
 | **❓ Ask First** (Hỏi trước — chờ OK) | Hành động có tác động đáng kể, khó undo | Thêm cột mới vào DB; thay đổi cấu trúc API response; cài thêm npm package; thay đổi next.config.ts; tạo migration mới |
 | **🚫 Never** (Không bao giờ — dù được yêu cầu) | Hành động không thể undo hoặc vi phạm bảo mật | DROP TABLE; push thẳng lên main; in giá trị SECRET/TOKEN; DELETE không có WHERE; override .env.local |
 
@@ -249,13 +252,12 @@ Mọi agent phải phân loại hành động theo 3 mức trước khi thực h
 
 ## 🧠 Memory & Context Management
 
-- **Đầu phiên:** Đọc [`docs/ky-uc/NOTES.md`](./docs/ky-uc/NOTES.md) để nắm ngữ cảnh.
-- **Sau mỗi task lớn:** Cập nhật `NOTES.md` với tiến trình và quyết định mới.
-- **Phát hiện failure pattern mới:** Thêm vào `GUARDRAILS.md`.
-- **Kết thúc phiên:** Chạy workflow `/handoff`.
-- **Phiên mới:** Chạy workflow `/resume`.
+- **Đầu phiên:** Đọc [`.agents/memory/MEMORY.md`](.agents/memory/MEMORY.md) để nắm index bộ nhớ. Đọc thêm [`known-issues.md`](.agents/memory/known-issues.md) để tránh lặp lỗi cũ.
+- **Sau mỗi task lớn:** Cập nhật file bộ nhớ phù hợp (architecture-decisions, known-issues, tech-stack).
+- **Phát hiện failure pattern mới:** Thêm vào `GUARDRAILS.md` (root) và `known-issues.md`.
+- **Lưu thông tin quan trọng:** Dùng lệnh `/remember` để ghi vào bộ nhớ bền vững.
 
-> *Why:* Context rot xảy ra sau ~1 giờ làm việc liên tục. Agent bắt đầu quên constraints, import từ file không tồn tại. `NOTES.md` là "bộ nhớ ngoài" giúp agent tiếp tục mạch làm việc sau khi context window được reset.
+> *Why:* Context rot xảy ra sau ~1 giờ làm việc. Tác tự bắt đầu quên constraints, import từ file không tồn tại. `.agents/memory/` là "bộ nhớ ngoài" có phân chia role để tránh runaway evolution risk.
 
 ---
 
@@ -264,9 +266,9 @@ Mọi agent phải phân loại hành động theo 3 mức trước khi thực h
 Agent phải tự kiểm tra trước khi nói "done":
 
 ```bash
-# Bước 1: Build & Lint
-npm run build    # Không có TypeScript error
-npm run lint     # Không có ESLint warning/error
+# Bước 1: Type Check & Lint (ĐƯỢC dùng thay vì npm run build)
+npm run type-check  # Kiểm tra TypeScript không có error
+npm run lint        # Không có ESLint warning/error
 
 # Bước 2: Verify Commit Hooks đang active
 cat .husky/pre-commit    # Phải tồn tại và chứa tsc + lint check
@@ -293,14 +295,101 @@ Nếu build fail → sửa trước khi báo cáo. Không để lại broken bui
 Các tài nguyên hỗ trợ dành cho agent — Chỉ load khi cần:
 
 | Tài nguyên | Đường dẫn | Dùng khi nào |
-|---|---|---|
-| Backend code templates | [`.agents/workflows/references/code-templates-backend.md`](.agents/workflows/references/code-templates-backend.md) | Viết Repository, Service, Migration, API Route |
-| Frontend code templates | [`.agents/workflows/references/code-templates-frontend.md`](.agents/workflows/references/code-templates-frontend.md) | Viết Pages, Components, Loading/Error states |
-| Design System contract | [`.agents/rules/Design.md`](.agents/rules/Design.md) | Kiểm tra màu sắc, spacing, forbidden patterns |
+|:---|:---|:---|
+| Architecture tổng quan | [`.agents/ARCHITECTURE.md`](.agents/ARCHITECTURE.md) | Nắm cấu trúc agents, skills, workflows |
+| Session memory | [`.agents/memory/MEMORY.md`](.agents/memory/MEMORY.md) | Đọc đầu mỗi phiên để nắm ngữ cảnh |
+| Tech stack snapshot | [`.agents/memory/tech-stack.md`](.agents/memory/tech-stack.md) | Khi cần biết versions/dependencies hiện tại |
+| Quyết định kiến trúc | [`.agents/memory/architecture-decisions.md`](.agents/memory/architecture-decisions.md) | Khi cần biết lý do thiết kế |
+| Lỗi đã biết | [`.agents/memory/known-issues.md`](.agents/memory/known-issues.md) | Khi gặp bug có vẻ quen thuộc |
 | Failure patterns | [`GUARDRAILS.md`](GUARDRAILS.md) | Khi gặp vấn đề lặp lại |
-| Session memory | [`docs/ky-uc/NOTES.md`](docs/ky-uc/NOTES.md) | Đầu mỗi phiên |
+| Design System | [`Design_system/`](Design_system/) → `src/app/globals.css` | Kiểm tra màu sắc, spacing, tokens |
+
+---
+
+## 🤖 Agents & Slash Commands
+
+### 20 Agents Chuyên Biệt (trong `.agents/agent/`)
+
+Mỗi agent là một vai chuyên môn được kích hoạt theo ngữ cảnh:
+
+| Agent | Vai Trò |
+|:---|:---|
+| `orchestrator` | Điều phối đa agent, phân tích yêu cầu phức tạp |
+| `project-planner` | Lập kế hoạch, phân rã task, discovery |
+| `frontend-specialist` | Web UI/UX, Next.js, TailwindCSS |
+| `backend-specialist` | API, business logic, Node.js |
+| `database-architect` | Schema, SQL, migration |
+| `mobile-developer` | iOS, Android, React Native |
+| `devops-engineer` | CI/CD, Docker, deployment |
+| `security-auditor` | Security compliance, OWASP |
+| `penetration-tester` | Offensive security |
+| `test-engineer` | Testing strategies, coverage |
+| `qa-automation-engineer` | E2E testing, Playwright pipelines |
+| `debugger` | Root cause analysis |
+| `performance-optimizer` | Core Web Vitals, bundle size |
+| `seo-specialist` | SEO, E-E-A-T, Schema markup |
+| `documentation-writer` | Tài liệu, API docs |
+| `product-manager` | Requirements, user stories |
+| `product-owner` | Strategy, backlog, MVP |
+| `code-archaeologist` | Legacy code, refactoring |
+| `explorer-agent` | Phân tích codebase |
+| `game-developer` | Game logic, mechanics |
+
+> **Cách dùng trong Antigravity:** Gõ `@[agent-name]` hoặc mô tả domain trong request để Intelligent Routing tự chọn agent phù hợp.
+
+### 13 Slash Commands (Workflows — `.agents/workflows/`)
+
+| Lệnh | Mô Tả |
+|:---|:---|
+| `/brainstorm` | Khám phá ý tưởng, so sánh phương án trước khi implement |
+| `/coordinate` | Điều phối đa agent song song, tổng hợp kết quả |
+| `/create` | Tạo ứng dụng/tính năng mới từ đầu |
+| `/debug` | Gỡ lỗi có hệ thống (DEBUG mode) |
+| `/deploy` | Triển khai production với pre-flight checks |
+| `/enhance` | Cải thiện tính năng có sẵn |
+| `/orchestrate` | Điều phối nhiều agent cho task phức tạp |
+| `/plan` | Lập kế hoạch (KHÔNG viết code) |
+| `/preview` | Khởi động/dừng dev server local |
+| `/remember` | Lưu thông tin vào bộ nhớ bền vững |
+| `/status` | Xem trạng thái dự án hiện tại |
+| `/test` | Tạo và chạy tests |
+| `/verify` | Chứng minh code hoạt động bằng cách thực thi |
+
+> **Nguồn sự thật:** `.agents/workflows/` — tất cả workflows đều ở đây.
+
+---
+
+---
+
+## 📅 Lịch Review Hàng Tháng (Monthly Rules Audit)
+
+> **"Stale rules are worse than no rules"** — Quy tắc lỗi thời đánh lừa AI về trạng thái thực tế.
+
+| Kỳ Review Tiếp Theo | Người Chịu Trách Nhiệm | Trigger Bổ Sung |
+|:---|:---|:---|
+| **2026-06-28** | Tech Lead (An) / Antigravity | Sau mỗi nâng cấp Next.js, Supabase, hoặc TailwindCSS |
+
+**Checklist hàng tháng:**
+- [ ] Có quy tắc nào trong AGENTS.md đã lỗi thời sau dependency upgrade?
+- [ ] Có quy tắc nào mâu thuẫn với GEMINI.md hoặc `.agents/rules/`?
+- [ ] Các file trong `.agents/rules/` đã vượt 12,000 ký tự chưa? (cần split)
+- [ ] `.agents/memory/known-issues.md` có vấn đề nào đã fix cần xóa?
+- [ ] `.agents/memory/architecture-decisions.md` có ADR nào cần cập nhật?
+
+---
+
+## 🗂️ Quy Tắc Phân Mảnh (Granular Rules — Chỉ Load Khi Cần)
+
+Thay vì nhồi tất cả vào AGENTS.md, các quy tắc chi tiết được split vào:
+
+| File | Trigger | Dùng khi nào |
+|:---|:---|:---|
+| `.agents/rules/GEMINI.md` | `always_on` | Luôn active — AG Kit protocol, Agent routing |
+| `.agents/rules/anti-rationalization.md` | `always_on` | Luôn active — Chống biện minh lười biếng |
+| `.agents/rules/typescript-nextjs.md` | `glob: **/*.ts, **/*.tsx` | Khi làm việc với TypeScript/Next.js |
+| `.agents/rules/database.md` | `glob: **/migrations/**, **/repositories/**` | Khi làm việc với DB/Migration |
 
 ---
 
 *File này được review hàng tháng. Thay đổi phải qua PR với ít nhất 1 reviewer.*  
-*Lần review cuối: 2026-05-27*
+*Lần review cuối: 2026-05-29 | Review tiếp theo: 2026-06-28*
