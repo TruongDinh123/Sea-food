@@ -3,7 +3,7 @@
 # Chạy kiểm tra nhanh TRƯỚC KHI commit để bắt lỗi sớm nhất có thể
 # Tham khảo: .agents/workflows/references/commit-hook-guide.md
 
-export PATH="/usr/bin:/bin:/c/Program Files/nodejs:/c/Users/dinhp/AppData/Roaming/npm:node_modules/.bin"
+export PATH="$PATH:/c/Program Files/nodejs:/c/Users/dinhp/AppData/Roaming/npm:node_modules/.bin"
 
 echo "🔍 [pre-commit] Chạy TypeScript type-check..."
 npx tsc --noEmit
