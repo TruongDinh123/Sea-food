@@ -30,22 +30,32 @@ async function seed() {
 
   try {
     // 1.1. Dọn dẹp tài khoản test và dữ liệu cũ
-    console.log('Đang làm sạch dữ liệu cũ...');
-    await sql`DELETE FROM auth.users WHERE email IN ('merchant@example.com', 'admin@example.com');`;
+    const isLocal = databaseUrl!.includes('localhost') || databaseUrl!.includes('127.0.0.1');
+    
+    if (isLocal) {
+      console.log('Đang làm sạch tài khoản test auth (local)...');
+      await sql`DELETE FROM auth.users WHERE email IN ('merchant@example.com', 'admin@example.com');`;
+    }
+    
+    console.log('Đang làm sạch dữ liệu cũ các bảng public...');
     await sql`TRUNCATE TABLE referral_logs, order_items, orders, products, merchants, blogs RESTART IDENTITY CASCADE;`;
 
-    // 1.2. Thêm tài khoản test vào auth.users
-    console.log('Đang tạo tài khoản test...');
-    const merchantUserId = 'e2e00000-0000-0000-0000-000000000001';
-    const adminUserId = 'e2e00000-0000-0000-0000-000000000002';
-    
-    await sql`
-      INSERT INTO auth.users (id, email, encrypted_password)
-      VALUES 
-        (${merchantUserId}, 'merchant@example.com', 'MerchantPassword123!'),
-        (${adminUserId}, 'admin@example.com', 'AdminPassword123!')
-      ON CONFLICT (email) DO NOTHING;
-    `;
+    // 1.2. Thêm tài khoản test vào auth.users (chỉ làm ở local)
+    let merchantUserId = null;
+    if (isLocal) {
+      console.log('Đang tạo tài khoản test auth (local)...');
+      const testMerchantId = 'e2e00000-0000-0000-0000-000000000001';
+      const testAdminId = 'e2e00000-0000-0000-0000-000000000002';
+      
+      await sql`
+        INSERT INTO auth.users (id, email, encrypted_password)
+        VALUES 
+          (${testMerchantId}, 'merchant@example.com', 'MerchantPassword123!'),
+          (${testAdminId}, 'admin@example.com', 'AdminPassword123!')
+        ON CONFLICT (email) DO NOTHING;
+      `;
+      merchantUserId = testMerchantId;
+    }
 
     // 2. Thêm Merchants
     console.log('Đang tạo merchants mẫu...');

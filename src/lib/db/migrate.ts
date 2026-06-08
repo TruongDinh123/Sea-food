@@ -55,14 +55,24 @@ async function migrate() {
 
     // 1.6. Khởi tạo schema auth và bảng users nếu chưa tồn tại (cần thiết cho local development)
     await sql.unsafe(`
-      CREATE SCHEMA IF NOT EXISTS auth;
-      CREATE TABLE IF NOT EXISTS auth.users (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        email VARCHAR(255) UNIQUE NOT NULL,
-        encrypted_password VARCHAR(255) NOT NULL,
-        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
-      );
+      DO $$
+      BEGIN
+          -- Chỉ tạo schema auth giả lập nếu chưa tồn tại (chạy ở local)
+          IF NOT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'auth') THEN
+              CREATE SCHEMA auth;
+          END IF;
+
+          -- Chỉ tạo bảng auth.users giả lập nếu chưa tồn tại (chạy ở local)
+          IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'auth' AND tablename = 'users') THEN
+              CREATE TABLE auth.users (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                email VARCHAR(255) UNIQUE NOT NULL,
+                encrypted_password VARCHAR(255) NOT NULL,
+                created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+              );
+          END IF;
+      END $$;
     `);
 
 

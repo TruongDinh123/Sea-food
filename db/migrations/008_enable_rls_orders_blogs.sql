@@ -2,9 +2,14 @@
 BEGIN;
 
 -- Khởi tạo schema auth và hàm mock auth.uid() nếu chạy ở môi trường clean/local database không có Supabase
-CREATE SCHEMA IF NOT EXISTS auth;
 DO $$
 BEGIN
+    -- Chỉ tạo schema auth giả lập nếu chưa tồn tại (chỉ chạy ở local)
+    IF NOT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'auth') THEN
+        CREATE SCHEMA auth;
+    END IF;
+
+    -- Chỉ tạo hàm auth.uid() giả lập nếu chưa tồn tại (chỉ chạy ở local)
     IF NOT EXISTS (
         SELECT 1 FROM pg_proc p 
         JOIN pg_namespace n ON p.pronamespace = n.oid 
