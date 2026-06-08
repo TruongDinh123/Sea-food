@@ -30,6 +30,8 @@ const sql = postgres(databaseUrl, {
   max: 10,                 // Số lượng kết nối tối đa trong pool
   idle_timeout: 20,        // Thời gian tối đa một kết nối được ở trạng thái rảnh (giây)
   connect_timeout: 10,     // Thời gian tối đa để thiết lập kết nối (giây)
+  // Tắt prepared statements nếu kết nối thông qua Connection Pooler của Supabase
+  prepare: databaseUrl.includes('pooler.supabase.com') ? false : undefined,
 });
 
 export default sql;
