@@ -5,6 +5,8 @@ import Image from "next/image";
 import { blogService, productService } from "@/lib/services";
 import { ArrowLeft, Clock } from "lucide-react";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -118,27 +120,55 @@ export default async function BlogDetailPage({ params }: PageProps) {
     ]
   };
 
-  // Định dạng nội dung bài viết
-  const formatBodyContent = (text: string) => {
-    return text.split('\n').map((para, i) => {
-      const trimmed = para.trim();
-      if (!trimmed) return null;
-
-      if (trimmed.startsWith('# ')) {
-        return <h2 key={i} className="text-2xl sm:text-3xl font-black text-gray-900 uppercase tracking-tight mt-8 mb-4 leading-normal font-sans m-0">{trimmed.substring(2)}</h2>;
-      }
-      if (trimmed.startsWith('## ')) {
-        return <h3 key={i} className="text-lg sm:text-xl font-bold text-[#031e25] uppercase tracking-wide mt-6 mb-3 border-l-3 border-[#d97706] pl-2.5 font-sans m-0">{trimmed.substring(3)}</h3>;
-      }
-      if (trimmed.startsWith('* ')) {
-        return <p key={i} className="text-sm font-semibold text-gray-800 tracking-normal pl-4 border-l border-gray-255 border-gray-200 py-1 leading-relaxed font-sans m-0">{trimmed.substring(2)}</p>;
-      }
-      if (trimmed.startsWith('| ')) {
-        return <p key={i} className="text-xs text-gray-500 font-mono tracking-tight bg-slate-50 py-1.5 px-3 rounded border border-slate-100 m-0">{trimmed}</p>;
-      }
-
-      return <p key={i} className="text-slate-700 text-sm md:text-base leading-relaxed text-justify font-light text-balance mb-4 font-sans m-0">{trimmed}</p>;
-    });
+  // Custom components for Markdown rendering
+  const MarkdownComponents = {
+    h1: ({ ...props }) => (
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-[#031e25] uppercase tracking-tight mt-8 mb-4 leading-tight font-sans" {...props} />
+    ),
+    h2: ({ ...props }) => (
+      <h2 className="text-2xl sm:text-3xl font-black text-gray-900 uppercase tracking-tight mt-8 mb-4 leading-normal font-sans" {...props} />
+    ),
+    h3: ({ ...props }) => (
+      <h3 className="text-lg sm:text-xl font-bold text-[#031e25] uppercase tracking-wide mt-6 mb-3 border-l-4 border-[#d97706] pl-3 font-sans" {...props} />
+    ),
+    p: ({ ...props }) => (
+      <p className="text-slate-700 text-sm md:text-base leading-relaxed text-justify font-light text-balance mb-4 font-sans" {...props} />
+    ),
+    ul: ({ ...props }) => (
+      <ul className="list-disc pl-5 space-y-2 mb-4 text-slate-700 text-sm md:text-base font-light font-sans" {...props} />
+    ),
+    ol: ({ ...props }) => (
+      <ol className="list-decimal pl-5 space-y-2 mb-4 text-slate-700 text-sm md:text-base font-light font-sans" {...props} />
+    ),
+    li: ({ ...props }) => (
+      <li className="pl-1 font-sans" {...props} />
+    ),
+    blockquote: ({ ...props }) => (
+      <blockquote className="border-l-4 border-amber-500 bg-amber-50/50 pl-4 py-2 pr-2 my-4 rounded-r-lg italic text-slate-700 text-sm md:text-base font-sans" {...props} />
+    ),
+    table: ({ ...props }) => (
+      <div className="overflow-x-auto my-6 border border-gray-200 rounded-xl shadow-sm">
+        <table className="min-w-full divide-y divide-gray-200 text-sm font-sans" {...props} />
+      </div>
+    ),
+    thead: ({ ...props }) => (
+      <thead className="bg-[#031e25]/5" {...props} />
+    ),
+    tbody: ({ ...props }) => (
+      <tbody className="divide-y divide-gray-100 bg-white" {...props} />
+    ),
+    tr: ({ ...props }) => (
+      <tr className="hover:bg-slate-50/50 transition-colors" {...props} />
+    ),
+    th: ({ ...props }) => (
+      <th className="px-4 py-3 text-left text-xs font-bold text-[#031e25] uppercase tracking-wider font-mono border-b border-gray-200" {...props} />
+    ),
+    td: ({ ...props }) => (
+      <td className="px-4 py-3 text-gray-700 font-light border-b border-gray-100" {...props} />
+    ),
+    strong: ({ ...props }) => (
+      <strong className="font-bold text-gray-900" {...props} />
+    ),
   };
 
   // Giả lập thông tin tác giả dựa trên tiêu đề bài viết
@@ -220,8 +250,10 @@ export default async function BlogDetailPage({ params }: PageProps) {
       )}
 
       {/* Spacious Reading Content */}
-      <div className="prose prose-slate max-w-none space-y-2 py-4">
-        {formatBodyContent(blog.content)}
+      <div className="prose prose-slate max-w-none py-4">
+        <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents}>
+          {blog.content}
+        </ReactMarkdown>
       </div>
 
       {/* Premium EEAT Author Box */}
