@@ -73,3 +73,36 @@ updated: 2026-05-29
 **Triệu chứng:** Khai báo một mảng các buttons/items động trong render phase (hoặc useMemo) mà các items đó chứa các closures gọi giá trị của ref (`textareaRef.current`) sẽ vi phạm quy tắc render của React và gây lỗi eslint: `Cannot access ref value during render`.  
 **Workaround:** Định nghĩa các JSX button tĩnh tường minh trong code giao diện và gọi event handler trực tiếp thay vì lặp qua một mảng dynamic.  
 **Quy tắc:** Tránh tạo closures gọi ref bên trong các mảng động định nghĩa trong render phase. Viết code JSX tĩnh nếu các hành động gọi trực tiếp tới ref.
+
+---
+
+## KI-007: Vercel build lỗi ENETUNREACH khi kết nối Supabase Direct
+
+**Phát hiện:** 2026-06-08  
+**Triệu chứng:** Build Vercel báo lỗi `connect ENETUNREACH` khi Next.js prerender các trang tĩnh. Host direct Supabase (`db.xxxx.supabase.co`) chỉ có IPv6, Vercel không hỗ trợ IPv6.  
+**Workaround:** Dùng Connection Pooler: `aws-1-ap-southeast-1.pooler.supabase.com:6543`. Thêm `?pgbouncer=true` vào URL. Bật `prepare: false` khi URL chứa `pooler.supabase.com`.  
+**Quan trọng:** Host pooler dự án này là `aws-1` (KHÔNG phải `aws-0`).
+
+---
+
+## KI-008: migrate.ts gây lỗi permission denied khi chạy trên Supabase Cloud
+
+**Phát hiện:** 2026-06-08  
+**Triệu chứng:** `npm run db:migrate` báo `permission denied for schema auth`. File migrate.ts có câu `CREATE SCHEMA IF NOT EXISTS auth` cứng — trên Supabase Cloud bị bảo vệ.  
+**Workaround:** Bọc lệnh tạo schema/table auth vào khối `DO  BEGIN IF NOT EXISTS (...) THEN ... END IF; END ;`.
+
+---
+
+## KI-009: Không thể INSERT vào auth.users qua seed script trên Supabase Cloud
+
+**Phát hiện:** 2026-06-08  
+**Triệu chứng:** `INSERT INTO auth.users ... ON CONFLICT (email)` báo lỗi constraint không tồn tại.  
+**Workaround:** Tạo user qua MCP `execute_sql` với đủ cột: `id, aud, role, email, encrypted_password, email_confirmed_at, is_sso_user, is_anonymous`.  
+**Cảnh báo:** Hệ thống login dùng plaintext password — cần nâng cấp bcrypt trước production thực tế.
+
+---
+
+## KI-010: Production domain + DNS configuration
+
+**Phát hiện:** 2026-06-09  
+**Thông tin:** Domain `haisancamau.vn` và `www.haisancamau.vn` trỏ vào Vercel qua A record `76.76.21.21`. DNS quản lý tại Matbao.net. Vercel project: `dinhs-projects/web-seo`.

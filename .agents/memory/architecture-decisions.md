@@ -104,10 +104,23 @@ API Route / Server Component → Service → Repository → Supabase
 ## ADR-007: Giao diện Admin Editor (Blog Editor) & Tải ảnh bìa local
 
 **Ngày:** 2026-06-07  
-**Trạng thái:** ✅ Accepted  
+**Trạng thái:** ❌ Superseded (Bị thay thế bởi ADR-008)  
 **Quyết định:** Xây dựng giao diện soạn thảo cẩm nang (Blog Editor) tích hợp trực tiếp trên Dashboard Admin, hỗ trợ markdown preview thời gian thực và cho phép tải lên hình ảnh bìa local lưu trữ tại thư mục `/public/uploads/blogs/` trên máy chủ.  
 **Lý do:**
 - Cung cấp trải nghiệm viết bài chuyên nghiệp hơn cho Content Writer (không cần dùng Supabase Table Editor thủ công).
 - Đáp ứng việc tải ảnh trực tiếp từ máy tính khi người viết không có sẵn URL ảnh bên ngoài.
 - Dễ dàng quản lý chất lượng bài viết thông qua công cụ chấm điểm SEO Score chuẩn hóa theo Google Search Central.
 **Quy tắc:** Thư mục `/public/uploads/blogs/` cần được thiết lập phân quyền ghi và cấu hình persist dữ liệu khi deploy lên môi trường production.
+
+---
+
+## ADR-008: Lưu trữ Ảnh bìa Blog trên Supabase Storage (Public bucket blogs)
+
+**Ngày:** 2026-06-13  
+**Trạng thái:** ✅ Accepted  
+**Quyết định:** Chuyển đổi từ lưu trữ hình ảnh local sang lưu trữ đám mây trực tiếp trên Supabase Storage trong public bucket tên là `blogs`.  
+**Lý do:**
+- Tránh các vấn đề về mất mát dữ liệu hình ảnh khi ứng dụng được triển khai serverless hoặc trên các nền tảng hosting không hỗ trợ persistent local storage (như Vercel).
+- Tải ảnh qua REST API của Supabase Storage giúp đơn giản hóa kiến trúc và tối ưu hóa việc phân phối hình ảnh thông qua mạng CDN của Supabase.
+- Thao tác tạo bucket và cấu hình các chính sách Row Level Security (RLS) cho phép ghi/đọc công khai được đồng bộ thông qua tệp migration SQL `010_create_blogs_storage_bucket.sql`.
+

@@ -1,50 +1,122 @@
-# Kế hoạch nâng cấp tính năng tải ảnh bìa lên Supabase Storage (Cloud)
+# Kế hoạch Tạo Bucket 'blogs' chế độ Public trên Supabase Storage
 
-Kế hoạch này chi tiết hóa việc nâng cấp API tải lên hình ảnh `/api/blogs/upload` để chuyển từ cơ chế lưu local disk sang lưu trữ đám mây (Cloud Storage) sử dụng **Supabase Storage**. Sự thay đổi này giúp dự án tương thích hoàn hảo với môi trường Serverless của Vercel mà không làm phát sinh thêm chi phí thuê máy chủ lưu trữ.
+Kế hoạch này thực hiện tạo bucket `blogs` ở chế độ Public trên Supabase Storage bằng cách tạo một tệp SQL migration mới. Tệp này sẽ thêm bản ghi tương ứng vào bảng `storage.buckets` và thiết lập các chính sách RLS cần thiết để hỗ trợ đọc/ghi ảnh bìa của bài viết blog.
 
 ---
 
 ## User Review Required
 
 > [!IMPORTANT]
-> **Yêu cầu cấu hình trên Supabase Dashboard:**
-> 1. Bạn cần truy cập vào **Supabase Dashboard** của bạn → chọn mục **Storage** ở thanh bên trái.
-> 2. Tạo một **Bucket** mới tên là `blogs` (chế độ **Public** để bất kỳ ai cũng có thể xem ảnh qua URL tĩnh).
-> 3. Hãy đảm bảo các biến môi trường sau đã được khai báo đầy đủ trong file `.env.local` của bạn:
->    * `NEXT_PUBLIC_SUPABASE_URL`
->    * `SUPABASE_SERVICE_ROLE_KEY` (Khóa bảo mật có quyền Admin bypass RLS policy để tải ảnh lên).
+> **Các thay đổi về Cơ sở dữ liệu và Storage:**
+> 1. Tạo tệp migration mới `db/migrations/010_create_blogs_storage_bucket.sql`.
+> 2. Thực thi SQL chèn cấu hình bucket `blogs` với chế độ Public (`public = true`) và dung lượng tối đa 5MB.
+> 3. Thiết lập chính sách bảo mật Row Level Security (RLS) cho phép:
+>    - Mọi người đọc ảnh công khai (`SELECT`).
+>    - Quyền đăng tải (`INSERT`), sửa đổi (`UPDATE`), xóa (`DELETE`) các tệp trong bucket `blogs`.
+> 4. Chạy lệnh migration để cập nhật database lên Supabase production thông qua lệnh `npm run db:migrate`.
 
 ---
 
 ## Open Questions
 
 > [!NOTE]
-> * Tên bucket mặc định tôi cấu hình trong code là `blogs`. Bạn có muốn đổi tên bucket thành một tên khác không? (Nếu có, vui lòng phản hồi).
+> * Không có câu hỏi nào cần trả lời thêm. Chúng tôi sẽ tiến hành thực hiện ngay sau khi bạn đồng ý (click nút **Proceed**).
 
 ---
 
 ## Proposed Changes
 
-### 1. API Route Handlers
+### Database Migrations
 
-#### [MODIFY] [route.ts](file:///e:/Web-Seo/src/app/api/blogs/upload/route.ts)
-Thay đổi cơ chế lưu trữ file trong API tải lên:
-- Thay vì sử dụng thư viện `fs` để ghi tệp vào thư mục `public/uploads/blogs/` trên ổ đĩa.
-- API sẽ sử dụng hàm `fetch` có sẵn của Node.js để gửi yêu cầu REST API trực tiếp lên **Supabase Storage REST API**:
-  `POST ${NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/blogs/${safeName}`
-- Sử dụng header `Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}` để xác thực và `x-upsert: true` để hỗ trợ ghi đè nếu trùng tên.
-- Trả về public URL chính thức dạng:
-  `${NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/blogs/${safeName}`
+#### [NEW] [010_create_blogs_storage_bucket.sql](file:///e:/Web-Seo/db/migrations/010_create_blogs_storage_bucket.sql)
 
-*Giải pháp này không cần cài đặt thêm bất kỳ thư viện npm nặng nào (như `@supabase/supabase-js`), đảm bảo tuân thủ quy tắc giữ gọn nhẹ cho dự án.*
+Tạo file migration mới với nội dung SQL như sau:
+
+```sql
+-- Up
+-- Đảm bảo schema storage và table buckets tồn tại (phòng trường hợp chạy local test sạch)
+CREATE SCHEMA IF NOT EXISTS storage;
+
+-- Đảm bảo bảng storage.buckets tồn tại
+CREATE TABLE IF NOT EXISTS storage.buckets (
+    id text PRIMARY KEY,
+    name text NOT NULL,
+    owner uuid,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    public boolean DEFAULT false,
+    avif_autofit boolean DEFAULT false,
+    file_size_limit bigint,
+    allowed_mime_types text[]
+);
+
+-- Đảm bảo bảng storage.objects tồn tại
+CREATE TABLE IF NOT EXISTS storage.objects (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    bucket_id text REFERENCES storage.buckets(id),
+    name text,
+    owner uuid,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    last_accessed_at timestamp with time zone DEFAULT now(),
+    metadata jsonb,
+    path_tokens text[] GENERATED ALWAYS AS (string_to_array(name, '/'::text)) STORED
+);
+
+-- Thêm bucket blogs vào table buckets nếu chưa tồn tại
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+    'blogs', 
+    'blogs', 
+    true, 
+    5242880, -- Giới hạn 5MB
+    ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Cho phép đọc công khai (public read access) cho tệp trong bucket blogs
+DROP POLICY IF EXISTS "Public Access to blogs bucket" ON storage.objects;
+CREATE POLICY "Public Access to blogs bucket"
+ON storage.objects FOR SELECT
+USING (bucket_id = 'blogs');
+
+-- Cho phép tất cả người dùng (authenticated/anon/service_role) upload lên bucket blogs
+DROP POLICY IF EXISTS "Upload Access to blogs bucket" ON storage.objects;
+CREATE POLICY "Upload Access to blogs bucket"
+ON storage.objects FOR INSERT
+WITH CHECK (bucket_id = 'blogs');
+
+-- Cho phép update/delete tệp trong bucket blogs
+DROP POLICY IF EXISTS "Update Access to blogs bucket" ON storage.objects;
+CREATE POLICY "Update Access to blogs bucket"
+ON storage.objects FOR UPDATE
+USING (bucket_id = 'blogs');
+
+DROP POLICY IF EXISTS "Delete Access to blogs bucket" ON storage.objects;
+CREATE POLICY "Delete Access to blogs bucket"
+ON storage.objects FOR DELETE
+USING (bucket_id = 'blogs');
+
+-- Down
+DROP POLICY IF EXISTS "Public Access to blogs bucket" ON storage.objects;
+DROP POLICY IF EXISTS "Upload Access to blogs bucket" ON storage.objects;
+DROP POLICY IF EXISTS "Update Access to blogs bucket" ON storage.objects;
+DROP POLICY IF EXISTS "Delete Access to blogs bucket" ON storage.objects;
+DELETE FROM storage.buckets WHERE id = 'blogs';
+```
 
 ---
 
 ## Verification Plan
 
 ### Automated Tests
-- Chạy `npm run type-check` để đảm bảo code TypeScript không bị lỗi kiểu dữ liệu mới.
-- Chạy `npm run lint` kiểm tra format.
+
+- Chạy lệnh `npm run type-check` và `npm run lint` để kiểm tra mã nguồn TypeScript.
+- Thực hiện chạy migration bằng cách đề xuất lệnh:
+  `npm run db:migrate`
+- Kiểm tra tính đúng đắn của việc tải lên bằng API bằng cách kiểm tra phản hồi từ upload API.
 
 ### Manual Verification
-- Chúng tôi sẽ hướng dẫn bạn chạy thử nghiệm Upload ảnh từ Dashboard Admin để xác minh file ảnh được đẩy lên Supabase Storage thành công và hiển thị preview chính xác.
+
+- Sử dụng trang quản trị admin để đăng tải/cập nhật ảnh bìa của một bài viết.
+- Xác nhận ảnh được upload thành công lên Supabase Storage và hiển thị chính xác trên giao diện blog.

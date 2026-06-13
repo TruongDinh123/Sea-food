@@ -5,6 +5,9 @@ import { productService, merchantService, blogService } from "@/lib/services";
 import { enrichProduct, enrichMerchant } from "@/lib/utils/enrichment";
 import { ShieldCheck, Truck, RotateCcw, ArrowRight, Star, CheckCircle } from "lucide-react";
 
+// Buộc Next.js render mới từ DB mỗi request — tránh cache cũ che bài viết mới
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Hải Sản Cao Cấp Cà Mau | Mua Trực Tiếp Từ Vựa Thương Lái",
   description: "Hệ thống kết nối trực tiếp người tiêu dùng và vựa hải sản ngập mặn Cà Mau uy tín. Tôm sú quảng canh, cua gạch son Năm Căn, đồ khô hảo hạng giao nhanh tận nhà.",

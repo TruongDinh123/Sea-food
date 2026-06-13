@@ -35,6 +35,13 @@
 - [project] Triển khai Admin Blog Editor với Markdown Preview và chấm điểm SEO 10 tiêu chí → architecture-decisions.md
 - [project] Tải ảnh bìa (Cover Image) local được lưu trữ tĩnh tại public/uploads/blogs/ → architecture-decisions.md
 - [project] KI-006: Sửa lỗi react-hooks/refs do khai báo toolbar array chứa closure gọi ref trong render → known-issues.md
+- [reference] Production URL: https://haisancamau.vn (Vercel + Matbao.net domain) → architecture-decisions.md
+- [reference] Supabase pooler host chính xác: aws-1-ap-southeast-1.pooler.supabase.com:6543 (KHÔNG phải aws-0) → known-issues.md
+- [project] KI-007: Supabase direct host chỉ hỗ trợ IPv6 — Vercel không có IPv6 → dùng Connection Pooler → known-issues.md
+- [project] KI-008: migration.ts dùng CREATE SCHEMA auth gây lỗi permission denied trên Supabase Cloud → known-issues.md
+- [project] Auth system dùng custom auth.users với plaintext password — cần nâng cấp bcrypt → known-issues.md
+- [reference] Demo accounts: admin@example.com/AdminPassword123! và merchant@example.com/MerchantPassword123! → architecture-decisions.md
+- [project] Cấu hình và tạo bucket 'blogs' trên Supabase Storage → architecture-decisions.md (ADR-008)
 
 ---
 

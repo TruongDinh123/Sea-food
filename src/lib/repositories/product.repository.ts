@@ -2,11 +2,19 @@ import postgres from 'postgres';
 import sql from '../db/index';
 import { Product, CreateProductInput, UpdateProductInput } from '../../types/product.types';
 
+// Danh sách cột rõ ràng — tránh SELECT * theo quy tắc AGENTS.md
+const PRODUCT_COLUMNS = sql`
+  id, merchant_id, name, slug, meta_description, price, original_price,
+  category, description, image_url, is_auto_listed, specific_commission_rate,
+  created_at, updated_at, deleted_at
+`;
+
 interface DbProduct {
   id: number;
   merchant_id: number;
   name: string;
   slug: string;
+  meta_description: string | null;
   price: string | number;
   original_price: string | number | null;
   category: string | null;
@@ -26,6 +34,7 @@ export class ProductRepository {
       merchant_id: row.merchant_id,
       name: row.name,
       slug: row.slug,
+      meta_description: row.meta_description,
       price: Number(row.price),
       original_price: row.original_price ? Number(row.original_price) : null,
       category: row.category,
@@ -42,7 +51,7 @@ export class ProductRepository {
   async findById(id: number, tx?: postgres.Sql | postgres.TransactionSql): Promise<Product | null> {
     const client = tx || sql;
     const rows = await client`
-      SELECT * FROM products
+      SELECT ${PRODUCT_COLUMNS} FROM products
       WHERE id = ${id} AND deleted_at IS NULL
     `;
     if (rows.length === 0) return null;
@@ -52,7 +61,7 @@ export class ProductRepository {
   async findBySlug(slug: string, tx?: postgres.Sql | postgres.TransactionSql): Promise<Product | null> {
     const client = tx || sql;
     const rows = await client`
-      SELECT * FROM products
+      SELECT ${PRODUCT_COLUMNS} FROM products
       WHERE slug = ${slug} AND deleted_at IS NULL
     `;
     if (rows.length === 0) return null;
@@ -62,7 +71,7 @@ export class ProductRepository {
   async findByMerchantId(merchantId: number, tx?: postgres.Sql | postgres.TransactionSql): Promise<Product[]> {
     const client = tx || sql;
     const rows = await client`
-      SELECT * FROM products
+      SELECT ${PRODUCT_COLUMNS} FROM products
       WHERE merchant_id = ${merchantId} AND deleted_at IS NULL
       ORDER BY id DESC
     `;
@@ -74,25 +83,25 @@ export class ProductRepository {
     let rows;
     if (filters?.category && filters?.merchantId) {
       rows = await client`
-        SELECT * FROM products
+        SELECT ${PRODUCT_COLUMNS} FROM products
         WHERE category = ${filters.category} AND merchant_id = ${filters.merchantId} AND deleted_at IS NULL
         ORDER BY id DESC
       `;
     } else if (filters?.category) {
       rows = await client`
-        SELECT * FROM products
+        SELECT ${PRODUCT_COLUMNS} FROM products
         WHERE category = ${filters.category} AND deleted_at IS NULL
         ORDER BY id DESC
       `;
     } else if (filters?.merchantId) {
       rows = await client`
-        SELECT * FROM products
+        SELECT ${PRODUCT_COLUMNS} FROM products
         WHERE merchant_id = ${filters.merchantId} AND deleted_at IS NULL
         ORDER BY id DESC
       `;
     } else {
       rows = await client`
-        SELECT * FROM products
+        SELECT ${PRODUCT_COLUMNS} FROM products
         WHERE deleted_at IS NULL
         ORDER BY id DESC
       `;
@@ -106,6 +115,7 @@ export class ProductRepository {
       merchant_id: input.merchant_id,
       name: input.name,
       slug: input.slug,
+      meta_description: input.meta_description ?? null,
       price: input.price,
       original_price: input.original_price ?? null,
       category: input.category ?? null,
@@ -119,7 +129,7 @@ export class ProductRepository {
 
     const rows = await client`
       INSERT INTO products ${client(data)}
-      RETURNING *
+      RETURNING ${PRODUCT_COLUMNS}
     `;
     return this.mapRow(rows[0] as DbProduct);
   }
@@ -140,7 +150,7 @@ export class ProductRepository {
       UPDATE products
       SET ${client(updateData, columns)}
       WHERE id = ${id} AND deleted_at IS NULL
-      RETURNING *
+      RETURNING ${PRODUCT_COLUMNS}
     `;
 
     if (rows.length === 0) return null;
@@ -158,5 +168,3 @@ export class ProductRepository {
     return rows.length > 0;
   }
 }
-
-

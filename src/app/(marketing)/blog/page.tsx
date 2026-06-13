@@ -3,6 +3,9 @@ import { blogService } from "@/lib/services";
 import BlogListClient from "./BlogListClient";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
+// Buộc Next.js render mới từ DB mỗi request — tránh cache cũ che bài viết mới
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Cẩm Nang Hải Sản Cà Mau | Bí Quyết & Kinh Nghiệm Hay",
   description: "Kinh nghiệm chọn mua cua biển chắc thịt, cách chế biến tôm sú sinh thái, tôm khô Năm Căn chuẩn vị từ chuyên gia và thương lái lâu năm.",

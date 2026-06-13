@@ -1,8 +1,6 @@
-# Task List - Tích hợp Supabase Storage cho Blog Editor
+# Task List: Tạo Bucket 'blogs' trên Supabase Storage
 
-- [ ] Nâng cấp API Tải ảnh sang Supabase Storage REST API
-  - [ ] Sửa `src/app/api/blogs/upload/route.ts`
-- [ ] Kiểm tra và Hoàn thiện
-  - [ ] Chạy `npm run type-check` để kiểm tra lỗi TypeScript
-  - [ ] Chạy `npm run lint` để kiểm tra quy tắc định dạng
-  - [ ] Viết walkthrough báo cáo
+- [x] Tạo file migration `db/migrations/010_create_blogs_storage_bucket.sql`
+- [x] Chạy migration bằng lệnh `npm run db:migrate`
+- [x] Kiểm tra type và lint bằng `npm run type-check` và `npm run lint`
+- [x] Xác minh kết quả và cập nhật walkthrough.md

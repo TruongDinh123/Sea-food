@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { Plus, Trash2, X, ShieldAlert } from 'lucide-react';
+import { Plus, Trash2, X, ShieldAlert, Pencil, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Product } from '@/types/product.types';
 
 interface ProductManagerTabProps {
   products: Product[];
+  // --- Create Modal ---
   showAddModal: boolean;
   setShowAddModal: (v: boolean) => void;
   productName: string;
@@ -21,42 +22,101 @@ interface ProductManagerTabProps {
   setProductCategory: (v: string) => void;
   productDescription: string;
   setProductDescription: (v: string) => void;
+  productMetaDescription: string;
+  setProductMetaDescription: (v: string) => void;
+  productImageUrl: string;
+  setProductImageUrl: (v: string) => void;
   priceError: string;
   descError: string;
   addError: string;
+  onAddProduct: (e: React.FormEvent) => void;
+  // --- Edit Modal ---
+  showEditModal: boolean;
+  setShowEditModal: (v: boolean) => void;
+  editProductData: Partial<Product> | null;
+  setEditProductData: (v: Partial<Product> | null) => void;
+  editError: string;
+  onEditProduct: (e: React.FormEvent) => void;
+  // --- Delete Modal ---
   confirmDeleteId: number | null;
   setConfirmDeleteId: (v: number | null) => void;
-  onAddProduct: (e: React.FormEvent) => void;
   onDeleteProduct: () => void;
 }
 
+const CATEGORIES = [
+  { value: 'cua-bien', label: 'Cua Biển Cà Mau' },
+  { value: 'tom-su', label: 'Tôm Sú Quảng Canh' },
+  { value: 'do-kho', label: 'Đồ Khô Cao Cấp' },
+];
+
 export default function ProductManagerTab({
   products,
-  showAddModal,
-  setShowAddModal,
-  productName,
-  setProductName,
-  productSlug,
-  setProductSlug,
-  productPrice,
-  setProductPrice,
-  productOriginalPrice,
-  setProductOriginalPrice,
-  productCategory,
-  setProductCategory,
-  productDescription,
-  setProductDescription,
-  priceError,
-  descError,
-  addError,
-  confirmDeleteId,
-  setConfirmDeleteId,
+  showAddModal, setShowAddModal,
+  productName, setProductName,
+  productSlug, setProductSlug,
+  productPrice, setProductPrice,
+  productOriginalPrice, setProductOriginalPrice,
+  productCategory, setProductCategory,
+  productDescription, setProductDescription,
+  productMetaDescription, setProductMetaDescription,
+  productImageUrl, setProductImageUrl,
+  priceError, descError, addError,
   onAddProduct,
+  showEditModal, setShowEditModal,
+  editProductData, setEditProductData,
+  editError,
+  onEditProduct,
+  confirmDeleteId, setConfirmDeleteId,
   onDeleteProduct,
 }: ProductManagerTabProps) {
+
+  const [isUploadingCreate, setIsUploadingCreate] = useState(false);
+  const [isUploadingEdit, setIsUploadingEdit] = useState(false);
+  const [uploadCreateError, setUploadCreateError] = useState('');
+  const [uploadEditError, setUploadEditError] = useState('');
+
+  const createFileRef = useRef<HTMLInputElement>(null);
+  const editFileRef = useRef<HTMLInputElement>(null);
+
+  // Tự động tạo slug từ tên sản phẩm
+  const generateSlug = (name: string) =>
+    name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[đĐ]/g, 'd')
+      .replace(/[^a-z0-9 -]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+
+  const handleUpload = async (
+    file: File,
+    setUrl: (url: string) => void,
+    setLoading: (v: boolean) => void,
+    setError: (msg: string) => void,
+  ) => {
+    setLoading(true);
+    setError('');
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const res = await fetch('/api/products/upload', { method: 'POST', body: form });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Lỗi tải ảnh lên');
+      } else {
+        setUrl(data.url);
+      }
+    } catch {
+      setError('Lỗi kết nối máy chủ khi tải ảnh');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
-      {/* TAB 2: PRODUCTS */}
+      {/* TAB: PRODUCTS */}
       <div className="bg-white rounded-cards border border-[#e5e7eb] shadow-sm overflow-hidden animate-fade-in">
         <div className="p-6 border-b border-[#e5e7eb] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -92,6 +152,11 @@ export default function ProductManagerTab({
                   <td className="py-4 px-6 font-medium text-[#0a0a0a]">
                     <span className="font-bold block">{p.name}</span>
                     <span className="text-[9px] text-gray-400 font-mono">{p.slug}</span>
+                    {p.meta_description && (
+                      <span className="text-[9px] text-emerald-600 font-mono block mt-0.5 truncate max-w-[240px]" title={p.meta_description}>
+                        SEO: {p.meta_description}
+                      </span>
+                    )}
                   </td>
                   <td className="py-4 px-2 text-[#031e25] font-semibold uppercase">
                     {p.category || 'Chưa phân loại'}
@@ -100,14 +165,26 @@ export default function ProductManagerTab({
                     {p.price.toLocaleString('vi-VN')} đ
                   </td>
                   <td className="py-4 px-6 text-center">
-                    <button
-                      onClick={() => setConfirmDeleteId(p.id)}
-                      data-testid="delete-product-btn"
-                      className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 border border-red-100 rounded-md transition cursor-pointer bg-transparent"
-                      title="Ngừng bán"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => {
+                          setEditProductData(p);
+                          setShowEditModal(true);
+                        }}
+                        className="p-1.5 text-gray-500 hover:text-[#031e25] hover:bg-blue-50 border border-blue-100 rounded-md transition cursor-pointer bg-transparent"
+                        title="Chỉnh sửa sản phẩm"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteId(p.id)}
+                        data-testid="delete-product-btn"
+                        className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 border border-red-100 rounded-md transition cursor-pointer bg-transparent"
+                        title="Ngừng bán"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -123,13 +200,13 @@ export default function ProductManagerTab({
         </div>
       </div>
 
-      {/* Modal Thêm sản phẩm */}
+      {/* ===== Modal Thêm sản phẩm ===== */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-cards p-6 max-w-md w-full border border-[var(--color-canvas)] shadow-xl relative max-h-[90vh] overflow-y-auto font-sans"
+            className="bg-white rounded-cards p-6 max-w-lg w-full border border-[var(--color-canvas)] shadow-xl relative max-h-[90vh] overflow-y-auto font-sans"
           >
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-sm font-black text-[#031e25] uppercase tracking-wider m-0">
@@ -150,24 +227,16 @@ export default function ProductManagerTab({
             )}
 
             <form onSubmit={onAddProduct} className="space-y-4 text-xs">
+              {/* Tên sản phẩm */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Tên dòng sản vật</label>
+                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Tên dòng sản vật *</label>
                 <input
                   type="text"
                   name="product_name"
                   value={productName}
                   onChange={(e) => {
                     setProductName(e.target.value);
-                    // Tự động tạo slug thân thiện
-                    setProductSlug(e.target.value
-                      .toLowerCase()
-                      .normalize("NFD")
-                      .replace(/[\u0300-\u036f]/g, "")
-                      .replace(/[đĐ]/g, "d")
-                      .replace(/[^a-z0-9 -]/g, "")
-                      .replace(/\s+/g, "-")
-                      .replace(/-+/g, "-")
-                    );
+                    setProductSlug(generateSlug(e.target.value));
                   }}
                   required
                   placeholder="Ví dụ: Tôm sú thiên nhiên size khủng"
@@ -175,8 +244,9 @@ export default function ProductManagerTab({
                 />
               </div>
 
+              {/* Slug */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Đường dẫn sản phẩm (Slug)</label>
+                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Đường dẫn (Slug) *</label>
                 <input
                   type="text"
                   name="product_slug"
@@ -188,9 +258,10 @@ export default function ProductManagerTab({
                 />
               </div>
 
+              {/* Giá */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Giá bán sỉ (đ/kg)</label>
+                  <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Giá bán sỉ (đ/kg) *</label>
                   <input
                     type="number"
                     name="product_price"
@@ -201,9 +272,7 @@ export default function ProductManagerTab({
                     className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3.5 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#031e25] font-mono text-[#0a0a0a]"
                   />
                   {priceError && (
-                    <span data-testid="price-error" className="text-red-600 text-xs mt-1 block">
-                      {priceError}
-                    </span>
+                    <span data-testid="price-error" className="text-red-600 text-xs mt-1 block">{priceError}</span>
                   )}
                 </div>
 
@@ -220,36 +289,98 @@ export default function ProductManagerTab({
                 </div>
               </div>
 
+              {/* Danh mục */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Nhóm ngành hàng đầm</label>
+                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Nhóm ngành hàng *</label>
                 <select
                   name="product_category"
                   value={productCategory}
                   onChange={(e) => setProductCategory(e.target.value)}
                   className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3.5 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#031e25] text-[#0a0a0a]"
                 >
-                  <option value="cua-bien">Cua Biển Cà Mau</option>
-                  <option value="tom-su">Tôm Sú Quảng Canh</option>
-                  <option value="do-kho">Đồ Khô Cao Cấp</option>
+                  {CATEGORIES.map(c => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
                 </select>
               </div>
 
+              {/* Mô tả */}
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Mô tả sản phẩm</label>
+                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Mô tả sản phẩm * (ít nhất 10 ký tự)</label>
                 <textarea
                   name="product_description"
                   value={productDescription}
                   onChange={(e) => setProductDescription(e.target.value)}
                   required
-                  placeholder="Mô tả chi tiết thớ thịt, quy cách cỡ con và chất lượng bảo hộ..."
+                  placeholder="Mô tả chi tiết thớ thịt, quy cách cỡ con và chất lượng..."
                   rows={3}
                   className="w-full bg-gray-50 border border-gray-300 rounded-lg p-3 text-xs focus:outline-none focus:ring-1 focus:ring-[#031e25] text-[#0a0a0a]"
                 />
                 {descError && (
-                  <span data-testid="desc-error" className="text-red-600 text-xs mt-1 block">
-                    {descError}
-                  </span>
+                  <span data-testid="desc-error" className="text-red-600 text-xs mt-1 block">{descError}</span>
                 )}
+              </div>
+
+              {/* Meta Description SEO */}
+              <div className="space-y-1.5 bg-emerald-50/60 border border-emerald-200 rounded-lg p-3">
+                <label className="block text-[10px] font-black uppercase text-emerald-700 font-mono">
+                  🔍 Meta Description SEO (Tối đa 160 ký tự)
+                </label>
+                <textarea
+                  name="product_meta_description"
+                  value={productMetaDescription}
+                  onChange={(e) => setProductMetaDescription(e.target.value)}
+                  placeholder="Mô tả ngắn gọn xuất hiện trên Google (ví dụ: Tôm sú rừng ngập mặn Cà Mau tươi sống. Đặt sỉ giá vựa...)"
+                  rows={2}
+                  maxLength={160}
+                  className="w-full bg-white border border-emerald-200 rounded-lg p-3 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 text-[#0a0a0a]"
+                />
+                <p className="text-[10px] text-emerald-600 font-mono m-0">
+                  {productMetaDescription.length}/160 ký tự
+                </p>
+              </div>
+
+              {/* Upload ảnh sản phẩm */}
+              <div className="space-y-2 bg-blue-50/50 border border-blue-100 rounded-lg p-3">
+                <label className="block text-[10px] font-black uppercase text-blue-700 font-mono">📸 Ảnh Sản Phẩm</label>
+                {productImageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={productImageUrl} alt="Preview" className="h-24 w-full object-cover rounded-lg border border-blue-200 mb-2" />
+                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => createFileRef.current?.click()}
+                    disabled={isUploadingCreate}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold border border-blue-300 rounded-lg text-blue-700 bg-white hover:bg-blue-50 cursor-pointer disabled:opacity-50 transition"
+                  >
+                    {isUploadingCreate ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <ImageIcon className="w-3.5 h-3.5" />
+                    )}
+                    {isUploadingCreate ? 'Đang tải...' : 'Chọn ảnh'}
+                  </button>
+                  {productImageUrl && (
+                    <button type="button" onClick={() => setProductImageUrl('')} className="text-[10px] text-red-500 hover:underline bg-transparent border-0 cursor-pointer">
+                      Xóa ảnh
+                    </button>
+                  )}
+                </div>
+                <input
+                  ref={createFileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      await handleUpload(file, setProductImageUrl, setIsUploadingCreate, setUploadCreateError);
+                    }
+                    e.target.value = '';
+                  }}
+                />
+                {uploadCreateError && <p className="text-[10px] text-red-600 m-0">{uploadCreateError}</p>}
               </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
@@ -263,7 +394,8 @@ export default function ProductManagerTab({
                 <button
                   type="submit"
                   data-testid="save-product"
-                  className="bg-[#031e25] text-white px-5 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg hover:bg-opacity-95 shadow cursor-pointer border-0"
+                  disabled={isUploadingCreate}
+                  className="bg-[#031e25] text-white px-5 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg hover:bg-opacity-95 shadow cursor-pointer border-0 disabled:opacity-60"
                 >
                   ĐĂNG BÁN SẢN VẬT
                 </button>
@@ -273,7 +405,188 @@ export default function ProductManagerTab({
         </div>
       )}
 
-      {/* Modal Xác nhận Xóa */}
+      {/* ===== Modal Chỉnh sửa sản phẩm ===== */}
+      {showEditModal && editProductData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-cards p-6 max-w-lg w-full border border-[var(--color-canvas)] shadow-xl relative max-h-[90vh] overflow-y-auto font-sans"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-black text-[#031e25] uppercase tracking-wider m-0">
+                ✏️ Chỉnh sửa sản phẩm
+              </h3>
+              <button
+                onClick={() => { setShowEditModal(false); setEditProductData(null); }}
+                className="text-gray-400 hover:text-gray-600 p-1 border-0 bg-transparent cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {editError && (
+              <div className="mb-4 p-2.5 bg-red-50 text-red-700 text-xs rounded border border-red-200 font-semibold">
+                {editError}
+              </div>
+            )}
+
+            <form onSubmit={onEditProduct} className="space-y-4 text-xs">
+              {/* Tên */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Tên sản phẩm *</label>
+                <input
+                  type="text"
+                  value={editProductData.name ?? ''}
+                  onChange={(e) => setEditProductData({ ...editProductData, name: e.target.value })}
+                  required
+                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3.5 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#031e25] text-[#0a0a0a]"
+                />
+              </div>
+
+              {/* Slug */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Slug</label>
+                <input
+                  type="text"
+                  value={editProductData.slug ?? ''}
+                  onChange={(e) => setEditProductData({ ...editProductData, slug: e.target.value })}
+                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3.5 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#031e25] font-mono text-[#0a0a0a]"
+                />
+              </div>
+
+              {/* Giá */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Giá sỉ (đ/kg) *</label>
+                  <input
+                    type="number"
+                    value={editProductData.price ?? ''}
+                    onChange={(e) => setEditProductData({ ...editProductData, price: Number(e.target.value) })}
+                    required
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3.5 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#031e25] font-mono text-[#0a0a0a]"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Giá lẻ (Gốc)</label>
+                  <input
+                    type="number"
+                    value={editProductData.original_price ?? ''}
+                    onChange={(e) => setEditProductData({ ...editProductData, original_price: e.target.value ? Number(e.target.value) : null })}
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3.5 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#031e25] font-mono text-[#0a0a0a]"
+                  />
+                </div>
+              </div>
+
+              {/* Danh mục */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Nhóm ngành hàng</label>
+                <select
+                  value={editProductData.category ?? 'cua-bien'}
+                  onChange={(e) => setEditProductData({ ...editProductData, category: e.target.value })}
+                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3.5 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#031e25] text-[#0a0a0a]"
+                >
+                  {CATEGORIES.map(c => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Mô tả */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">Mô tả sản phẩm</label>
+                <textarea
+                  value={editProductData.description ?? ''}
+                  onChange={(e) => setEditProductData({ ...editProductData, description: e.target.value })}
+                  rows={3}
+                  className="w-full bg-gray-50 border border-gray-300 rounded-lg p-3 text-xs focus:outline-none focus:ring-1 focus:ring-[#031e25] text-[#0a0a0a]"
+                />
+              </div>
+
+              {/* Meta Description SEO */}
+              <div className="space-y-1.5 bg-emerald-50/60 border border-emerald-200 rounded-lg p-3">
+                <label className="block text-[10px] font-black uppercase text-emerald-700 font-mono">
+                  🔍 Meta Description SEO (Tối đa 160 ký tự)
+                </label>
+                <textarea
+                  value={editProductData.meta_description ?? ''}
+                  onChange={(e) => setEditProductData({ ...editProductData, meta_description: e.target.value })}
+                  placeholder="Mô tả ngắn gọn xuất hiện trên kết quả Google..."
+                  rows={2}
+                  maxLength={160}
+                  className="w-full bg-white border border-emerald-200 rounded-lg p-3 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 text-[#0a0a0a]"
+                />
+                <p className="text-[10px] text-emerald-600 font-mono m-0">
+                  {(editProductData.meta_description ?? '').length}/160 ký tự
+                </p>
+              </div>
+
+              {/* Upload ảnh */}
+              <div className="space-y-2 bg-blue-50/50 border border-blue-100 rounded-lg p-3">
+                <label className="block text-[10px] font-black uppercase text-blue-700 font-mono">📸 Ảnh Sản Phẩm</label>
+                {editProductData.image_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={editProductData.image_url} alt="Preview" className="h-24 w-full object-cover rounded-lg border border-blue-200 mb-2" />
+                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => editFileRef.current?.click()}
+                    disabled={isUploadingEdit}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold border border-blue-300 rounded-lg text-blue-700 bg-white hover:bg-blue-50 cursor-pointer disabled:opacity-50 transition"
+                  >
+                    {isUploadingEdit ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
+                    {isUploadingEdit ? 'Đang tải...' : 'Đổi ảnh'}
+                  </button>
+                  {editProductData.image_url && (
+                    <button type="button" onClick={() => setEditProductData({ ...editProductData, image_url: null })} className="text-[10px] text-red-500 hover:underline bg-transparent border-0 cursor-pointer">
+                      Xóa ảnh
+                    </button>
+                  )}
+                </div>
+                <input
+                  ref={editFileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      await handleUpload(
+                        file,
+                        (url) => setEditProductData({ ...editProductData, image_url: url }),
+                        setIsUploadingEdit,
+                        setUploadEditError,
+                      );
+                    }
+                    e.target.value = '';
+                  }}
+                />
+                {uploadEditError && <p className="text-[10px] text-red-600 m-0">{uploadEditError}</p>}
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => { setShowEditModal(false); setEditProductData(null); }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-50 cursor-pointer bg-transparent"
+                >
+                  HỦY
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUploadingEdit}
+                  className="bg-[#031e25] text-white px-5 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg hover:bg-opacity-95 shadow cursor-pointer border-0 disabled:opacity-60"
+                >
+                  LƯU THAY ĐỔI
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ===== Modal Xác nhận Xóa ===== */}
       {confirmDeleteId !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-cards p-6 max-w-sm w-full border border-gray-200 shadow-2xl text-center font-sans">

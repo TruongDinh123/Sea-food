@@ -3,6 +3,7 @@ export interface Product {
   merchant_id: number;
   name: string;
   slug: string;
+  meta_description: string | null;
   price: number;
   original_price: number | null;
   category: string | null;
@@ -19,6 +20,7 @@ export interface CreateProductInput {
   merchant_id: number;
   name: string;
   slug: string;
+  meta_description?: string | null;
   price: number;
   original_price?: number | null;
   category?: string | null;
@@ -32,6 +34,7 @@ export interface UpdateProductInput {
   merchant_id?: number;
   name?: string;
   slug?: string;
+  meta_description?: string | null;
   price?: number;
   original_price?: number | null;
   category?: string | null;

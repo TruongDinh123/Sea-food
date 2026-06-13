@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Không được phép truy cập' }, { status: 403 });
     }
 
-    const { name, slug, price, original_price, category, description } = await request.json();
+    const { name, slug, price, original_price, category, description, meta_description, image_url } = await request.json();
 
     // Validations
     if (!name || name.trim() === '') {
@@ -40,6 +40,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Mô tả sản phẩm phải từ 10 ký tự trở lên', field: 'desc' }, { status: 400 });
     }
 
+    // Validate meta_description nếu có
+    if (meta_description && meta_description.trim().length > 160) {
+      return NextResponse.json({ error: 'Meta description không được vượt quá 160 ký tự', field: 'meta_description' }, { status: 400 });
+    }
+
     // Call service to create product
     const product = await productService.createProduct({
       merchant_id: session.merchantId,
@@ -49,6 +54,8 @@ export async function POST(request: Request) {
       original_price: original_price ? Number(original_price) : null,
       category: category || null,
       description: description.trim(),
+      meta_description: meta_description ? meta_description.trim() : null,
+      image_url: image_url ? image_url.trim() : null,
       is_auto_listed: true,
     });
 

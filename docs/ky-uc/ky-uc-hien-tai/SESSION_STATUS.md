@@ -1,21 +1,18 @@
-# Trạng Thế Phiên Làm Việc — Session 001 (Fix auth.users relation not exist error)
-*   **Ngày:** 2026-06-07
-*   **Phiên:** Session 001 (Fix auth.users relation not exist error)
-*   **Trạng thái build/lint:** Type-check và lint chạy thành công 100%. Database migration và seeding hoạt động hoàn hảo.
+# Trạng Thế Phiên Làm Việc — Session 001 (Create blogs storage bucket)
+*   **Ngày:** 2026-06-13
+*   **Phiên:** Session 001 (Create blogs storage bucket)
+*   **Trạng thái build/lint:** Type-check và lint chạy thành công 100%. Database migration hoạt động hoàn hảo.
 
 ---
 
 ## 📁 Các File Đã Tạo / Chỉnh Sửa Trong Phiên
 
-1.  **Chạy Migrations**:
-    *   [migrate.ts](file:///e:/Web-Seo/src/lib/db/migrate.ts) [MODIFY] - Tự động tạo schema `auth` và bảng `auth.users` nếu chưa tồn tại khi chạy migrations cục bộ.
+1.  **Database Migration**:
+    *   [010_create_blogs_storage_bucket.sql](file:///e:/Web-Seo/db/migrations/010_create_blogs_storage_bucket.sql) [NEW] - Khởi tạo bucket `blogs` trên Supabase Storage ở chế độ Public và thiết lập các chính sách RLS cho phép đọc/ghi/sửa/xóa ảnh bìa.
 
-2.  **Seeding Dữ Liệu**:
-    *   [seed.ts](file:///e:/Web-Seo/src/lib/db/seed.ts) [MODIFY] - Tự động xóa và nạp tài khoản test (`merchant@example.com`, `admin@example.com`) vào bảng `auth.users`, đồng thời liên kết tài khoản merchant với vựa hải sản mẫu `Vựa Tôm Khô Năm Căn`.
-
-3.  **Lưu Trữ Ký Ức**:
-    *   [2026-06-07-session-001/walkthrough.md](file:///e:/Web-Seo/docs/ky-uc/ky-uc-hien-tai/2026-06-07-session-001/walkthrough.md) [NEW] - Báo cáo hoàn thành của phiên làm việc.
-    *   [2026-06-07-session-001/SESSION_STATUS.md](file:///e:/Web-Seo/docs/ky-uc/ky-uc-hien-tai/2026-06-07-session-001/SESSION_STATUS.md) [NEW] - Trạng thái của phiên làm việc hiện tại.
+2.  **Lưu Trữ Ký Ức**:
+    *   [2026-06-13-session-001/walkthrough.md](file:///e:/Web-Seo/docs/ky-uc/ky-uc-hien-tai/2026-06-13-session-001/walkthrough.md) [NEW] - Báo cáo hoàn thành của phiên làm việc.
+    *   [SESSION_STATUS.md](file:///e:/Web-Seo/docs/ky-uc/ky-uc-hien-tai/SESSION_STATUS.md) [MODIFY] - Cập nhật trạng thái của phiên làm việc hiện tại.
 
 ---
 
@@ -24,11 +21,11 @@
     *   Chạy `npm run type-check` thành công 100% không phát sinh lỗi compile.
 2.  **Lint Check**:
     *   Chạy `npm run lint` sạch lỗi.
-3.  **Database Migrate & Seed**:
-    *   Chạy `npm run db:migrate` và `npm run db:seed` thành công, khởi tạo schema `auth`, bảng `auth.users` và dữ liệu mẫu đầy đủ.
+3.  **Database Migrate**:
+    *   Chạy `npm run db:migrate` thành công, thêm bucket `blogs` vào `storage.buckets` và thiết lập các chính sách RLS trên `storage.objects` thành công.
 
 ---
 
 ## 📋 Bước Tiếp Theo (Ở Phiên Mới)
-1.  **Đăng nhập & Kiểm thử UI**:
-    *   Thực hiện đăng nhập thử nghiệm bằng tài khoản `merchant@example.com` (mật khẩu `MerchantPassword123!`) và `admin@example.com` (mật khẩu `AdminPassword123!`) để kiểm tra các trang Dashboard.
+1.  **Kiểm tra tính năng đăng bài viết:**
+    *   Thực hiện upload ảnh bìa bài viết trên trang admin để kiểm thử tính năng hoạt động bình thường, không còn gặp lỗi thiếu bucket `blogs`.

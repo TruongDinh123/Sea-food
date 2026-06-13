@@ -100,6 +100,7 @@ describe('ReferralService', () => {
       merchant_id: 1,
       name: 'Tôm',
       slug: 'tom',
+      meta_description: null,
       price: 100000,
       original_price: null,
       category: null,

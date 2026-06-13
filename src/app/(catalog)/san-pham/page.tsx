@@ -43,8 +43,34 @@ export default async function ProductCatalogPage({ searchParams }: PageProps) {
   const products = rawProducts.map(enrichProduct);
   const merchants = rawMerchants.map(enrichMerchant);
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+  // ItemList JSON-LD — giúp Google hiểu đây là trang danh sách sản phẩm
+  const itemListJsonLd = products.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Toàn Bộ Hải Sản Cao Cấp Cà Mau",
+    "description": "Bảng giá vựa chi tiết các loại cua biển, tôm sú, đồ khô. Mua trực tiếp từ thương lái.",
+    "url": `${baseUrl}/san-pham`,
+    "numberOfItems": products.length,
+    "itemListElement": products.slice(0, 20).map((p, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${baseUrl}/san-pham/${p.slug}`,
+      "name": p.name,
+    })),
+  } : null;
+
   return (
     <div className="w-full">
+      {/* ItemList JSON-LD */}
+      {itemListJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }}
+        />
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <Breadcrumbs items={[{ label: 'Sản phẩm' }]} />
       </div>
