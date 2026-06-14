@@ -1,7 +1,7 @@
 ---
 type: architecture-decisions
 created: 2026-05-29
-updated: 2026-05-29
+updated: 2026-06-14
 ---
 
 # 🏛️ Các Quyết Định Kiến Trúc (Mini-ADR)
@@ -123,4 +123,15 @@ API Route / Server Component → Service → Repository → Supabase
 - Tránh các vấn đề về mất mát dữ liệu hình ảnh khi ứng dụng được triển khai serverless hoặc trên các nền tảng hosting không hỗ trợ persistent local storage (như Vercel).
 - Tải ảnh qua REST API của Supabase Storage giúp đơn giản hóa kiến trúc và tối ưu hóa việc phân phối hình ảnh thông qua mạng CDN của Supabase.
 - Thao tác tạo bucket và cấu hình các chính sách Row Level Security (RLS) cho phép ghi/đọc công khai được đồng bộ thông qua tệp migration SQL `010_create_blogs_storage_bucket.sql`.
+
+---
+
+## ADR-009: Cấu hình bucket 'products' trên Supabase Storage
+**Ngày:** 2026-06-13  
+**Trạng thái:** ✅ Accepted  
+**Quyết định:** Tạo và cấu hình bucket `products` ở chế độ Public tương tự `blogs` bucket thông qua tệp migration SQL `012_create_products_storage_bucket.sql`.  
+**Lý do:**
+- Cho phép người bán (merchant) đăng tải trực tiếp hình ảnh thực tế của hải sản lên đám mây thông qua Dashboard.
+- RLS Policy cho phép truy cập đọc (`SELECT`) công khai mà không cần token, còn các tác vụ ghi (`INSERT`, `UPDATE`, `DELETE`) được bảo vệ bằng chính sách RLS phù hợp.
+
 

@@ -42,6 +42,9 @@
 - [project] Auth system dùng custom auth.users với plaintext password — cần nâng cấp bcrypt → known-issues.md
 - [reference] Demo accounts: admin@example.com/AdminPassword123! và merchant@example.com/MerchantPassword123! → architecture-decisions.md
 - [project] Cấu hình và tạo bucket 'blogs' trên Supabase Storage → architecture-decisions.md (ADR-008)
+- [project] Cấu hình và tạo bucket 'products' trên Supabase Storage → architecture-decisions.md (ADR-009)
+- [project] KI-011: Whitelist *.supabase.co trong next.config.ts để sửa lỗi Next.js Image chặn ảnh tải lên → known-issues.md
+- [project] KI-012: Sử dụng react-markdown và remark-gfm để sửa lỗi hiển thị Markdown thô trong bài viết → known-issues.md
 
 ---
 

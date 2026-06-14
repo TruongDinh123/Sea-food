@@ -1,7 +1,7 @@
 ---
 type: known-issues
 created: 2026-05-29
-updated: 2026-05-29
+updated: 2026-06-14
 ---
 
 # 🐛 Các Lỗi Đã Biết & Workarounds
@@ -106,3 +106,18 @@ updated: 2026-05-29
 
 **Phát hiện:** 2026-06-09  
 **Thông tin:** Domain `haisancamau.vn` và `www.haisancamau.vn` trỏ vào Vercel qua A record `76.76.21.21`. DNS quản lý tại Matbao.net. Vercel project: `dinhs-projects/web-seo`.
+
+---
+
+## KI-011: Lỗi Next.js Image chặn hiển thị hình ảnh tải lên từ Supabase Storage
+**Phát hiện:** 2026-06-13  
+**Triệu chứng:** Ảnh tải lên Supabase Storage thành công (nhìn thấy URL chính xác) nhưng khi hiển thị trên trang chi tiết sản phẩm/bài viết lại chỉ hiện alt text mà không có ảnh thực tế (khung trắng).  
+**Workaround:** Next.js chặn các domain chưa được whitelist ở `next.config.ts`. Đã giải quyết bằng cách thêm hostname `*.supabase.co` vào `remotePatterns`.  
+
+---
+
+## KI-012: Bài viết hiển thị Markdown thô thay vì HTML
+**Phát hiện:** 2026-06-13  
+**Triệu chứng:** Nội dung bài viết hiển thị các thẻ Markdown thô (như `###`, `**bold**`, bảng biểu thô dạng `|`) do hàm tự định dạng `formatBodyContent` quá đơn giản.  
+**Workaround:** Thay thế hàm tự chế bằng `react-markdown` và `remark-gfm` (đã cài đặt trong dự án), kết hợp viết custom styles cho các thẻ tiêu đề, bảng, danh sách để đảm bảo tính mỹ thuật chuẩn SEO.
+
