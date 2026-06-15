@@ -11,6 +11,8 @@ interface DbBlog {
   cover_image_url: string | null;
   is_published: boolean;
   publish_date: string | Date | null;
+  focus_keyword: string | null;
+  canonical_url: string | null;
   created_at: string | Date;
   updated_at: string | Date;
   deleted_at: string | Date | null;
@@ -27,6 +29,8 @@ export class BlogRepository {
       cover_image_url: row.cover_image_url,
       is_published: row.is_published,
       publish_date: row.publish_date ? new Date(row.publish_date) : null,
+      focus_keyword: row.focus_keyword ?? null,
+      canonical_url: row.canonical_url ?? null,
       created_at: new Date(row.created_at),
       updated_at: new Date(row.updated_at),
       deleted_at: row.deleted_at ? new Date(row.deleted_at) : null,
@@ -82,6 +86,8 @@ export class BlogRepository {
       cover_image_url: input.cover_image_url ?? null,
       is_published: input.is_published ?? false,
       publish_date: input.publish_date ?? (input.is_published ? new Date() : null),
+      focus_keyword: input.focus_keyword ?? null,
+      canonical_url: input.canonical_url ?? null,
       created_at: new Date(),
       updated_at: new Date(),
     };

@@ -11,6 +11,9 @@ export interface Product {
   image_url: string | null;
   is_auto_listed: boolean;
   specific_commission_rate: number | null;
+  focus_keyword: string | null;
+  canonical_url: string | null;
+  description_detail: string | null;
   created_at: Date;
   updated_at: Date;
   deleted_at: Date | null;
@@ -28,6 +31,9 @@ export interface CreateProductInput {
   image_url?: string | null;
   is_auto_listed?: boolean;
   specific_commission_rate?: number | null;
+  focus_keyword?: string | null;
+  canonical_url?: string | null;
+  description_detail?: string | null;
 }
 
 export interface UpdateProductInput {
@@ -42,4 +48,7 @@ export interface UpdateProductInput {
   image_url?: string | null;
   is_auto_listed?: boolean;
   specific_commission_rate?: number | null;
+  focus_keyword?: string | null;
+  canonical_url?: string | null;
+  description_detail?: string | null;
 }

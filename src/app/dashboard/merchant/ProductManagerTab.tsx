@@ -521,6 +521,57 @@ export default function ProductManagerTab({
                 </p>
               </div>
 
+              {/* Focus Keyword */}
+              <div className="space-y-1.5 bg-purple-50/40 border border-purple-200 rounded-lg p-3">
+                <label className="block text-[10px] font-black uppercase text-purple-700 font-mono">
+                  🎯 Từ Khóa SEO Chính (Focus Keyword)
+                </label>
+                <input
+                  type="text"
+                  value={editProductData.focus_keyword ?? ''}
+                  onChange={(e) => setEditProductData({ ...editProductData, focus_keyword: e.target.value || null })}
+                  placeholder="vd: cua biển Cà Mau"
+                  className="w-full bg-white border border-purple-200 rounded-lg px-3.5 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 text-[#0a0a0a]"
+                />
+                <p className="text-[10px] text-purple-500 font-mono m-0">
+                  Từ khóa chính Google nên thấy nhiều nhất trên trang
+                </p>
+              </div>
+
+              {/* Canonical URL */}
+              <div className="space-y-1.5 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <label className="block text-[10px] font-black uppercase text-gray-500 font-mono">
+                  🔗 Canonical URL tùy chỉnh
+                </label>
+                <input
+                  type="url"
+                  value={editProductData.canonical_url ?? ''}
+                  onChange={(e) => setEditProductData({ ...editProductData, canonical_url: e.target.value || null })}
+                  placeholder="https://haisancc.vn/san-pham/ten-san-pham"
+                  className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-2.5 text-[10px] font-mono focus:outline-none focus:ring-1 focus:ring-gray-400 text-gray-600"
+                />
+                <p className="text-[10px] text-gray-400 font-mono m-0">
+                  Để trống = tự canonical về chính trang này (khuyến nghị)
+                </p>
+              </div>
+
+              {/* Mô tả chi tiết (Markdown) */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">
+                  📝 Mô tả chi tiết sản phẩm (Markdown)
+                </label>
+                <textarea
+                  value={editProductData.description_detail ?? ''}
+                  onChange={(e) => setEditProductData({ ...editProductData, description_detail: e.target.value || null })}
+                  placeholder={`## Giới Thiệu Sản Phẩm\n\nViết nội dung chi tiết về sản phẩm...`}
+                  rows={8}
+                  className="w-full bg-gray-50 border border-gray-300 rounded-lg p-3 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-[#031e25] text-[#0a0a0a] resize-y"
+                />
+                <p className="text-[9px] text-gray-400 font-mono m-0">
+                  Hỗ trợ Markdown: **in đậm**, ## Tiêu đề, * danh sách — Hiển thị phía dưới trang sản phẩm
+                </p>
+              </div>
+
               {/* Upload ảnh */}
               <div className="space-y-2 bg-blue-50/50 border border-blue-100 rounded-lg p-3">
                 <label className="block text-[10px] font-black uppercase text-blue-700 font-mono">📸 Ảnh Sản Phẩm</label>

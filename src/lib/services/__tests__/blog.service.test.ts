@@ -101,6 +101,25 @@ describe('BlogService', () => {
       });
     });
 
+    it('should create successfully with SEO fields (focus_keyword, canonical_url)', async () => {
+      const input = {
+        title: 'Cách Chọn Cua Gạch Cà Mau Ngon',
+        content: 'Nội dung...',
+        slug: 'cach-chon-cua-gach-ca-mau-ngon',
+        focus_keyword: 'cua gạch',
+        canonical_url: 'https://seafood.vn/cua-gach',
+      };
+
+      mockBlogRepo.findBySlug.mockResolvedValue(null);
+      mockBlogRepo.create.mockResolvedValue({ id: 5, ...input });
+
+      const result = await service.createBlog(input);
+      expect(result.id).toBe(5);
+      expect(result.focus_keyword).toBe('cua gạch');
+      expect(result.canonical_url).toBe('https://seafood.vn/cua-gach');
+      expect(mockBlogRepo.create).toHaveBeenCalledWith(input);
+    });
+
     it('should throw error when title is empty', async () => {
       await expect(service.createBlog({ title: ' ', content: 'Nội dung', slug: 'slug-blog' }))
         .rejects.toThrow('Tiêu đề bài viết không được để trống');
@@ -138,6 +157,18 @@ describe('BlogService', () => {
       const result = await service.updateBlog(5, { title: 'Tiêu đề mới' });
       expect(result.title).toBe('Tiêu đề mới');
       expect(mockBlogRepo.update).toHaveBeenCalledWith(5, { title: 'Tiêu đề mới' });
+    });
+
+    it('should update SEO fields successfully', async () => {
+      const existing = { id: 5, title: 'Tiêu đề cũ', content: 'Nội dung cũ', slug: 'slug-cu' };
+      mockBlogRepo.findById.mockResolvedValue(existing);
+      mockBlogRepo.findBySlug.mockResolvedValue(null);
+      mockBlogRepo.update.mockResolvedValue({ ...existing, focus_keyword: 'cua gạch', canonical_url: 'https://seafood.vn/cua-gach' });
+
+      const result = await service.updateBlog(5, { focus_keyword: 'cua gạch', canonical_url: 'https://seafood.vn/cua-gach' });
+      expect(result.focus_keyword).toBe('cua gạch');
+      expect(result.canonical_url).toBe('https://seafood.vn/cua-gach');
+      expect(mockBlogRepo.update).toHaveBeenCalledWith(5, { focus_keyword: 'cua gạch', canonical_url: 'https://seafood.vn/cua-gach' });
     });
 
     it('should throw error when updating non-existent blog', async () => {

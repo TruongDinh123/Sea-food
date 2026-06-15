@@ -6,6 +6,7 @@ import { Product, CreateProductInput, UpdateProductInput } from '../../types/pro
 const PRODUCT_COLUMNS = sql`
   id, merchant_id, name, slug, meta_description, price, original_price,
   category, description, image_url, is_auto_listed, specific_commission_rate,
+  focus_keyword, canonical_url, description_detail,
   created_at, updated_at, deleted_at
 `;
 
@@ -22,6 +23,9 @@ interface DbProduct {
   image_url: string | null;
   is_auto_listed: boolean;
   specific_commission_rate: string | number | null;
+  focus_keyword: string | null;
+  canonical_url: string | null;
+  description_detail: string | null;
   created_at: string | Date;
   updated_at: string | Date;
   deleted_at: string | Date | null;
@@ -42,6 +46,9 @@ export class ProductRepository {
       image_url: row.image_url,
       is_auto_listed: row.is_auto_listed,
       specific_commission_rate: row.specific_commission_rate ? Number(row.specific_commission_rate) : null,
+      focus_keyword: row.focus_keyword ?? null,
+      canonical_url: row.canonical_url ?? null,
+      description_detail: row.description_detail ?? null,
       created_at: new Date(row.created_at),
       updated_at: new Date(row.updated_at),
       deleted_at: row.deleted_at ? new Date(row.deleted_at) : null,
@@ -123,6 +130,9 @@ export class ProductRepository {
       image_url: input.image_url ?? null,
       is_auto_listed: input.is_auto_listed ?? true,
       specific_commission_rate: input.specific_commission_rate ?? null,
+      focus_keyword: input.focus_keyword ?? null,
+      canonical_url: input.canonical_url ?? null,
+      description_detail: input.description_detail ?? null,
       created_at: new Date(),
       updated_at: new Date(),
     };

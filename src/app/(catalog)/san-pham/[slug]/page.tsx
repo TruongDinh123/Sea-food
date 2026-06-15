@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { productService, merchantService } from "@/lib/services";
+import { productService } from "@/lib/services";
+import { getProductBySlug, getMerchantById, getAllProducts } from "@/lib/utils/cached-queries";
 import { enrichProduct, enrichMerchant } from "@/lib/utils/enrichment";
 import ProductDetailClient from "./ProductDetailClient";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -24,10 +27,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = resolvedParams;
 
   try {
-    const product = await productService.getProductBySlug(slug);
+    // Dùng cached query — tự động memoize, không gửi duplicate request với page component
+    const product = await getProductBySlug(slug);
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     
-    // Ưu tiên meta_description riêng biệt; fallback sang description; fallback cuối cùng sang generic
+    // Ư u tiên meta_description riêng biệt; fallback sang description; fallback cuối cùng sang generic
     const metaDesc =
       product.meta_description?.trim() ||
       (product.description ? product.description.slice(0, 155) + '...' : null) ||
@@ -41,12 +45,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: `${product.name} | Giá Vựa Hôm Nay — Hải Sản Cao Cấp`,
       description: metaDesc,
       alternates: {
-        canonical: `/san-pham/${slug}`,
+        canonical: product.canonical_url || `/san-pham/${slug}`,
       },
       openGraph: {
         title: `${product.name} — Giá Vựa Trực Tiếp`,
         description: metaDesc,
-        type: "website",
         url: `${baseUrl}/san-pham/${slug}`,
         images: ogImage,
       },
@@ -72,20 +75,21 @@ export default async function ProductDetailPage({ params }: PageProps) {
   let dbMerchant;
 
   try {
-    dbProduct = await productService.getProductBySlug(slug);
-    dbMerchant = await merchantService.getMerchantById(dbProduct.merchant_id);
+    // Cached — không gửi request mới nếu đã có trong generateMetadata
+    dbProduct = await getProductBySlug(slug);
+    dbMerchant = await getMerchantById(dbProduct.merchant_id);
   } catch {
     notFound();
   }
 
-  // Làm giàu dữ liệu cho UI phong phú
+  // Làm giàu dữ liệu cho UI phống phú
   const product = enrichProduct(dbProduct);
   const merchant = enrichMerchant(dbMerchant);
 
   // Lấy sản phẩm liên quan (cùng danh mục)
   const categoryFilter = dbProduct.category || undefined;
-  const categoryProducts = categoryFilter 
-    ? await productService.getAllProducts({ category: categoryFilter }) 
+  const categoryProducts = categoryFilter
+    ? await getAllProducts({ category: categoryFilter })
     : [];
   const similarProducts = categoryProducts
     .filter(p => p.id !== dbProduct.id)
@@ -99,7 +103,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const priceValidDate = new Date(product.updated_at);
   priceValidDate.setDate(priceValidDate.getDate() + 30);
 
-  // JSON-LD Product Schema — nâng cao với aggregateRating, brand, priceValidUntil
+  // JSON-LD Product Schema — Product + Offer + Brand
+  // Ghi chú: aggregateRating đã xóa (data mock — chưa có review thực từ user)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -110,13 +115,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
     "brand": {
       "@type": "Brand",
       "name": merchant.name.split(' - ')[0]
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": product.rating.toFixed(1),
-      "bestRating": "5",
-      "worstRating": "1",
-      "reviewCount": product.reviewsCount
     },
     "offers": {
       "@type": "Offer",
@@ -181,7 +179,36 @@ export default async function ProductDetailPage({ params }: PageProps) {
         className="mb-4 px-1"
       />
 
+      {/* Thông tin sản phẩm (product card) */}
       <ProductDetailClient product={product} merchant={merchant} similarProducts={similarProducts} />
+
+      {/* Mô tả chi tiết sản phẩm dưới dạng markdown */}
+      {dbProduct.description_detail && (
+        <section
+          id="product-description-detail"
+          className="max-w-3xl mx-auto mt-12 px-4 py-8 border-t border-gray-100"
+        >
+          <h2 className="text-xl font-black uppercase tracking-wide text-[#031e25] mb-6 border-l-4 border-[#d97706] pl-3">
+            Giới Thiệu Sản Phẩm
+          </h2>
+          <div className="prose prose-slate max-w-none text-sm md:text-base">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h2: ({ ...props }) => <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight mt-8 mb-3" {...props} />,
+                h3: ({ ...props }) => <h3 className="text-base font-bold text-[#031e25] uppercase mt-5 mb-2 border-l-2 border-[#d97706] pl-2" {...props} />,
+                p: ({ ...props }) => <p className="text-slate-700 text-sm md:text-base leading-relaxed font-light mb-4" {...props} />,
+                strong: ({ ...props }) => <strong className="font-bold text-gray-900" {...props} />,
+                ul: ({ ...props }) => <ul className="list-disc pl-5 space-y-1.5 mb-4 text-slate-700 text-sm font-light" {...props} />,
+                ol: ({ ...props }) => <ol className="list-decimal pl-5 space-y-1.5 mb-4 text-slate-700 text-sm font-light" {...props} />,
+                blockquote: ({ ...props }) => <blockquote className="border-l-4 border-amber-400 bg-amber-50/40 pl-4 py-2 my-4 italic text-slate-600 text-sm" {...props} />,
+              }}
+            >
+              {dbProduct.description_detail}
+            </ReactMarkdown>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

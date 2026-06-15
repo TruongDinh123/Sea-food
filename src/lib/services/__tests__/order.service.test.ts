@@ -144,6 +144,7 @@ describe('OrderService', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
         expect.any(Function)
       );
       expect(mockOrderRepo.createItem).toHaveBeenCalledTimes(2);

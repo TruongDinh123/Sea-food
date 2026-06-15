@@ -2,11 +2,43 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { blogService, productService } from "@/lib/services";
+import { productService } from "@/lib/services";
+import { getBlogBySlug } from "@/lib/utils/cached-queries";
+import { AUTHOR_CHU_NAM } from "@/lib/constants/authors";
 import { ArrowLeft, Clock } from "lucide-react";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+
+// ─── Hàm parse TOC từ markdown ──────────────────────────────────────────────
+function toSlugId(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9 -]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
+
+function extractHeadings(markdown: string): { level: 2 | 3; text: string; id: string }[] {
+  const headings: { level: 2 | 3; text: string; id: string }[] = [];
+  const lines = markdown.split('\n');
+  for (const line of lines) {
+    const h2Match = line.match(/^##\s+(.+)$/);
+    const h3Match = line.match(/^###\s+(.+)$/);
+    if (h3Match) {
+      const text = h3Match[1].trim();
+      headings.push({ level: 3, text, id: toSlugId(text) });
+    } else if (h2Match) {
+      const text = h2Match[1].trim();
+      headings.push({ level: 2, text, id: toSlugId(text) });
+    }
+  }
+  return headings;
+}
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -17,12 +49,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = resolvedParams;
 
   try {
-    const blog = await blogService.getBlogBySlug(slug);
+    // Cached — không gửi duplicate request với page component
+    const blog = await getBlogBySlug(slug);
+    // Canonical: ưu tiên canonical_url tùy chỉnh nếu admin đã nhập, fallback về self
+    const canonicalHref = blog.canonical_url || `/blog/${slug}`;
     return {
       title: `${blog.title} - Cẩm Nang Hải Sản Cao Cấp`,
       description: blog.meta_description || blog.title,
       alternates: {
-        canonical: `/blog/${slug}`,
+        canonical: canonicalHref,
       },
       openGraph: {
         title: `${blog.title} - Cẩm Nang Hải Sản Cao Cấp`,
@@ -51,7 +86,8 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
   let blog;
   try {
-    blog = await blogService.getBlogBySlug(slug);
+    // Cached — không gửi request mới nếu đã có trong generateMetadata
+    blog = await getBlogBySlug(slug);
   } catch {
     notFound();
   }
@@ -67,6 +103,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const canonicalUrl = `${baseUrl}/blog/${blog.slug}`;
 
+  // Author profile — dùng constants cố định thay vì hardcode theo title (tránh schema drift)
+  const author = AUTHOR_CHU_NAM;
+
   // Article JSON-LD Schema
   const jsonLd = {
     "@context": "https://schema.org",
@@ -78,8 +117,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
     "dateModified": new Date(blog.updated_at).toISOString(),
     "author": {
       "@type": "Person",
-      "name": "Chú Năm Đất Mũi",
-      "jobTitle": "Thương Lái Thu Mua Cà Mau"
+      "name": author.name,
+      "jobTitle": author.role,
+      "url": `${baseUrl}/thuong-lai/${author.slug}`
     },
     "publisher": {
       "@type": "Organization",
@@ -120,17 +160,28 @@ export default async function BlogDetailPage({ params }: PageProps) {
     ]
   };
 
-  // Custom components for Markdown rendering
+  // Parse TOC headings từ nội dung bài viết
+  const tocHeadings = extractHeadings(blog.content || '');
+
+  // Custom components for Markdown rendering (với id cho h2/h3 để TOC scroll)
   const MarkdownComponents = {
     h1: ({ ...props }) => (
       <h1 className="text-3xl sm:text-4xl font-extrabold text-[#031e25] uppercase tracking-tight mt-8 mb-4 leading-tight font-sans" {...props} />
     ),
-    h2: ({ ...props }) => (
-      <h2 className="text-2xl sm:text-3xl font-black text-gray-900 uppercase tracking-tight mt-8 mb-4 leading-normal font-sans" {...props} />
-    ),
-    h3: ({ ...props }) => (
-      <h3 className="text-lg sm:text-xl font-bold text-[#031e25] uppercase tracking-wide mt-6 mb-3 border-l-4 border-[#d97706] pl-3 font-sans" {...props} />
-    ),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    h2: (props: any) => {
+      const children = props.children;
+      const text = typeof children === 'string' ? children : String(children ?? '');
+      const id = toSlugId(text);
+      return <h2 id={id} className="text-2xl sm:text-3xl font-black text-gray-900 uppercase tracking-tight mt-8 mb-4 leading-normal font-sans">{children}</h2>;
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    h3: (props: any) => {
+      const children = props.children;
+      const text = typeof children === 'string' ? children : String(children ?? '');
+      const id = toSlugId(text);
+      return <h3 id={id} className="text-lg sm:text-xl font-bold text-[#031e25] uppercase tracking-wide mt-6 mb-3 border-l-4 border-[#d97706] pl-3 font-sans">{children}</h3>;
+    },
     p: ({ ...props }) => (
       <p className="text-slate-700 text-sm md:text-base leading-relaxed text-justify font-light text-balance mb-4 font-sans" {...props} />
     ),
@@ -171,22 +222,11 @@ export default async function BlogDetailPage({ params }: PageProps) {
     ),
   };
 
-  // Giả lập thông tin tác giả dựa trên tiêu đề bài viết
-  const isBaBien = blog.title.toLowerCase().includes('ba') || blog.title.toLowerCase().includes('sông đốc');
-  const authorName = isBaBien ? "Anh Ba Biên Sông Đốc" : "Chú Năm Đất Mũi";
-  const authorRole = isBaBien ? "Chủ nhiệm HTX Đánh Bắt Sông Đốc" : "Thương Lái Thu Mua Cà Mau";
-  const authorAvatar = isBaBien 
-    ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80"
-    : "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?auto=format&fit=crop&w=100&h=100&q=80";
-  const authorBio = isBaBien
-    ? "Sinh trưởng bờ biển Sông Đốc Cà Mau, quản lý đội tàu cào cá ngàn mã lực vận chuyển hải sản khơi tươi mặn từ khơi xa về đất liền an tâm."
-    : "Bậc thầy thu mua cua tự nhiên tại dầm Năm Căn, Cà Mau hơn 25 năm thâm niên làm lụm bảo tồn gốc cua sành sạch ngon ăn.";
-
   const category = blog.title.toLowerCase().includes('giá') ? "Bảng Giá" : "Cẩm Nang";
 
   return (
-    <article id="blog-reader-view" className="max-w-3xl mx-auto space-y-8 py-4 font-sans text-[#0a0a0a] antialiased">
-      {/* Script JSON-LD */}
+    <div className="max-w-6xl mx-auto py-4 px-4 font-sans text-[#0a0a0a] antialiased">
+      {/* JSON-LD Scripts */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
@@ -195,6 +235,41 @@ export default async function BlogDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
+
+      {/* Layout 2 cột: TOC trái + Nội dung phải */}
+      <div className="flex gap-10 items-start">
+
+        {/* ─── TOC Sidebar (chỉ hiển trên desktop) ─── */}
+        {tocHeadings.length > 0 && (
+          <aside className="hidden xl:block w-64 shrink-0">
+            <div className="sticky top-24 bg-white/90 backdrop-blur border border-gray-100 rounded-2xl p-5 shadow-sm">
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 font-mono mb-3">
+                Mục lục
+              </p>
+              <nav>
+                <ul className="space-y-1.5">
+                  {tocHeadings.map((h) => (
+                    <li key={h.id} className={h.level === 3 ? 'ml-3' : ''}>
+                      <a
+                        href={`#${h.id}`}
+                        className={`block text-xs leading-snug transition hover:text-[#d97706] ${
+                          h.level === 2
+                            ? 'font-bold text-[#031e25]'
+                            : 'font-normal text-gray-500'
+                        }`}
+                      >
+                        {h.text}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </div>
+          </aside>
+        )}
+
+        {/* ─── Nội dung chính ─── */}
+        <article id="blog-reader-view" className="flex-1 min-w-0 space-y-8">
 
       {/* Breadcrumb điều hướng */}
       <Breadcrumbs
@@ -259,21 +334,21 @@ export default async function BlogDetailPage({ params }: PageProps) {
       {/* Premium EEAT Author Box */}
       <div id="blog-author-card" className="bg-slate-50 border border-gray-200/60 rounded-3xl p-6 lg:p-8 flex flex-col sm:flex-row gap-5 items-start sm:items-center shadow-inner mt-12">
         <Image
-          src={authorAvatar}
-          alt={authorName}
+          src={author.avatar}
+          alt={author.name}
           width={64}
           height={64}
           className="rounded-full object-cover border-2 border-[#d97706]/40 shrink-0 shadow-sm"
         />
         <div className="space-y-2 flex-grow">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <h4 className="text-sm font-bold text-[#0a0a0a] uppercase tracking-wide m-0">Người Đúc Kết: {authorName}</h4>
+            <h4 className="text-sm font-bold text-[#0a0a0a] uppercase tracking-wide m-0">Người Đúc Kết: {author.name}</h4>
             <span className="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-black border border-amber-200 font-mono uppercase">
-              {authorRole}
+              {author.role}
             </span>
           </div>
           <p className="text-xs text-gray-500 font-light leading-relaxed m-0">
-            {authorBio} Tất cả bài viết đóng góp trên bảng tin đều trải qua khâu thẩm duyệt thực hành thủy sản an toàn Năm Căn Cà Mau.
+            {author.bio} Tất cả bài viết đóng góp trên bảng tin đều trải qua khâu thẩm duyệt thực hành thủy sản an toàn Năm Căn Cà Mau.
           </p>
         </div>
       </div>
@@ -315,6 +390,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
           </div>
         </section>
       )}
-    </article>
+        </article>
+        {/* Đóng flex container */}
+      </div>
+    </div>
   );
 }
