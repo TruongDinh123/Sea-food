@@ -193,6 +193,7 @@ export default function LoginPage() {
                 <input
                   type="email"
                   required
+                  name="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={
@@ -225,6 +226,7 @@ export default function LoginPage() {
                 <input
                   type="password"
                   required
+                  name="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"

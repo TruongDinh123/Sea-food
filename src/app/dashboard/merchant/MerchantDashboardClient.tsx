@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Merchant } from '@/types/merchant.types';
@@ -31,19 +31,14 @@ export default function MerchantDashboardClient({
   const [merchant, setMerchant] = useState<Merchant>(initialMerchant);
   const [activeTab, setActiveTab] = useState<TabId>('overview');
 
-  // ---- Create Product states ----
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [productName, setProductName] = useState('');
-  const [productSlug, setProductSlug] = useState('');
-  const [productPrice, setProductPrice] = useState('');
-  const [productOriginalPrice, setProductOriginalPrice] = useState('');
-  const [productCategory, setProductCategory] = useState('cua-bien');
-  const [productDescription, setProductDescription] = useState('');
-  const [productMetaDescription, setProductMetaDescription] = useState('');
-  const [productImageUrl, setProductImageUrl] = useState('');
-  const [priceError, setPriceError] = useState('');
-  const [descError, setDescError] = useState('');
-  const [addError, setAddError] = useState('');
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab') as TabId | null;
+    if (tab && ['overview', 'products', 'orders', 'payouts', 'profile'].includes(tab)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveTab(tab);
+    }
+  }, []);
 
   // ---- Edit Product states ----
   const [showEditModal, setShowEditModal] = useState(false);
@@ -77,53 +72,6 @@ export default function MerchantDashboardClient({
   const pendingOrders = initialOrders.filter(o => o.status === 'pending');
 
   // ---- Handlers ----
-
-  const handleAddProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPriceError(''); setDescError(''); setAddError('');
-    let hasError = false;
-    const numericPrice = Number(productPrice);
-    if (isNaN(numericPrice) || numericPrice <= 0) { setPriceError('Giá phải lớn hơn 0'); hasError = true; }
-    if (productDescription.length < 10) { setDescError('Mô tả sản phẩm phải từ 10 ký tự trở lên'); hasError = true; }
-    if (hasError) return;
-    try {
-      const res = await fetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: productName,
-          slug: productSlug,
-          price: numericPrice,
-          original_price: productOriginalPrice ? Number(productOriginalPrice) : null,
-          category: productCategory,
-          description: productDescription,
-          meta_description: productMetaDescription || null,
-          image_url: productImageUrl || null,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        if (data.field === 'price') setPriceError(data.error);
-        else if (data.field === 'desc') setDescError(data.error);
-        else setAddError(data.error || 'Lỗi thêm sản phẩm');
-        return;
-      }
-      setShowAddModal(false);
-      setProductName('');
-      setProductSlug('');
-      setProductPrice('');
-      setProductOriginalPrice('');
-      setProductCategory('cua-bien');
-      setProductDescription('');
-      setProductMetaDescription('');
-      setProductImageUrl('');
-      alert('Thêm sản phẩm mới thành công!');
-      router.refresh();
-    } catch (err) {
-      console.error(err);
-      setAddError('Lỗi kết nối máy chủ');
-    }
-  };
 
   const handleEditProduct = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -245,7 +193,7 @@ export default function MerchantDashboardClient({
         setActiveTab={setActiveTab}
         products={initialProducts}
         pendingOrdersCount={pendingOrders.length}
-        onAddProduct={() => setShowAddModal(true)}
+        onAddProduct={() => router.push('/dashboard/merchant/san-pham/tao-moi')}
         onLogout={handleLogout}
       />
 
@@ -263,28 +211,6 @@ export default function MerchantDashboardClient({
         {activeTab === 'products' && (
           <ProductManagerTab
             products={initialProducts}
-            showAddModal={showAddModal}
-            setShowAddModal={setShowAddModal}
-            productName={productName}
-            setProductName={setProductName}
-            productSlug={productSlug}
-            setProductSlug={setProductSlug}
-            productPrice={productPrice}
-            setProductPrice={setProductPrice}
-            productOriginalPrice={productOriginalPrice}
-            setProductOriginalPrice={setProductOriginalPrice}
-            productCategory={productCategory}
-            setProductCategory={setProductCategory}
-            productDescription={productDescription}
-            setProductDescription={setProductDescription}
-            productMetaDescription={productMetaDescription}
-            setProductMetaDescription={setProductMetaDescription}
-            productImageUrl={productImageUrl}
-            setProductImageUrl={setProductImageUrl}
-            priceError={priceError}
-            descError={descError}
-            addError={addError}
-            onAddProduct={handleAddProduct}
             showEditModal={showEditModal}
             setShowEditModal={setShowEditModal}
             editProductData={editProductData}

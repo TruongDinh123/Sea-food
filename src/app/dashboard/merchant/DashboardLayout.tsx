@@ -66,6 +66,7 @@ export default function DashboardLayout({
           <div className="flex gap-3">
             <button
               onClick={onAddProduct}
+              data-testid="add-product-btn"
               className="bg-[#d97706] border-0 text-white text-xs font-bold uppercase tracking-widest px-4 py-3 rounded-lg hover:bg-opacity-95 active:scale-95 transition flex items-center gap-1.5 shadow-md cursor-pointer"
             >
               <Plus className="w-4 h-4" /> Đăng thủy sản mới

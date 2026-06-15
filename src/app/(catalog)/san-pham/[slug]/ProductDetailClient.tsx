@@ -175,10 +175,19 @@ export default function ProductDetailClient({ product, merchant, similarProducts
                 Đặc tả nguồn gốc hải sản
               </h2>
             </div>
-            
-            <p className="text-sm text-gray-700 leading-relaxed font-light text-justify m-0">
-              {product.description || 'Sản phẩm chưa có mô tả chi tiết.'}
-            </p>
+
+            {/* Mô tả ngắn — plain text, hỗ trợ đa đoạn văn */}
+            <div
+              className="space-y-3 text-sm text-gray-700 leading-relaxed font-light text-justify"
+              aria-label="Mô tả nguồn gốc sản phẩm"
+            >
+              {product.description
+                ? product.description.split('\n\n').map((paragraph, idx) => (
+                    <p key={idx} className="m-0">{paragraph}</p>
+                  ))
+                : <p className="text-gray-400 italic m-0">Sản phẩm chưa có mô tả nguồn gốc.</p>
+              }
+            </div>
 
             {/* Specifications Box GRID */}
             <div className="bg-slate-50 border border-gray-105 border-gray-200/50 rounded-2xl p-6 space-y-4">
