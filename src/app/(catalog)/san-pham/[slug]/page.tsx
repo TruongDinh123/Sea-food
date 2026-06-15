@@ -5,8 +5,6 @@ import { getProductBySlug, getMerchantById, getAllProducts } from "@/lib/utils/c
 import { enrichProduct, enrichMerchant } from "@/lib/utils/enrichment";
 import ProductDetailClient from "./ProductDetailClient";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -191,22 +189,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <h2 className="text-xl font-black uppercase tracking-wide text-[#031e25] mb-6 border-l-4 border-[#d97706] pl-3">
             Giới Thiệu Sản Phẩm
           </h2>
-          <div className="prose prose-slate max-w-none text-sm md:text-base">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                h2: ({ ...props }) => <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight mt-8 mb-3" {...props} />,
-                h3: ({ ...props }) => <h3 className="text-base font-bold text-[#031e25] uppercase mt-5 mb-2 border-l-2 border-[#d97706] pl-2" {...props} />,
-                p: ({ ...props }) => <p className="text-slate-700 text-sm md:text-base leading-relaxed font-light mb-4" {...props} />,
-                strong: ({ ...props }) => <strong className="font-bold text-gray-900" {...props} />,
-                ul: ({ ...props }) => <ul className="list-disc pl-5 space-y-1.5 mb-4 text-slate-700 text-sm font-light" {...props} />,
-                ol: ({ ...props }) => <ol className="list-decimal pl-5 space-y-1.5 mb-4 text-slate-700 text-sm font-light" {...props} />,
-                blockquote: ({ ...props }) => <blockquote className="border-l-4 border-amber-400 bg-amber-50/40 pl-4 py-2 my-4 italic text-slate-600 text-sm" {...props} />,
-              }}
-            >
-              {dbProduct.description_detail}
-            </ReactMarkdown>
-          </div>
+          {/* Render HTML từ TipTap (không phải Markdown) */}
+          <div
+            className="prose prose-slate max-w-none text-sm md:text-base [&>h2]:text-xl [&>h2]:font-black [&>h2]:text-gray-900 [&>h2]:uppercase [&>h2]:tracking-tight [&>h2]:mt-8 [&>h2]:mb-3 [&>h3]:text-base [&>h3]:font-bold [&>h3]:text-[#031e25] [&>h3]:uppercase [&>h3]:mt-5 [&>h3]:mb-2 [&>h3]:border-l-2 [&>h3]:border-[#d97706] [&>h3]:pl-2 [&>p]:text-slate-700 [&>p]:text-sm [&>p]:leading-relaxed [&>p]:font-light [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:space-y-1.5 [&>ul]:mb-4 [&>ul]:text-slate-700 [&>ul]:text-sm [&>ul]:font-light [&>ol]:list-decimal [&>ol]:pl-5 [&>ol]:space-y-1.5 [&>ol]:mb-4 [&>ol]:text-slate-700 [&>ol]:text-sm [&>ol]:font-light [&>blockquote]:border-l-4 [&>blockquote]:border-amber-400 [&>blockquote]:bg-amber-50/40 [&>blockquote]:pl-4 [&>blockquote]:py-2 [&>blockquote]:my-4 [&>blockquote]:italic [&>blockquote]:text-slate-600 [&>blockquote]:text-sm [&_img]:w-full [&_img]:rounded-xl [&_img]:my-5 [&_img]:shadow-sm"
+            dangerouslySetInnerHTML={{ __html: dbProduct.description_detail }}
+          />
         </section>
       )}
     </div>

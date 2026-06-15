@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { motion } from 'motion/react';
 import { Plus, Trash2, X, ShieldAlert, Pencil, Image as ImageIcon, Loader2 } from 'lucide-react';
+
+const ContentEditorPanel = dynamic(() => import('@/components/features/ContentEditorPanel'), { ssr: false });
 import { Product } from '@/types/product.types';
 
 interface ProductManagerTabProps {
@@ -538,39 +541,22 @@ export default function ProductManagerTab({
                 </p>
               </div>
 
-              {/* Canonical URL */}
-              <div className="space-y-1.5 bg-gray-50 border border-gray-200 rounded-lg p-3">
-                <label className="block text-[10px] font-black uppercase text-gray-500 font-mono">
-                  🔗 Canonical URL tùy chỉnh
-                </label>
-                <input
-                  type="url"
-                  value={editProductData.canonical_url ?? ''}
-                  onChange={(e) => setEditProductData({ ...editProductData, canonical_url: e.target.value || null })}
-                  placeholder="https://haisancc.vn/san-pham/ten-san-pham"
-                  className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-2.5 text-[10px] font-mono focus:outline-none focus:ring-1 focus:ring-gray-400 text-gray-600"
-                />
-                <p className="text-[10px] text-gray-400 font-mono m-0">
-                  Để trống = tự canonical về chính trang này (khuyến nghị)
-                </p>
-              </div>
-
-              {/* Mô tả chi tiết (Markdown) */}
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-black uppercase text-gray-400 font-mono">
-                  📝 Mô tả chi tiết sản phẩm (Markdown)
-                </label>
-                <textarea
-                  value={editProductData.description_detail ?? ''}
-                  onChange={(e) => setEditProductData({ ...editProductData, description_detail: e.target.value || null })}
-                  placeholder={`## Giới Thiệu Sản Phẩm\n\nViết nội dung chi tiết về sản phẩm...`}
-                  rows={8}
-                  className="w-full bg-gray-50 border border-gray-300 rounded-lg p-3 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-[#031e25] text-[#0a0a0a] resize-y"
-                />
-                <p className="text-[9px] text-gray-400 font-mono m-0">
-                  Hỗ trợ Markdown: **in đậm**, ## Tiêu đề, * danh sách — Hiển thị phía dưới trang sản phẩm
-                </p>
-              </div>
+              {/* Canonical URL + description_detail + SEO — dùng ContentEditorPanel dùng chung */}
+              <ContentEditorPanel
+                mode="product"
+                compact
+                content={editProductData.description_detail ?? ''}
+                onContentChange={(val) => setEditProductData({ ...editProductData, description_detail: val || null })}
+                focusKeyword={editProductData.focus_keyword ?? ''}
+                onFocusKeywordChange={(val) => setEditProductData({ ...editProductData, focus_keyword: val || null })}
+                metaDescription={editProductData.meta_description ?? ''}
+                onMetaDescriptionChange={(val) => setEditProductData({ ...editProductData, meta_description: val || null })}
+                canonicalUrl={editProductData.canonical_url ?? ''}
+                onCanonicalUrlChange={(val) => setEditProductData({ ...editProductData, canonical_url: val || null })}
+                title={editProductData.name ?? ''}
+                slug={editProductData.slug ?? ''}
+                serpUrlPrefix="haisancc.vn/san-pham/"
+              />
 
               {/* Upload ảnh */}
               <div className="space-y-2 bg-blue-50/50 border border-blue-100 rounded-lg p-3">
