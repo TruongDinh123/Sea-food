@@ -1,122 +1,60 @@
-# Kế hoạch Tạo Bucket 'blogs' chế độ Public trên Supabase Storage
+# Kế hoạch Tích hợp Trình Soạn Thảo WYSIWYG TipTap cho Blog Content
 
-Kế hoạch này thực hiện tạo bucket `blogs` ở chế độ Public trên Supabase Storage bằng cách tạo một tệp SQL migration mới. Tệp này sẽ thêm bản ghi tương ứng vào bảng `storage.buckets` và thiết lập các chính sách RLS cần thiết để hỗ trợ đọc/ghi ảnh bìa của bài viết blog.
+Kế hoạch này thực hiện thay thế Textarea Markdown hiện tại bằng trình soạn thảo trực quan **TipTap Editor** trong trang quản trị viết bài (`BlogEditor`). TipTap sẽ cung cấp trải nghiệm soạn thảo giống như Microsoft Word hay Google Docs cho người dùng phổ thông, đồng thời tự động chuyển đổi dữ liệu soạn thảo thành định dạng **Markdown** trước khi lưu vào Database, đảm bảo giữ nguyên cấu trúc dữ liệu Backend hiện tại.
 
 ---
 
 ## User Review Required
 
 > [!IMPORTANT]
-> **Các thay đổi về Cơ sở dữ liệu và Storage:**
-> 1. Tạo tệp migration mới `db/migrations/010_create_blogs_storage_bucket.sql`.
-> 2. Thực thi SQL chèn cấu hình bucket `blogs` với chế độ Public (`public = true`) và dung lượng tối đa 5MB.
-> 3. Thiết lập chính sách bảo mật Row Level Security (RLS) cho phép:
->    - Mọi người đọc ảnh công khai (`SELECT`).
->    - Quyền đăng tải (`INSERT`), sửa đổi (`UPDATE`), xóa (`DELETE`) các tệp trong bucket `blogs`.
-> 4. Chạy lệnh migration để cập nhật database lên Supabase production thông qua lệnh `npm run db:migrate`.
-
----
-
-## Open Questions
-
-> [!NOTE]
-> * Không có câu hỏi nào cần trả lời thêm. Chúng tôi sẽ tiến hành thực hiện ngay sau khi bạn đồng ý (click nút **Proceed**).
+> **Các thư viện sẽ được cài đặt:**
+> Chúng ta sẽ cài đặt thêm các npm packages phục vụ cho Rich Text Editor:
+> * `@tiptap/react` & `@tiptap/core`: Thư viện cốt lõi của TipTap dành cho React.
+> * `@tiptap/starter-kit`: Bộ công cụ cơ bản (Bold, Italic, Ordered List, Bullet List, Heading H2/H3/H4, Paragraph, Blockquote, Undo/Redo).
+> * `tiptap-markdown`: Plugin tự động chuyển đổi Rich Text thành Markdown khi xuất ra và ngược lại khi load vào.
+> * `@tiptap/extension-link`: Hỗ trợ thêm/sửa liên kết (Hyperlink) trực quan.
+> * `@tiptap/extension-image`: Hỗ trợ chèn và quản lý hình ảnh trong bài viết.
+> * `@tiptap/extension-placeholder`: Hiển thị văn bản gợi ý (placeholder) khi nội dung trống.
+>
+> **Tương thích SSR (Server-Side Rendering):**
+> TipTap truy cập trực tiếp vào đối tượng `window` và `document` của trình duyệt. Do đó, component `TipTapEditor` sẽ được bọc và load động qua `next/dynamic` với tùy chọn `{ ssr: false }` để tránh lỗi biên dịch phía server.
 
 ---
 
 ## Proposed Changes
 
-### Database Migrations
+### 1. Thành phần UI mới (Components)
 
-#### [NEW] [010_create_blogs_storage_bucket.sql](file:///e:/Web-Seo/db/migrations/010_create_blogs_storage_bucket.sql)
+#### [NEW] [TipTapEditor.tsx](file:///e:/Web-Seo/src/components/ui/TipTapEditor.tsx)
+Tạo component trình soạn thảo Rich Text tái sử dụng với các chức năng chính:
+* Thanh công cụ (Toolbar) được thiết kế theo **Design System** (Teal / Amber tones, các nút bấm có tooltip, micro-animations mượt mà).
+* Hỗ trợ gõ Rich Text và tự động emit dữ liệu Markdown qua callback `onChange`.
+* Tích hợp hộp thoại chèn link nhanh và tích hợp trực tiếp với API upload ảnh hiện tại của dự án để tải ảnh lên Supabase Storage và chèn vào vùng soạn thảo.
 
-Tạo file migration mới với nội dung SQL như sau:
+### 2. Sửa đổi Giao diện Viết Bài (Features)
 
-```sql
--- Up
--- Đảm bảo schema storage và table buckets tồn tại (phòng trường hợp chạy local test sạch)
-CREATE SCHEMA IF NOT EXISTS storage;
-
--- Đảm bảo bảng storage.buckets tồn tại
-CREATE TABLE IF NOT EXISTS storage.buckets (
-    id text PRIMARY KEY,
-    name text NOT NULL,
-    owner uuid,
-    created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now(),
-    public boolean DEFAULT false,
-    avif_autofit boolean DEFAULT false,
-    file_size_limit bigint,
-    allowed_mime_types text[]
-);
-
--- Đảm bảo bảng storage.objects tồn tại
-CREATE TABLE IF NOT EXISTS storage.objects (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    bucket_id text REFERENCES storage.buckets(id),
-    name text,
-    owner uuid,
-    created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now(),
-    last_accessed_at timestamp with time zone DEFAULT now(),
-    metadata jsonb,
-    path_tokens text[] GENERATED ALWAYS AS (string_to_array(name, '/'::text)) STORED
-);
-
--- Thêm bucket blogs vào table buckets nếu chưa tồn tại
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES (
-    'blogs', 
-    'blogs', 
-    true, 
-    5242880, -- Giới hạn 5MB
-    ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-)
-ON CONFLICT (id) DO NOTHING;
-
--- Cho phép đọc công khai (public read access) cho tệp trong bucket blogs
-DROP POLICY IF EXISTS "Public Access to blogs bucket" ON storage.objects;
-CREATE POLICY "Public Access to blogs bucket"
-ON storage.objects FOR SELECT
-USING (bucket_id = 'blogs');
-
--- Cho phép tất cả người dùng (authenticated/anon/service_role) upload lên bucket blogs
-DROP POLICY IF EXISTS "Upload Access to blogs bucket" ON storage.objects;
-CREATE POLICY "Upload Access to blogs bucket"
-ON storage.objects FOR INSERT
-WITH CHECK (bucket_id = 'blogs');
-
--- Cho phép update/delete tệp trong bucket blogs
-DROP POLICY IF EXISTS "Update Access to blogs bucket" ON storage.objects;
-CREATE POLICY "Update Access to blogs bucket"
-ON storage.objects FOR UPDATE
-USING (bucket_id = 'blogs');
-
-DROP POLICY IF EXISTS "Delete Access to blogs bucket" ON storage.objects;
-CREATE POLICY "Delete Access to blogs bucket"
-ON storage.objects FOR DELETE
-USING (bucket_id = 'blogs');
-
--- Down
-DROP POLICY IF EXISTS "Public Access to blogs bucket" ON storage.objects;
-DROP POLICY IF EXISTS "Upload Access to blogs bucket" ON storage.objects;
-DROP POLICY IF EXISTS "Update Access to blogs bucket" ON storage.objects;
-DROP POLICY IF EXISTS "Delete Access to blogs bucket" ON storage.objects;
-DELETE FROM storage.buckets WHERE id = 'blogs';
-```
+#### [MODIFY] [BlogEditor.tsx](file:///e:/Web-Seo/src/components/features/BlogEditor.tsx)
+* Import component `TipTapEditor` bằng cơ chế Dynamic Import:
+  ```typescript
+  const TipTapEditor = dynamic(() => import('../ui/TipTapEditor'), { ssr: false });
+  ```
+* Thay thế thẻ `<textarea id="content" ...>` cũ bằng `<TipTapEditor value={content} onChange={setContent} />`.
+* Đồng bộ cơ chế upload ảnh trực tiếp: Khi kéo thả hoặc chọn ảnh từ toolbar của TipTap, editor sẽ tự động gọi API `/api/blogs/upload` để upload lên Supabase Storage và chèn ảnh vào văn bản dưới định dạng Markdown image.
 
 ---
 
 ## Verification Plan
 
 ### Automated Tests
-
-- Chạy lệnh `npm run type-check` và `npm run lint` để kiểm tra mã nguồn TypeScript.
-- Thực hiện chạy migration bằng cách đề xuất lệnh:
-  `npm run db:migrate`
-- Kiểm tra tính đúng đắn của việc tải lên bằng API bằng cách kiểm tra phản hồi từ upload API.
+* Chạy `npm run type-check` để đảm bảo không lỗi kiểu dữ liệu mới.
+* Chạy `npm run lint` kiểm tra chuẩn mã nguồn.
+* Chạy `npx vitest run` đảm bảo các unit test hiện có cho `BlogService` vẫn pass 100%.
 
 ### Manual Verification
-
-- Sử dụng trang quản trị admin để đăng tải/cập nhật ảnh bìa của một bài viết.
-- Xác nhận ảnh được upload thành công lên Supabase Storage và hiển thị chính xác trên giao diện blog.
+1. Mở trang quản trị tạo/sửa bài viết Blog.
+2. Kiểm tra giao diện thanh công cụ soạn thảo của TipTap xem có hoạt động đúng không:
+   * Bôi đen chữ và chọn Bold (Ctrl+B), Italic (Ctrl+I).
+   * Chọn Heading 2, Heading 3 và kiểm tra xem khi lưu vào DB có xuất ra đúng định dạng `##` và `###` không.
+   * Tạo danh sách (Bullet/Ordered List) và trích dẫn (Blockquote).
+3. Sử dụng chức năng **Chèn ảnh**: tải một ảnh từ máy tính lên, đảm bảo ảnh hiển thị ngay lập tức trong vùng soạn thảo TipTap và link ảnh trỏ về CDN Supabase Storage.
+4. Nhấn **Lưu bài viết** và mở trang bài viết ngoài Public để xem nội dung có hiển thị chuẩn xác, bao gồm cả mục lục TOC tự động cập nhật từ các Heading.

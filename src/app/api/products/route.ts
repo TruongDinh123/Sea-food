@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Không được phép truy cập' }, { status: 403 });
     }
 
-    const { name, slug, price, original_price, category, description, meta_description, image_url } = await request.json();
+    const { name, slug, price, original_price, category, description, meta_description, focus_keyword, description_detail, image_url } = await request.json();
 
     // Validations
     if (!name || name.trim() === '') {
@@ -55,6 +55,8 @@ export async function POST(request: Request) {
       category: category || null,
       description: description.trim(),
       meta_description: meta_description ? meta_description.trim() : null,
+      focus_keyword: focus_keyword ? focus_keyword.trim() : null,
+      description_detail: description_detail ? description_detail.trim() : null,
       image_url: image_url ? image_url.trim() : null,
       is_auto_listed: true,
     });

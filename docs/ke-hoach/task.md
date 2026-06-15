@@ -1,6 +1,8 @@
-# Task List: Tạo Bucket 'blogs' trên Supabase Storage
+# Task List: Tích hợp TipTap Editor cho Blog Content
 
-- [x] Tạo file migration `db/migrations/010_create_blogs_storage_bucket.sql`
-- [x] Chạy migration bằng lệnh `npm run db:migrate`
-- [x] Kiểm tra type và lint bằng `npm run type-check` và `npm run lint`
-- [x] Xác minh kết quả và cập nhật walkthrough.md
+- [x] Cài đặt các thư viện TipTap và các plugin bổ trợ
+- [x] Thiết kế và tạo component `src/components/ui/TipTapEditor.tsx`
+- [x] Cập nhật `src/components/features/BlogEditor.tsx` để tích hợp `TipTapEditor`
+- [x] Kiểm tra type check (`npm run type-check`) và linter (`npm run lint`)
+- [x] Chạy unit tests (`npx vitest run`) để đảm bảo hệ thống ổn định
+- [x] Thực hiện kiểm thử thủ công chức năng viết bài và cập nhật walkthrough

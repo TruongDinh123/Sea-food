@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import {
   ChevronLeft, Eye, EyeOff,
-  Heading2, Heading3, Bold, Italic,
-  List, ListOrdered, Quote, Link2, ImageIcon,
-  Minus, Check,
+  Check,
 } from 'lucide-react';
 import type { Blog } from '@/types/blog.types';
+
+const TipTapEditor = dynamic(() => import('../ui/TipTapEditor'), { ssr: false });
 
 // ─── Kiểu dữ liệu save ────────────────────────────────────────────────────────
 export interface BlogSaveData {
@@ -223,10 +224,6 @@ export default function BlogEditor({
   const [coverMode, setCoverMode] = useState<'upload' | 'url'>('upload');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
-  const [isUploadingContent, setIsUploadingContent] = useState(false);
-
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const contentImageInputRef = useRef<HTMLInputElement>(null);
 
   // ─── Computed ──────────────────────────────────────────────────────────────
   const wordCount = useMemo(
@@ -278,42 +275,6 @@ export default function BlogEditor({
     }
   };
 
-  // Chèn markdown vào vị trí con trỏ
-  const insertWrap = useCallback(
-    (before: string, after = '', placeholder = 'text') => {
-      const ta = textareaRef.current;
-      if (!ta) return;
-      const start = ta.selectionStart;
-      const end = ta.selectionEnd;
-      const selected = content.slice(start, end) || placeholder;
-      const next =
-        content.slice(0, start) + before + selected + after + content.slice(end);
-      setContent(next);
-      setTimeout(() => {
-        ta.focus();
-        ta.setSelectionRange(start + before.length, start + before.length + selected.length);
-      }, 0);
-    },
-    [content]
-  );
-
-  // Chèn prefix đầu dòng
-  const insertPrefix = useCallback(
-    (prefix: string) => {
-      const ta = textareaRef.current;
-      if (!ta) return;
-      const start = ta.selectionStart;
-      const lineStart = content.lastIndexOf('\n', start - 1) + 1;
-      const next = content.slice(0, lineStart) + prefix + content.slice(lineStart);
-      setContent(next);
-      setTimeout(() => {
-        ta.focus();
-        ta.setSelectionRange(start + prefix.length, start + prefix.length);
-      }, 0);
-    },
-    [content]
-  );
-
   const handleSubmit = async () => {
     await onSave({
       title,
@@ -327,39 +288,6 @@ export default function BlogEditor({
       canonical_url: canonicalUrl.trim() || null,
     });
   };
-
-  // Upload ảnh vào nội dung markdown (chèn tại vị trí cursor)
-  const handleContentImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setIsUploadingContent(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-      const res = await fetch('/api/blogs/upload', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (res.ok && data.url) {
-        // Chèn markdown tại vị trí cursor hiện tại
-        const ta = textareaRef.current;
-        const altText = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
-        const mdImg = `![${altText}](${data.url})`;
-        if (ta) {
-          const start = ta.selectionStart;
-          const next = content.slice(0, start) + '\n' + mdImg + '\n' + content.slice(start);
-          setContent(next);
-          setTimeout(() => { ta.focus(); ta.setSelectionRange(start + mdImg.length + 2, start + mdImg.length + 2); }, 0);
-        } else {
-          setContent((c) => c + '\n' + mdImg + '\n');
-        }
-      }
-    } catch (err) {
-      console.error('Upload content image error:', err);
-    } finally {
-      setIsUploadingContent(false);
-      // Reset input để có thể upload lại cùng file
-      if (contentImageInputRef.current) contentImageInputRef.current.value = '';
-    }
-  }, [content]);
 
   // ─── Màu sắc cảnh báo ký tự ───────────────────────────────────────────────
   const titleCharColor =
@@ -763,131 +691,8 @@ export default function BlogEditor({
           style={{ minWidth: 0 }}
         >
           {/* Markdown Toolbar */}
-          <div className="flex items-center gap-0.5 px-3 py-2 border-b border-gray-200 bg-white shrink-0 flex-wrap">
-            <button
-              onClick={() => insertPrefix('## ')}
-              title="Tiêu đề H2"
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer border-0 bg-transparent shrink-0"
-            >
-              <Heading2 className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertPrefix('### ')}
-              title="Tiêu đề H3"
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer border-0 bg-transparent shrink-0"
-            >
-              <Heading3 className="w-3.5 h-3.5" />
-            </button>
-            
-            <div className="w-px h-4 bg-gray-200 mx-1 shrink-0" />
-            
-            <button
-              onClick={() => insertWrap('**', '**', 'in đậm')}
-              title="In đậm"
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer border-0 bg-transparent shrink-0"
-            >
-              <Bold className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertWrap('*', '*', 'in nghiêng')}
-              title="In nghiêng"
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer border-0 bg-transparent shrink-0"
-            >
-              <Italic className="w-3.5 h-3.5" />
-            </button>
-            
-            <div className="w-px h-4 bg-gray-200 mx-1 shrink-0" />
-            
-            <button
-              onClick={() => insertPrefix('* ')}
-              title="Danh sách đầu dòng"
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer border-0 bg-transparent shrink-0"
-            >
-              <List className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertPrefix('1. ')}
-              title="Danh sách đánh số"
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer border-0 bg-transparent shrink-0"
-            >
-              <ListOrdered className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertPrefix('> ')}
-              title="Trích dẫn"
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer border-0 bg-transparent shrink-0"
-            >
-              <Quote className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setContent((c) => c + '\n\n---\n\n')}
-              title="Đường kẻ ngang"
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer border-0 bg-transparent shrink-0"
-            >
-              <Minus className="w-3.5 h-3.5" />
-            </button>
-            
-            <div className="w-px h-4 bg-gray-200 mx-1 shrink-0" />
-            
-            <button
-              onClick={() => insertWrap('[', '](https://)', 'tên liên kết')}
-              title="Chèn liên kết"
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer border-0 bg-transparent shrink-0"
-            >
-              <Link2 className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertWrap('![', '](https://)', 'mô tả ảnh')}
-              title="Chèn hình ảnh qua URL"
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer border-0 bg-transparent shrink-0"
-            >
-              <ImageIcon className="w-3.5 h-3.5" />
-            </button>
-
-            {/* Nút upload ảnh vào nội dung */}
-            <div className="relative shrink-0">
-              <input
-                ref={contentImageInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleContentImageUpload}
-                disabled={isUploadingContent}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                title="Upload ảnh vào nội dung"
-              />
-              <div
-                className={`p-1.5 rounded border-0 bg-transparent shrink-0 flex items-center gap-1 ${
-                  isUploadingContent
-                    ? 'text-[#d97706] animate-pulse'
-                    : 'hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer'
-                }`}
-                title="Upload ảnh vào nội dung"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                </svg>
-              </div>
-            </div>
-
-            <span className="ml-auto text-[9px] text-gray-400 font-mono uppercase tracking-wider shrink-0">
-              Markdown
-            </span>
-          </div>
-
-          {/* Textarea */}
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder={`## Bắt đầu viết bài...\n\nSử dụng ## cho tiêu đề H2, ### cho H3\n**in đậm**, *in nghiêng*\n* danh sách\n> trích dẫn`}
-            className="flex-1 p-5 text-sm font-mono text-[#0a0a0a] bg-white resize-none focus:outline-none leading-relaxed min-h-0"
-          />
-
-          {/* Footer hint */}
-          <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 flex items-center gap-3 shrink-0">
-            <span className="text-[9px] text-gray-400 font-mono">
-              ## H2 &nbsp;•&nbsp; **bold** &nbsp;•&nbsp; *italic* &nbsp;•&nbsp; * list &nbsp;•&nbsp; &gt; quote &nbsp;•&nbsp; [link](url)
-            </span>
+          <div className="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col min-h-0">
+            <TipTapEditor value={content} onChange={setContent} />
           </div>
         </div>
 
