@@ -31,7 +31,7 @@ export async function PUT(
       return NextResponse.json({ error: 'ID bài viết không hợp lệ' }, { status: 400 });
     }
 
-    const { title, slug, content, meta_description, is_published, cover_image_url, publish_date } = await request.json();
+    const { title, slug, content, meta_description, is_published, cover_image_url, publish_date, focus_keyword, canonical_url } = await request.json();
 
     if (!title || !slug || !content) {
       return NextResponse.json({ error: 'Tiêu đề, slug và nội dung không được để trống' }, { status: 400 });
@@ -45,6 +45,8 @@ export async function PUT(
       is_published: !!is_published,
       cover_image_url: cover_image_url ? cover_image_url.trim() : null,
       publish_date: publish_date ? new Date(publish_date) : null,
+      focus_keyword: focus_keyword ? focus_keyword.trim() : null,
+      canonical_url: canonical_url ? canonical_url.trim() : null,
     });
 
     return NextResponse.json({ success: true, blog });

@@ -22,11 +22,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Trang tĩnh quan trọng
   const staticUrls: MetadataRoute.Sitemap = [
-    { url: baseUrl, lastModified: new Date('2026-05-30'), priority: 1.0, changeFrequency: 'daily' },
-    { url: `${baseUrl}/san-pham`, lastModified: new Date('2026-05-30'), priority: 0.9, changeFrequency: 'daily' },
-    { url: `${baseUrl}/thuong-lai`, lastModified: new Date('2026-05-30'), priority: 0.8, changeFrequency: 'weekly' },
-    { url: `${baseUrl}/blog`, lastModified: new Date('2026-05-30'), priority: 0.8, changeFrequency: 'weekly' },
-    { url: `${baseUrl}/ve-chung-toi`, lastModified: new Date('2026-05-30'), priority: 0.5, changeFrequency: 'monthly' },
+    { url: baseUrl, lastModified: new Date(), priority: 1.0, changeFrequency: 'daily' },
+    { url: `${baseUrl}/san-pham`, lastModified: new Date(), priority: 0.9, changeFrequency: 'daily' },
+    { url: `${baseUrl}/thuong-lai`, lastModified: new Date(), priority: 0.8, changeFrequency: 'weekly' },
+    { url: `${baseUrl}/blog`, lastModified: new Date(), priority: 0.8, changeFrequency: 'weekly' },
+    { url: `${baseUrl}/ve-chung-toi`, lastModified: new Date(), priority: 0.5, changeFrequency: 'monthly' },
   ];
 
   // Trang danh mục sản phẩm — Pyramid Level 2

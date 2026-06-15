@@ -18,6 +18,8 @@ export interface BlogSaveData {
   cover_image_url: string | null;
   is_published: boolean;
   publish_date: Date | null;
+  focus_keyword: string | null;
+  canonical_url: string | null;
 }
 
 // ─── Markdown renderer đơn giản (không cần thư viện) ─────────────────────────
@@ -209,8 +211,9 @@ export default function BlogEditor({
       : ''
   );
 
-  // Trường SEO extra (lưu local để tính score, không persist DB)
-  const [focusKeyword, setFocusKeyword] = useState('');
+  // Trường SEO — lưu vào DB
+  const [focusKeyword, setFocusKeyword] = useState(blog?.focus_keyword ?? '');
+  const [canonicalUrl, setCanonicalUrl] = useState(blog?.canonical_url ?? '');
   const [author, setAuthor] = useState('');
 
   // UI state
@@ -220,8 +223,10 @@ export default function BlogEditor({
   const [coverMode, setCoverMode] = useState<'upload' | 'url'>('upload');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [isUploadingContent, setIsUploadingContent] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const contentImageInputRef = useRef<HTMLInputElement>(null);
 
   // ─── Computed ──────────────────────────────────────────────────────────────
   const wordCount = useMemo(
@@ -318,8 +323,43 @@ export default function BlogEditor({
       cover_image_url: coverImage.trim() || null,
       is_published: isPublished,
       publish_date: publishDate ? new Date(publishDate) : null,
+      focus_keyword: focusKeyword.trim() || null,
+      canonical_url: canonicalUrl.trim() || null,
     });
   };
+
+  // Upload ảnh vào nội dung markdown (chèn tại vị trí cursor)
+  const handleContentImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingContent(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/blogs/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        // Chèn markdown tại vị trí cursor hiện tại
+        const ta = textareaRef.current;
+        const altText = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+        const mdImg = `![${altText}](${data.url})`;
+        if (ta) {
+          const start = ta.selectionStart;
+          const next = content.slice(0, start) + '\n' + mdImg + '\n' + content.slice(start);
+          setContent(next);
+          setTimeout(() => { ta.focus(); ta.setSelectionRange(start + mdImg.length + 2, start + mdImg.length + 2); }, 0);
+        } else {
+          setContent((c) => c + '\n' + mdImg + '\n');
+        }
+      }
+    } catch (err) {
+      console.error('Upload content image error:', err);
+    } finally {
+      setIsUploadingContent(false);
+      // Reset input để có thể upload lại cùng file
+      if (contentImageInputRef.current) contentImageInputRef.current.value = '';
+    }
+  }, [content]);
 
   // ─── Màu sắc cảnh báo ký tự ───────────────────────────────────────────────
   const titleCharColor =
@@ -518,7 +558,7 @@ export default function BlogEditor({
             {/* Focus Keyword */}
             <div>
               <label className="block text-[10px] font-black uppercase tracking-wider text-gray-500 font-mono mb-1.5">
-                Từ khóa SEO chính
+                Từ khóa SEO chính (Focus Keyword)
               </label>
               <input
                 type="text"
@@ -528,7 +568,24 @@ export default function BlogEditor({
                 className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#031e25]"
               />
               <p className="text-[9px] text-gray-400 mt-1 font-mono">
-                Dùng để tính SEO Score (không lưu vào database)
+                Dùng để tính SEO Score và được lưu vào cơ sở dữ liệu
+              </p>
+            </div>
+
+            {/* Canonical URL */}
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-wider text-gray-500 font-mono mb-1.5">
+                Canonical URL tùy chỉnh
+              </label>
+              <input
+                type="url"
+                value={canonicalUrl}
+                onChange={(e) => setCanonicalUrl(e.target.value)}
+                placeholder="https://haisancc.vn/blog/slug-chinh-xac"
+                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-[10px] font-mono focus:outline-none focus:ring-1 focus:ring-[#031e25] text-gray-600"
+              />
+              <p className="text-[9px] text-gray-400 mt-1 font-mono">
+                Để trống = tự canonical về chính trang này (khuyến nghị)
               </p>
             </div>
 
@@ -781,11 +838,36 @@ export default function BlogEditor({
             </button>
             <button
               onClick={() => insertWrap('![', '](https://)', 'mô tả ảnh')}
-              title="Chèn hình ảnh"
+              title="Chèn hình ảnh qua URL"
               className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer border-0 bg-transparent shrink-0"
             >
               <ImageIcon className="w-3.5 h-3.5" />
             </button>
+
+            {/* Nút upload ảnh vào nội dung */}
+            <div className="relative shrink-0">
+              <input
+                ref={contentImageInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleContentImageUpload}
+                disabled={isUploadingContent}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                title="Upload ảnh vào nội dung"
+              />
+              <div
+                className={`p-1.5 rounded border-0 bg-transparent shrink-0 flex items-center gap-1 ${
+                  isUploadingContent
+                    ? 'text-[#d97706] animate-pulse'
+                    : 'hover:bg-gray-100 text-gray-500 hover:text-[#031e25] transition cursor-pointer'
+                }`}
+                title="Upload ảnh vào nội dung"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+              </div>
+            </div>
 
             <span className="ml-auto text-[9px] text-gray-400 font-mono uppercase tracking-wider shrink-0">
               Markdown

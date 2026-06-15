@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { merchantService, productService } from "@/lib/services";
+import { productService } from "@/lib/services";
+import { getAllActiveMerchants } from "@/lib/utils/cached-queries";
 import { enrichProduct, enrichMerchant } from "@/lib/utils/enrichment";
 import { slugify } from "@/app/sitemap";
 import MerchantProfileClient from "./MerchantProfileClient";
@@ -14,7 +15,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const resolvedParams = await params;
   const { slug } = resolvedParams;
 
-  const merchants = await merchantService.getAllActiveMerchants();
+  // Cached — không gửi duplicate request với page component
+  const merchants = await getAllActiveMerchants();
   const rawMerchant = merchants.find((m) => slugify(m.name) === slug);
 
   if (!rawMerchant) {
@@ -54,7 +56,8 @@ export default async function MerchantDetailPage({ params }: PageProps) {
   const resolvedParams = await params;
   const { slug } = resolvedParams;
 
-  const merchants = await merchantService.getAllActiveMerchants();
+  // Cached — không gửi request mới nếu đã có trong generateMetadata
+  const merchants = await getAllActiveMerchants();
   const rawMerchant = merchants.find((m) => slugify(m.name) === slug);
 
   if (!rawMerchant) {

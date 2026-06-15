@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Không được phép truy cập' }, { status: 403 });
     }
 
-    const { title, slug, content, meta_description, is_published, cover_image_url, publish_date } = await request.json();
+    const { title, slug, content, meta_description, is_published, cover_image_url, publish_date, focus_keyword, canonical_url } = await request.json();
 
     if (!title || !slug || !content) {
       return NextResponse.json({ error: 'Tiêu đề, slug và nội dung không được để trống' }, { status: 400 });
@@ -35,6 +35,8 @@ export async function POST(request: Request) {
       is_published: !!is_published,
       cover_image_url: cover_image_url ? cover_image_url.trim() : null,
       publish_date: publish_date ? new Date(publish_date) : (is_published ? new Date() : null),
+      focus_keyword: focus_keyword ? focus_keyword.trim() : null,
+      canonical_url: canonical_url ? canonical_url.trim() : null,
     });
 
     return NextResponse.json({ success: true, blog });

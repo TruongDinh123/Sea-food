@@ -3,7 +3,7 @@ import Link from "next/link";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
 export const metadata: Metadata = {
-  title: "Về Chúng Tôi - Hải Sản Cao Cấp",
+  title: "Về Chúng Tôi — Hải Sản Cao Cấp Cà Mau",
   description: "Tìm hiểu về sứ mệnh kết nối thương lái hải sản khô Cà Mau và người tiêu dùng của Hải Sản Cao Cấp Marketplace.",
   alternates: {
     canonical: "/ve-chung-toi",
@@ -17,7 +17,7 @@ export default function AboutUsPage() {
 
       <article className="bg-[var(--color-white)] p-card-padding rounded-cards border border-[var(--color-canvas)] shadow-sm space-y-6">
         <h1 className="text-3xl font-extrabold text-[var(--color-deepwater)] tracking-tight">
-          Về Chúng Tôi
+          Về Chúng Tôi — Hải Sản Cao Cấp Cà Mau
         </h1>
 
         <p className="text-sm leading-relaxed text-[var(--color-ink)]/90">

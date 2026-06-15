@@ -134,6 +134,30 @@ describe('ProductService', () => {
       });
     });
 
+    it('should create successfully with SEO fields (focus_keyword, canonical_url, description_detail)', async () => {
+      const input = {
+        merchant_id: 1,
+        name: 'Tôm Khô Cà Mau',
+        slug: 'tom-kho-ca-mau',
+        price: 500000,
+        specific_commission_rate: 10,
+        focus_keyword: 'tôm khô',
+        canonical_url: 'https://seafood.vn/tom-kho',
+        description_detail: 'Mô tả chi tiết...',
+      };
+
+      mockMerchantRepo.findById.mockResolvedValue({ id: 1, is_active: true });
+      mockProductRepo.findBySlug.mockResolvedValue(null);
+      mockProductRepo.create.mockResolvedValue({ id: 10, ...input });
+
+      const result = await service.createProduct(input);
+      expect(result.id).toBe(10);
+      expect(result.focus_keyword).toBe('tôm khô');
+      expect(result.canonical_url).toBe('https://seafood.vn/tom-kho');
+      expect(result.description_detail).toBe('Mô tả chi tiết...');
+      expect(mockProductRepo.create).toHaveBeenCalledWith(input);
+    });
+
     it('should throw error when name is empty', async () => {
       await expect(service.createProduct({ merchant_id: 1, name: ' ', slug: 'tom', price: 100 }))
         .rejects.toThrow('Tên sản phẩm không được để trống');
@@ -197,6 +221,32 @@ describe('ProductService', () => {
 
       const result = await service.updateProduct(10, { price: 600000 });
       expect(result.price).toBe(600000);
+    });
+
+    it('should update SEO fields successfully', async () => {
+      const product = { id: 10, merchant_id: 1, name: 'Tôm Khô', slug: 'tom-kho', price: 500000 };
+      mockProductRepo.findById.mockResolvedValue(product);
+      mockProductRepo.findBySlug.mockResolvedValue(null);
+      mockProductRepo.update.mockResolvedValue({ 
+        ...product, 
+        focus_keyword: 'tôm khô', 
+        canonical_url: 'https://seafood.vn/tom-kho',
+        description_detail: 'Mô tả chi tiết...'
+      });
+
+      const result = await service.updateProduct(10, { 
+        focus_keyword: 'tôm khô', 
+        canonical_url: 'https://seafood.vn/tom-kho',
+        description_detail: 'Mô tả chi tiết...'
+      });
+      expect(result.focus_keyword).toBe('tôm khô');
+      expect(result.canonical_url).toBe('https://seafood.vn/tom-kho');
+      expect(result.description_detail).toBe('Mô tả chi tiết...');
+      expect(mockProductRepo.update).toHaveBeenCalledWith(10, { 
+        focus_keyword: 'tôm khô', 
+        canonical_url: 'https://seafood.vn/tom-kho',
+        description_detail: 'Mô tả chi tiết...'
+      });
     });
 
     it('should throw error when updating non-existent product', async () => {

@@ -39,7 +39,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    const { name, slug, price, original_price, category, description, meta_description, image_url } = body;
+    const { name, slug, price, original_price, category, description, meta_description, image_url, focus_keyword, canonical_url, description_detail } = body;
 
     // Validations
     if (name !== undefined && (!name || name.trim() === '')) {
@@ -75,6 +75,9 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     if (description !== undefined) updateInput.description = description.trim();
     if (meta_description !== undefined) updateInput.meta_description = meta_description ? meta_description.trim() : null;
     if (image_url !== undefined) updateInput.image_url = image_url ? image_url.trim() : null;
+    if (focus_keyword !== undefined) updateInput.focus_keyword = focus_keyword ? focus_keyword.trim() : null;
+    if (canonical_url !== undefined) updateInput.canonical_url = canonical_url ? canonical_url.trim() : null;
+    if (description_detail !== undefined) updateInput.description_detail = description_detail || null;
 
     const product = await productService.updateProduct(id, updateInput);
 
